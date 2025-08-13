@@ -1,102 +1,66 @@
+<!-- FILE: admin.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Vinca Gym</title>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
     <style>
-        /* Dark Theme from main page */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        .btn-primary {
-            background-color: #ffffff;
-            color: #121212;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: #dcdcdc;
-        }
-        .card {
-            background: #242424;
-            border-radius: 1rem;
-            border: 1px solid #333333;
-        }
-        input[type="password"] {
-            background-color: #333;
-            border: 1px solid #555;
-            color: white;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
+        .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { background-color: #dcdcdc; }
+        .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; }
+        input[type="password"] { background-color: #333; border: 1px solid #555; color: white; }
     </style>
 </head>
 <body class="antialiased">
-
     <!-- Login Section -->
     <div id="login-section" class="min-h-screen flex items-center justify-center bg-black">
         <div class="card p-8 w-full max-w-sm">
             <h1 class="text-2xl font-bold text-center text-white mb-2">Vinca Gym</h1>
             <h2 class="text-xl font-semibold text-center text-white mb-6">Admin Panel</h2>
             <form id="login-form">
-                <div class="mb-4">
-                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Masukkan Kata Sandi</label>
-                    <input type="password" id="password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required>
-                </div>
+                <div class="mb-4"><label for="password" class="block text-sm font-medium text-gray-300 mb-2">Masukkan Kata Sandi</label><input type="password" id="password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
                 <p id="login-error" class="text-red-400 text-sm mb-4 hidden">Kata sandi salah.</p>
                 <button type="submit" class="w-full btn-primary py-2 rounded-md">Masuk</button>
             </form>
         </div>
     </div>
-
     <!-- Admin Dashboard (Hidden by default) -->
     <div id="admin-dashboard" class="hidden">
         <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-white">Dashboard Reservasi</h1>
-                <button id="export-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2">
-                    <i class="ph ph-download-simple"></i>
-                    Unduh Data (CSV)
-                </button>
+                <button id="export-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data (CSV)</button>
             </div>
         </header>
-
-        <main class="container mx-auto px-6 py-8">
-            <div id="dashboard-content" class="space-y-8">
-                <!-- Data will be loaded here -->
-                <p id="loading-text">Memuat data reservasi...</p>
-            </div>
-        </main>
+        <main class="container mx-auto px-6 py-8"><div id="dashboard-content" class="space-y-8"><p id="loading-text">Memuat data reservasi...</p></div></main>
     </div>
-
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // --- CONFIGURATION ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "vinca-gym-dark-theme", storageBucket: "YOUR_STORAGE_BUCKET", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vinca-gym-prod-dark';
-        const ADMIN_PASSWORD = "vincaadmin2025"; // Kata sandi sederhana
+        
+        // --- KONFIGURASI FIREBASE SUDAH DIMASUKKAN ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ",
+            authDomain: "vinca-gym-website.firebaseapp.com",
+            projectId: "vinca-gym-website",
+            storageBucket: "vinca-gym-website.firebasestorage.app",
+            messagingSenderId: "430179505282",
+            appId: "1:430179505282:web:e7128a258fb64cebcb109b",
+            measurementId: "G-5KVHK8RPK9"
+        };
+        const ADMIN_PASSWORD = "vincaadmin2025";
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
         // --- ELEMENTS ---
         const loginSection = document.getElementById('login-section');
@@ -106,8 +70,6 @@
         const loginError = document.getElementById('login-error');
         const dashboardContent = document.getElementById('dashboard-content');
         const exportBtn = document.getElementById('export-btn');
-        const loadingText = document.getElementById('loading-text');
-
         let allReservationsData = [];
         
         // --- LOGIN LOGIC ---
@@ -116,33 +78,11 @@
             if (passwordInput.value === ADMIN_PASSWORD) {
                 loginSection.classList.add('hidden');
                 adminDashboard.classList.remove('hidden');
-                authenticateAndLoadData();
+                loadReservationData();
             } else {
                 loginError.classList.remove('hidden');
             }
         });
-
-        // --- FIREBASE AUTH & DATA LOADING ---
-        function authenticateAndLoadData() {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    console.log("Admin authenticated with UID:", user.uid);
-                    loadReservationData();
-                } else {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Authentication failed:", error);
-                        loadingText.textContent = "Gagal melakukan autentikasi. Coba lagi.";
-                        loadingText.classList.add('text-red-500');
-                    }
-                }
-            });
-        }
 
         async function loadReservationData() {
             const SESSIONS = [
@@ -151,93 +91,44 @@
                 { id: 'sesi_1300', time: '13:00 - 14:00' }, { id: 'sesi_1400', time: '14:00 - 15:00' },
                 { id: 'sesi_1500', time: '15:00 - 16:00' },
             ];
-            
-            const collectionName = `artifacts/${appId}/public/data/reservations`;
-            
+            const COLLECTION_NAME = "reservations";
             try {
-                const querySnapshot = await getDocs(collection(db, collectionName));
+                const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
                 const reservations = {};
-                querySnapshot.forEach(doc => {
-                    reservations[doc.id] = doc.data();
-                });
-                
-                allReservationsData = []; // Clear previous data
-                dashboardContent.innerHTML = ''; // Clear loading text
-                
+                querySnapshot.forEach(doc => { reservations[doc.id] = doc.data(); });
+                allReservationsData = [];
+                dashboardContent.innerHTML = '';
                 SESSIONS.forEach(session => {
                     const sessionData = reservations[session.id] || { attendees: [], count: 0 };
                     const attendees = sessionData.attendees;
-                    allReservationsData.push({ session, attendees }); // Store for CSV export
-
+                    allReservationsData.push({ session, attendees });
                     const sessionCard = document.createElement('div');
                     sessionCard.className = 'card p-6';
-                    
-                    let tableRows = '';
-                    if (attendees.length > 0) {
-                        attendees.forEach((attendee, index) => {
-                            tableRows += `
-                                <tr class="border-b border-gray-700">
-                                    <td class="py-2 px-4">${index + 1}</td>
-                                    <td class="py-2 px-4">${attendee.name}</td>
-                                    <td class="py-2 px-4">${attendee.phone}</td>
-                                </tr>
-                            `;
-                        });
-                    } else {
-                        tableRows = `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
-                    }
-
-                    sessionCard.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-4">Sesi ${session.time} (${sessionData.count} / 10)</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-gray-700/50">
-                                    <tr>
-                                        <th class="py-2 px-4 w-16">No.</th>
-                                        <th class="py-2 px-4">Nama Lengkap</th>
-                                        <th class="py-2 px-4">No. WhatsApp</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${tableRows}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
+                    let tableRows = attendees.length > 0 ? attendees.map((attendee, index) => `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name}</td><td class="py-2 px-4">${attendee.phone}</td></tr>`).join('') : `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
+                    sessionCard.innerHTML = `<h3 class="text-xl font-bold text-white mb-4">Sesi ${session.time} (${sessionData.count} / 10)</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4 w-16">No.</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">No. WhatsApp</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
                     dashboardContent.appendChild(sessionCard);
                 });
-
             } catch (error) {
                 console.error("Error loading data: ", error);
-                dashboardContent.innerHTML = `<p class="text-red-500">Gagal memuat data. Pastikan Anda memiliki koneksi internet dan coba lagi.</p>`;
+                dashboardContent.innerHTML = `<p class="text-red-500">Gagal memuat data. Pastikan konfigurasi Firebase Anda benar.</p>`;
             }
         }
 
-        // --- CSV EXPORT LOGIC ---
         function exportToCsv(filename, data) {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Sesi,Nama,Nomor WhatsApp\r\n"; // Header
-
+            let csvContent = "data:text/csv;charset=utf-8,Sesi,Nama,Nomor WhatsApp\r\n";
             data.forEach(item => {
-                const sessionTime = item.session.time;
                 item.attendees.forEach(attendee => {
-                    csvContent += `${sessionTime},"${attendee.name}","${attendee.phone}"\r\n`;
+                    csvContent += `${item.session.time},"${attendee.name}","${attendee.phone}"\r\n`;
                 });
             });
-
-            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", filename);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
-
-        exportBtn.addEventListener('click', () => {
-            exportToCsv('vinca_gym_reservasi.csv', allReservationsData);
-        });
-
+        exportBtn.addEventListener('click', () => { exportToCsv('vinca_gym_reservasi.csv', allReservationsData); });
     </script>
 </body>
 </html>
