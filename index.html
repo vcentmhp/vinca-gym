@@ -17,7 +17,8 @@
         .btn-primary:hover { background-color: #dcdcdc; transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(255, 255, 255, 0.15); }
         .countdown-box { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-5px); border-color: #555555; box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3); }
+        .card-link { display: block; text-decoration: none; color: inherit; }
+        .card-link:hover .card { transform: translateY(-5px); border-color: #555555; box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3); }
     </style>
 </head>
 <body class="antialiased">
@@ -25,7 +26,6 @@
     <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="flex items-center gap-3 text-2xl font-bold primary-color">
-                <!-- Logo Gambar dari URL -->
                 <img src="https://i.imgur.com/upiRXbW.png" alt="Vinca Gym Logo" class="h-10 w-auto">
                 <span>Vinca Gym</span>
             </a>
@@ -34,7 +34,7 @@
                 <a href="#reservasi" class="text-gray-300 hover:primary-color transition-colors">Reservasi</a>
                 <a href="#lokasi" class="text-gray-300 hover:primary-color transition-colors">Lokasi</a>
                 <a href="admin.html" class="text-gray-300 hover:primary-color transition-colors">Admin</a>
-                <a href="#reservasi" class="btn-primary px-6 py-2 rounded-full">Daftar Sekarang</a>
+                <a href="#harga" class="btn-primary px-6 py-2 rounded-full">Daftar Sekarang</a>
             </div>
             <div class="md:hidden"><button id="menu-btn" class="text-white focus:outline-none"><i class="ph ph-list text-3xl"></i></button></div>
         </nav>
@@ -48,7 +48,7 @@
     <!-- Main Content -->
     <main>
         <!-- Hero Section -->
-        <section class="relative h-[90vh] min-h-[600px] flex items-center justify-center text-white text-center px-6" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://i.imgur.com/upiRXbW.jpeg') no-repeat center center/cover;">
+        <section class="relative h-[90vh] min-h-[600px] flex items-center justify-center text-white text-center px-6" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2670&auto=format&fit=crop') no-repeat center center/cover;">
             <div class="z-10">
                 <h1 class="text-4xl md:text-6xl font-bold tracking-tight">Grand Opening Vinca Gym</h1>
                 <p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-gray-200">Gym khusus muslimah dengan fasilitas lengkap dan suasana nyaman. Ikuti sesi coba gratis pada <strong>17 Agustus 2025!</strong></p>
@@ -61,12 +61,22 @@
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold primary-color">Paket Membership</h2><p class="mt-2 text-gray-400">Pilih paket yang paling sesuai untuk Anda.</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Non-clickable cards -->
                     <div class="card p-8 text-center"><h3 class="text-xl font-bold">New Membership</h3><p class="text-4xl font-bold my-4 primary-color">50.000</p><p class="text-gray-400">Registrasi Awal</p></div>
                     <div class="card p-8 text-center"><h3 class="text-xl font-bold">Per Visit</h3><p class="text-4xl font-bold my-4 primary-color">25.000</p><p class="text-gray-400">Kunjungan per Sesi</p></div>
-                    <div class="card p-8 text-center ring-2 ring-white relative"><span class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-sm font-semibold">Populer</span><h3 class="text-xl font-bold">Regular</h3><p class="text-4xl font-bold my-4 primary-color">200.000</p><p class="text-gray-400">Membership 1 Bulan</p></div>
-                    <div class="card p-8 text-center"><h3 class="text-xl font-bold">Silver</h3><p class="text-4xl font-bold my-4 primary-color">525.000</p><p class="text-gray-400">Membership 3 Bulan</p></div>
-                    <div class="card p-8 text-center"><h3 class="text-xl font-bold">Gold</h3><p class="text-4xl font-bold my-4 primary-color">900.000</p><p class="text-gray-400">Membership 6 Bulan</p></div>
-                    <div class="card p-8 text-center"><h3 class="text-xl font-bold">Platinum</h3><p class="text-4xl font-bold my-4 primary-color">1.200.000</p><p class="text-gray-400">Membership 1 Tahun</p></div>
+                    <!-- Clickable cards -->
+                    <a href="daftar.html?paket=regular" class="card-link">
+                        <div class="card p-8 text-center h-full ring-2 ring-white relative"><span class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-sm font-semibold">Populer</span><h3 class="text-xl font-bold">Regular</h3><p class="text-4xl font-bold my-4 primary-color">200.000</p><p class="text-gray-400">Membership 1 Bulan</p></div>
+                    </a>
+                    <a href="daftar.html?paket=silver" class="card-link">
+                        <div class="card p-8 text-center h-full"><h3 class="text-xl font-bold">Silver</h3><p class="text-4xl font-bold my-4 primary-color">525.000</p><p class="text-gray-400">Membership 3 Bulan</p></div>
+                    </a>
+                    <a href="daftar.html?paket=gold" class="card-link">
+                        <div class="card p-8 text-center h-full"><h3 class="text-xl font-bold">Gold</h3><p class="text-4xl font-bold my-4 primary-color">900.000</p><p class="text-gray-400">Membership 6 Bulan</p></div>
+                    </a>
+                    <a href="daftar.html?paket=platinum" class="card-link">
+                        <div class="card p-8 text-center h-full"><h3 class="text-xl font-bold">Platinum</h3><p class="text-4xl font-bold my-4 primary-color">1.200.000</p><p class="text-gray-400">Membership 1 Tahun</p></div>
+                    </a>
                 </div>
                 <div class="mt-12 text-center bg-gray-800/50 p-6 rounded-lg border border-gray-700 max-w-3xl mx-auto"><h4 class="font-bold text-lg text-white">Catatan Penting:</h4><ul class="mt-2 text-gray-300 list-inside"><li><i class="ph ph-check-circle text-green-400 mr-2"></i>Jika off selama 3 bulan maka wajib melakukan registrasi member baru.</li><li><i class="ph ph-x-circle text-red-400 mr-2"></i>Member tidak dapat digantikan dengan orang lain.</li></ul></div>
             </div>
@@ -84,93 +94,49 @@
         <!-- Location Section -->
         <section id="lokasi" class="py-20 bg-secondary">
             <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div><h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2><p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p><div class="mt-8 space-y-4"><div class="flex items-start"><i class="ph ph-map-pin-line text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Alamat</h4><p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p></div></div><div class="flex items-start"><i class="ph ph-whatsapp-logo text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Reservasi & Informasi</h4><p class="text-gray-300">0857 8291 9391 (Vinca Gym)</p></div></div></div></div>
+                <div><h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2><p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p><div class="mt-8 space-y-4"><div class="flex items-start"><i class="ph ph-map-pin-line text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Alamat</h4><p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p></div></div><div class="flex items-start"><i class="ph ph-whatsapp-logo text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Reservasi & Informasi</h4><p class="text-gray-300"><a href="https://wa.me/6285782919391" target="_blank" class="hover:underline">0857 8291 9391 (Vinca Gym)</a></p></div></div></div></div>
                 <div class="rounded-lg overflow-hidden shadow-lg h-96 border-2 border-gray-700"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.344158498877!2d106.7080983152794!3d-6.349681995404419!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e5f5f5f5f5f5%3A0x8a6f6e3a4d4b4a4d!2sJl.%20Bratasena%20IX%2C%20Pd.%20Benda%2C%20Kec.%20Pamulang%2C%20Kota%20Tangerang%20Selatan%2C%20Banten!5e0!3m2!1sen!2sid!4v1662882100000!5m2!1sen!2sid" width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
             </div>
         </section>
     </main>
     <!-- Footer -->
     <footer class="bg-black py-8 border-t border-gray-800"><div class="container mx-auto px-6 text-center"><p class="text-gray-300">&copy; 2025 Vinca Gym. All Rights Reserved.</p><p class="text-sm text-gray-500 mt-2">Didesain khusus untuk para muslimah.</p></div></footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/6285782919391" target="_blank" class="fixed bottom-8 right-8 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-110 z-50">
+        <i class="ph ph-whatsapp-logo text-3xl"></i>
+    </a>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, doc, getDoc, runTransaction, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        // --- KONFIGURASI FIREBASE SUDAH DIMASUKKAN ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ",
-            authDomain: "vinca-gym-website.firebaseapp.com",
-            projectId: "vinca-gym-website",
-            storageBucket: "vinca-gym-website.firebasestorage.app",
-            messagingSenderId: "430179505282",
-            appId: "1:430179505282:web:e7128a258fb64cebcb109b",
-            measurementId: "G-5KVHK8RPK9"
-        };
-
-        // Initialize Firebase
+        const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
-        // --- AUTHENTICATION ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                initializeReservations();
-            } else {
-                signInAnonymously(auth).catch(error => {
-                    console.error("Authentication failed:", error);
-                    sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal melakukan autentikasi ke server. Pastikan kunci API Firebase sudah benar.</p>`;
-                });
-            }
-        });
-
-        // --- CONSTANTS & ELEMENTS ---
-        const SESSIONS = [
-            { id: 'sesi_0900', time: '09:00 - 10:00' }, { id: 'sesi_1000', time: '10:00 - 11:00' },
-            { id: 'sesi_1100', time: '11:00 - 12:00' }, { id: 'sesi_1200', time: '12:00 - 13:00' },
-            { id: 'sesi_1300', time: '13:00 - 14:00' }, { id: 'sesi_1400', time: '14:00 - 15:00' },
-            { id: 'sesi_1500', time: '15:00 - 16:00' },
-        ];
+        onAuthStateChanged(auth, (user) => { if (user) { initializeReservations(); } else { signInAnonymously(auth).catch(error => { console.error("Authentication failed:", error); sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal autentikasi.</p>`; }); } });
+        const SESSIONS = [ { id: 'sesi_0900', time: '09:00 - 10:00' }, { id: 'sesi_1000', time: '10:00 - 11:00' }, { id: 'sesi_1100', time: '11:00 - 12:00' }, { id: 'sesi_1200', time: '12:00 - 13:00' }, { id: 'sesi_1300', time: '13:00 - 14:00' }, { id: 'sesi_1400', time: '14:00 - 15:00' }, { id: 'sesi_1500', time: '15:00 - 16:00' }, ];
         const MAX_SLOTS = 10;
         const COLLECTION_NAME = "reservations"; 
-
         const sessionsContainer = document.getElementById('sessions-container');
         const modal = document.getElementById('reservation-modal');
         const closeModalBtn = document.getElementById('close-modal');
         const reservationForm = document.getElementById('reservation-form');
         const successModal = document.getElementById('success-modal');
         const closeSuccessModalBtn = document.getElementById('close-success-modal');
-
-        // --- FUNCTIONS ---
         async function initializeReservations() {
             try {
-                // **FIXED LOGIC**: Check if documents exist before creating them.
                 for (const session of SESSIONS) {
                     const docRef = doc(db, COLLECTION_NAME, session.id);
                     const docSnap = await getDoc(docRef);
-                    if (!docSnap.exists()) {
-                        // Only create the document if it's truly missing.
-                        await setDoc(docRef, { count: 0, attendees: [] });
-                    }
+                    if (!docSnap.exists()) { await setDoc(docRef, { count: 0, attendees: [] }); }
                 }
-
-                // Now, attach the real-time listener.
                 const collectionRef = collection(db, COLLECTION_NAME);
-                onSnapshot(collectionRef, (snapshot) => {
-                    const reservations = {};
-                    snapshot.docs.forEach(doc => { reservations[doc.id] = doc.data(); });
-                    renderSessions(reservations);
-                }, (error) => {
-                    console.error("Error listening to data:", error);
-                    sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal memuat data. Silakan muat ulang.</p>`;
-                });
-            } catch (e) {
-                console.error("Initialization failed:", e);
-                sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal inisialisasi database.</p>`;
-            }
+                onSnapshot(collectionRef, (snapshot) => { const reservations = {}; snapshot.docs.forEach(doc => { reservations[doc.id] = doc.data(); }); renderSessions(reservations); }, (error) => { console.error("Error listening to data:", error); sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal memuat data.</p>`; });
+            } catch (e) { console.error("Initialization failed:", e); sessionsContainer.innerHTML = `<p class="text-red-400 col-span-full text-center">Gagal inisialisasi database.</p>`; }
         }
-
         function renderSessions(reservations) {
             sessionsContainer.innerHTML = '';
             SESSIONS.forEach(session => {
@@ -186,13 +152,11 @@
             });
             document.querySelectorAll('.select-session-btn').forEach(button => { button.addEventListener('click', handleSessionSelect); });
         }
-
         function handleSessionSelect(event) {
             document.getElementById('modal-session-time').textContent = event.target.dataset.sessionTime;
             document.getElementById('session-id-input').value = event.target.dataset.sessionId;
             modal.classList.remove('hidden');
         }
-
         async function handleReservationSubmit(event) {
             event.preventDefault();
             const submitButton = document.getElementById('submit-reservation');
@@ -201,59 +165,39 @@
             submitButton.disabled = true;
             submitText.classList.add('hidden');
             submitSpinner.classList.remove('hidden');
-
             const sessionId = document.getElementById('session-id-input').value;
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             if (!name || !phone) { alert("Nama dan Nomor WhatsApp tidak boleh kosong."); resetSubmitButton(); return; }
-            
             const sessionDocRef = doc(db, COLLECTION_NAME, sessionId);
-            
             try {
                 await runTransaction(db, async (transaction) => {
                     const sessionDoc = await transaction.get(sessionDocRef);
-                    if (!sessionDoc.exists()) {
-                        throw "Sesi tidak ditemukan!";
-                    }
+                    if (!sessionDoc.exists()) { throw "Sesi tidak ditemukan!"; }
                     const data = sessionDoc.data();
-                    if (data.count >= MAX_SLOTS) {
-                        throw "Maaf, slot untuk sesi ini sudah penuh.";
-                    }
+                    if (data.count >= MAX_SLOTS) { throw "Maaf, slot untuk sesi ini sudah penuh."; }
                     const newCount = (data.count || 0) + 1;
                     const newAttendees = [...(data.attendees || []), { name, phone, timestamp: new Date() }];
-                    transaction.update(sessionDocRef, { 
-                        count: newCount,
-                        attendees: newAttendees 
-                    });
+                    transaction.update(sessionDocRef, { count: newCount, attendees: newAttendees });
                 });
-                
                 document.getElementById('success-name').textContent = name;
                 document.getElementById('success-session').textContent = document.getElementById('modal-session-time').textContent;
                 modal.classList.add('hidden');
                 successModal.classList.remove('hidden');
                 reservationForm.reset();
-
-            } catch (e) {
-                console.error("Reservasi GAGAL. Error:", e);
-                alert("Gagal melakukan reservasi. " + e.toString());
-            } finally {
-                resetSubmitButton();
-            }
+            } catch (e) { console.error("Reservasi GAGAL. Error:", e); alert("Gagal melakukan reservasi. " + e.toString()); } finally { resetSubmitButton(); }
         }
-        
         function resetSubmitButton() {
             const submitButton = document.getElementById('submit-reservation');
             submitButton.disabled = false;
             document.getElementById('submit-text').classList.remove('hidden');
             document.getElementById('submit-spinner').classList.add('hidden');
         }
-
         closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
         reservationForm.addEventListener('submit', handleReservationSubmit);
         closeSuccessModalBtn.addEventListener('click', () => successModal.classList.add('hidden'));
         window.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); if (e.target === successModal) successModal.classList.add('hidden'); });
         document.getElementById('menu-btn').addEventListener('click', () => { document.getElementById('mobile-menu').classList.toggle('hidden'); });
-        
         const countdownElement = document.getElementById('countdown');
         const countdownDate = new Date("2025-08-17T09:00:00").getTime();
         const updateCountdown = setInterval(() => {
@@ -273,4 +217,3 @@
     </script>
 </body>
 </html>
-
