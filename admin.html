@@ -20,11 +20,12 @@
 <body class="antialiased">
     <!-- Login Section -->
     <div id="login-section" class="min-h-screen flex items-center justify-center bg-black">
-        <div class="card p-8 w-full max-w-sm">
+        <div class="card p-8 w-full max-w-sm text-center">
+            <img src="https://i.imgur.com/upiRXbW.png" alt="Vinca Gym Logo" class="h-20 w-auto mx-auto mb-4">
             <h1 class="text-2xl font-bold text-center text-white mb-2">Vinca Gym</h1>
             <h2 class="text-xl font-semibold text-center text-white mb-6">Admin Panel</h2>
             <form id="login-form">
-                <div class="mb-4"><label for="password" class="block text-sm font-medium text-gray-300 mb-2">Masukkan Kata Sandi</label><input type="password" id="password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
+                <div class="mb-4"><label for="password" class="block text-sm font-medium text-gray-300 mb-2">Masukkan Kata Sandi</label><input type="password" id="password" autocomplete="current-password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
                 <p id="login-error" class="text-red-400 text-sm mb-4 hidden">Kata sandi salah.</p>
                 <button type="submit" class="w-full btn-primary py-2 rounded-md">Masuk</button>
             </form>
@@ -34,96 +35,126 @@
     <div id="admin-dashboard" class="hidden">
         <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-white">Dashboard Reservasi</h1>
-                <button id="export-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data (CSV)</button>
+                <h1 class="text-2xl font-bold text-white">Dashboard Admin</h1>
             </div>
         </header>
-        <main class="container mx-auto px-6 py-8"><div id="dashboard-content" class="space-y-8"><p id="loading-text">Memuat data reservasi...</p></div></main>
+        <main class="container mx-auto px-6 py-8">
+            <!-- Pendaftaran Member Section -->
+            <section id="pendaftaran-member" class="mb-12">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
+                    <button id="export-member-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member</button>
+                </div>
+                <div id="member-content" class="card p-6">
+                    <p>Memuat data pendaftar...</p>
+                </div>
+            </section>
+            <!-- Reservasi Grand Opening Section -->
+            <section id="reservasi-grand-opening">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">Reservasi Grand Opening</h2>
+                    <button id="export-reservasi-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Reservasi</button>
+                </div>
+                <div id="reservasi-content" class="space-y-8">
+                    <p>Memuat data reservasi...</p>
+                </div>
+            </section>
+        </main>
     </div>
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // --- KONFIGURASI FIREBASE SUDAH DIMASUKKAN ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ",
-            authDomain: "vinca-gym-website.firebaseapp.com",
-            projectId: "vinca-gym-website",
-            storageBucket: "vinca-gym-website.firebasestorage.app",
-            messagingSenderId: "430179505282",
-            appId: "1:430179505282:web:e7128a258fb64cebcb109b",
-            measurementId: "G-5KVHK8RPK9"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
         const ADMIN_PASSWORD = "vincaadmin2025";
-
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // --- ELEMENTS ---
         const loginSection = document.getElementById('login-section');
         const adminDashboard = document.getElementById('admin-dashboard');
         const loginForm = document.getElementById('login-form');
         const passwordInput = document.getElementById('password');
         const loginError = document.getElementById('login-error');
-        const dashboardContent = document.getElementById('dashboard-content');
-        const exportBtn = document.getElementById('export-btn');
-        let allReservationsData = [];
+        const memberContent = document.getElementById('member-content');
+        const reservasiContent = document.getElementById('reservasi-content');
+        const exportMemberBtn = document.getElementById('export-member-btn');
+        const exportReservasiBtn = document.getElementById('export-reservasi-btn');
+        let allMemberData = [];
+        let allReservasiData = [];
         
-        // --- LOGIN LOGIC ---
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (passwordInput.value === ADMIN_PASSWORD) {
                 loginSection.classList.add('hidden');
                 adminDashboard.classList.remove('hidden');
-                loadReservationData();
+                loadAllData();
             } else {
                 loginError.classList.remove('hidden');
             }
         });
 
-        async function loadReservationData() {
-            const SESSIONS = [
-                { id: 'sesi_0900', time: '09:00 - 10:00' }, { id: 'sesi_1000', time: '10:00 - 11:00' },
-                { id: 'sesi_1100', time: '11:00 - 12:00' }, { id: 'sesi_1200', time: '12:00 - 13:00' },
-                { id: 'sesi_1300', time: '13:00 - 14:00' }, { id: 'sesi_1400', time: '14:00 - 15:00' },
-                { id: 'sesi_1500', time: '15:00 - 16:00' },
-            ];
-            const COLLECTION_NAME = "reservations";
-            try {
-                const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-                const reservations = {};
-                querySnapshot.forEach(doc => {
-                    reservations[doc.id] = doc.data();
-                });
+        function loadAllData() {
+            loadMemberData();
+            loadReservasiData();
+        }
 
-                allReservationsData = [];
-                dashboardContent.innerHTML = '';
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        async function loadMemberData() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
+                allMemberData = querySnapshot.docs.map(doc => doc.data());
                 
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">Kode</th><th class="py-2 px-4">Nama</th><th class="py-2 px-4">WhatsApp</th><th class="py-2 px-4">Email</th><th class="py-2 px-4">Alamat</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Total Bayar</th></tr></thead><tbody>`;
+                if (allMemberData.length > 0) {
+                    allMemberData.sort((a, b) => a.kodePendaftaran.localeCompare(b.kodePendaftaran)); // Urutkan berdasarkan kode
+                    allMemberData.forEach(member => {
+                        tableHtml += `<tr class="border-b border-gray-700"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${member.whatsapp}</td><td class="py-2 px-4">${member.email}</td><td class="py-2 px-4">${member.alamat}</td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td></tr>`;
+                    });
+                } else {
+                    tableHtml += `<tr><td colspan="7" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
+                }
+                tableHtml += `</tbody></table></div>`;
+                memberContent.innerHTML = tableHtml;
+            } catch (error) {
+                console.error("Error loading member data: ", error);
+                memberContent.innerHTML = `<p class="text-red-500">Gagal memuat data pendaftar.</p>`;
+            }
+        }
+
+        async function loadReservasiData() {
+            const SESSIONS = [ { id: 'sesi_0900', time: '09:00 - 10:00' }, { id: 'sesi_1000', time: '10:00 - 11:00' }, { id: 'sesi_1100', time: '11:00 - 12:00' }, { id: 'sesi_1200', time: '12:00 - 13:00' }, { id: 'sesi_1300', time: '13:00 - 14:00' }, { id: 'sesi_1400', time: '14:00 - 15:00' }, { id: 'sesi_1500', time: '15:00 - 16:00' }, ];
+            try {
+                const querySnapshot = await getDocs(collection(db, "reservations"));
+                const reservations = {};
+                querySnapshot.forEach(doc => { reservations[doc.id] = doc.data(); });
+                allReservasiData = [];
+                reservasiContent.innerHTML = '';
                 SESSIONS.forEach(session => {
                     const sessionData = reservations[session.id] || { attendees: [], count: 0 };
                     const attendees = sessionData.attendees || [];
-                    allReservationsData.push({ session, attendees });
-
+                    allReservasiData.push({ session, attendees });
                     const sessionCard = document.createElement('div');
                     sessionCard.className = 'card p-6';
                     let tableRows = attendees.length > 0 ? attendees.map((attendee, index) => `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name}</td><td class="py-2 px-4">${attendee.phone}</td></tr>`).join('') : `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
                     sessionCard.innerHTML = `<h3 class="text-xl font-bold text-white mb-4">Sesi ${session.time} (${sessionData.count} / 10)</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4 w-16">No.</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">No. WhatsApp</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
-                    dashboardContent.appendChild(sessionCard);
+                    reservasiContent.appendChild(sessionCard);
                 });
             } catch (error) {
-                console.error("Error loading data: ", error);
-                dashboardContent.innerHTML = `<p class="text-red-500">Gagal memuat data. Pastikan konfigurasi Firebase Anda benar.</p>`;
+                console.error("Error loading reservation data: ", error);
+                reservasiContent.innerHTML = `<p class="text-red-500">Gagal memuat data reservasi.</p>`;
             }
         }
 
-        function exportToCsv(filename, data) {
-            let csvContent = "data:text/csv;charset=utf-8,Sesi,Nama,Nomor WhatsApp\r\n";
+        function exportToCsv(filename, headers, data) {
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\r\n";
             data.forEach(item => {
-                item.attendees.forEach(attendee => {
-                    csvContent += `${item.session.time},"${attendee.name}","${attendee.phone}"\r\n`;
+                const row = headers.map(header => {
+                    const key = header.replace(/\s+/g, '').toLowerCase();
+                    return JSON.stringify(item[key] || '');
                 });
+                csvContent += row.join(',') + "\r\n";
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csvContent));
@@ -132,7 +163,31 @@
             link.click();
             document.body.removeChild(link);
         }
-        exportBtn.addEventListener('click', () => { exportToCsv('vinca_gym_reservasi.csv', allReservationsData); });
+
+        exportMemberBtn.addEventListener('click', () => {
+            const headers = ['Kode Pendaftaran', 'Nama', 'WhatsApp', 'Email', 'Alamat', 'Paket', 'Total Bayar'];
+            const dataForExport = allMemberData.map(m => ({ 
+                kodependaftaran: m.kodePendaftaran,
+                nama: m.nama, 
+                whatsapp: m.whatsapp, 
+                email: m.email,
+                alamat: m.alamat,
+                paket: m.paket, 
+                totalbayar: m.totalBayar 
+            }));
+            exportToCsv('pendaftar_member.csv', headers, dataForExport);
+        });
+
+        exportReservasiBtn.addEventListener('click', () => {
+            const headers = ['Sesi', 'Nama', 'WhatsApp'];
+            const dataForExport = [];
+            allReservasiData.forEach(item => {
+                item.attendees.forEach(attendee => {
+                    dataForExport.push({ sesi: item.session.time, nama: attendee.name, whatsapp: attendee.phone });
+                });
+            });
+            exportToCsv('reservasi_grand_opening.csv', headers, dataForExport);
+        });
     </script>
 </body>
 </html>
