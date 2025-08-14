@@ -97,24 +97,25 @@
             loadReservasiData();
         }
 
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        }
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
+        function formatDate(timestamp) { return timestamp ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'; }
 
         async function loadMemberData() {
             try {
                 const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
                 allMemberData = querySnapshot.docs.map(doc => doc.data());
                 
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">Kode</th><th class="py-2 px-4">Nama</th><th class="py-2 px-4">WhatsApp</th><th class="py-2 px-4">Alamat</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Total Bayar</th><th class="py-2 px-4">Tanggal Daftar</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Tanggal Lahir</th><th class="py-2 px-4">Alamat Lengkap</th><th class="py-2 px-4">No. WhatsApp</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Mulai</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Total Bayar</th></tr></thead><tbody>`;
                 if (allMemberData.length > 0) {
-                    allMemberData.sort((a, b) => (b.tanggalDaftar.seconds || 0) - (a.tanggalDaftar.seconds || 0)); // Urutkan dari terbaru
+                    allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
                     allMemberData.forEach(member => {
-                        const tanggalDaftar = member.tanggalDaftar ? new Date(member.tanggalDaftar.seconds * 1000).toLocaleString('id-ID') : '-';
-                        tableHtml += `<tr class="border-b border-gray-700"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${member.whatsapp}</td><td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td><td class="py-2 px-4">${tanggalDaftar}</td></tr>`;
+                        const noWa = member.whatsapp.replace(/\D/g, '');
+                        const waLink = `https://wa.me/${noWa}`;
+                        const displayWa = `0${noWa.substring(2)}`;
+                        tableHtml += `<tr class="border-b border-gray-700 text-sm"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${formatDate(member.tanggalLahir)}</td><td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatDate(member.tanggalMulai)}</td><td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td></tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="7" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
+                    tableHtml += `<tr><td colspan="9" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 memberContent.innerHTML = tableHtml;
@@ -166,16 +167,17 @@
         }
 
         exportMemberBtn.addEventListener('click', () => {
-            const headers = ['Kode Pendaftaran', 'Nama', 'WhatsApp', 'Email', 'Alamat', 'Paket', 'Total Bayar', 'Tanggal Daftar'];
+            const headers = ['No. Member', 'Nama Lengkap', 'Tanggal Lahir', 'Alamat Lengkap', 'No. WhatsApp', 'Paket', 'Tanggal Mulai', 'Tanggal Selesai', 'Total Bayar'];
             const dataForExport = allMemberData.map(m => ({ 
-                kodependaftaran: m.kodePendaftaran,
-                nama: m.nama, 
-                whatsapp: m.whatsapp, 
-                email: m.email,
-                alamat: m.alamat,
+                nomember: m.kodePendaftaran,
+                namalengkap: m.nama, 
+                tanggallahir: formatDate(m.tanggalLahir),
+                alamatlengkap: m.alamat,
+                nowhatsapp: m.whatsapp, 
                 paket: m.paket, 
-                totalbayar: m.totalBayar,
-                tanggaldaftar: m.tanggalDaftar ? new Date(m.tanggalDaftar.seconds * 1000).toLocaleString('id-ID') : '-'
+                tanggalmulai: formatDate(m.tanggalMulai),
+                tanggalselesai: formatDate(m.tanggalSelesai),
+                totalbayar: m.totalBayar
             }));
             exportToCsv('pendaftar_member.csv', headers, dataForExport);
         });
