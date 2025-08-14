@@ -106,11 +106,12 @@
                 const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
                 allMemberData = querySnapshot.docs.map(doc => doc.data());
                 
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">Kode</th><th class="py-2 px-4">Nama</th><th class="py-2 px-4">WhatsApp</th><th class="py-2 px-4">Email</th><th class="py-2 px-4">Alamat</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Total Bayar</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">Kode</th><th class="py-2 px-4">Nama</th><th class="py-2 px-4">WhatsApp</th><th class="py-2 px-4">Alamat</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Total Bayar</th><th class="py-2 px-4">Tanggal Daftar</th></tr></thead><tbody>`;
                 if (allMemberData.length > 0) {
-                    allMemberData.sort((a, b) => a.kodePendaftaran.localeCompare(b.kodePendaftaran)); // Urutkan berdasarkan kode
+                    allMemberData.sort((a, b) => (b.tanggalDaftar.seconds || 0) - (a.tanggalDaftar.seconds || 0)); // Urutkan dari terbaru
                     allMemberData.forEach(member => {
-                        tableHtml += `<tr class="border-b border-gray-700"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${member.whatsapp}</td><td class="py-2 px-4">${member.email}</td><td class="py-2 px-4">${member.alamat}</td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td></tr>`;
+                        const tanggalDaftar = member.tanggalDaftar ? new Date(member.tanggalDaftar.seconds * 1000).toLocaleString('id-ID') : '-';
+                        tableHtml += `<tr class="border-b border-gray-700"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${member.whatsapp}</td><td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td><td class="py-2 px-4">${tanggalDaftar}</td></tr>`;
                     });
                 } else {
                     tableHtml += `<tr><td colspan="7" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
@@ -165,7 +166,7 @@
         }
 
         exportMemberBtn.addEventListener('click', () => {
-            const headers = ['Kode Pendaftaran', 'Nama', 'WhatsApp', 'Email', 'Alamat', 'Paket', 'Total Bayar'];
+            const headers = ['Kode Pendaftaran', 'Nama', 'WhatsApp', 'Email', 'Alamat', 'Paket', 'Total Bayar', 'Tanggal Daftar'];
             const dataForExport = allMemberData.map(m => ({ 
                 kodependaftaran: m.kodePendaftaran,
                 nama: m.nama, 
@@ -173,7 +174,8 @@
                 email: m.email,
                 alamat: m.alamat,
                 paket: m.paket, 
-                totalbayar: m.totalBayar 
+                totalbayar: m.totalBayar,
+                tanggaldaftar: m.tanggalDaftar ? new Date(m.tanggalDaftar.seconds * 1000).toLocaleString('id-ID') : '-'
             }));
             exportToCsv('pendaftar_member.csv', headers, dataForExport);
         });
