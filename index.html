@@ -35,11 +35,12 @@
                 <a href="#reservasi" class="text-gray-300 hover:primary-color transition-colors">Reservasi</a>
                 <a href="#lokasi" class="text-gray-300 hover:primary-color transition-colors">Lokasi</a>
                 <a href="admin.html" class="text-gray-300 hover:primary-color transition-colors">Admin</a>
-                <a href="#harga" class="btn-primary px-6 py-2 rounded-full">Daftar Sekarang</a>
+                <a href="#harga" class="btn-primary px-6 py-2 rounded-full">Daftar Membership</a>
             </div>
             <div class="md:hidden"><button id="menu-btn" class="text-white focus:outline-none"><i class="ph ph-list text-3xl"></i></button></div>
         </nav>
         <div id="mobile-menu" class="hidden md:hidden bg-black/90">
+            <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800 font-bold text-white">Daftar Membership</a>
             <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Harga</a>
             <a href="#reservasi" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Reservasi</a>
             <a href="#lokasi" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Lokasi</a>
@@ -88,26 +89,24 @@
                 <div class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-bold primary-color">Reservasi Sesi Grand Opening</h2><p class="mt-2 text-gray-400">Amankan slot gratis Anda pada 17 Agustus 2025. Terbatas!</p></div>
                 <div id="sessions-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"><div class="text-center p-4 col-span-full"><p class="text-lg">Menghubungkan ke server...</p><div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-white mx-auto mt-4"></div></div></div>
                 <!-- Modals -->
-                <div id="reservation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"><div class="bg-[#2a2a2a] rounded-lg p-8 m-4 max-w-md w-full card border-gray-700"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-white">Konfirmasi Reservasi</h3><button id="close-modal" class="text-gray-400 hover:text-white text-3xl">&times;</button></div><p class="mb-4 text-gray-300">Anda memilih sesi: <strong id="modal-session-time" class="text-white"></strong></p><form id="reservation-form"><input type="hidden" id="session-id-input"><div class="mb-4"><label for="name" class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap</label><input type="text" id="name" name="name" class="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-white" required></div><div class="mb-6"><label for="phone" class="block text-sm font-medium text-gray-300 mb-1">Nomor WhatsApp</label><input type="tel" id="phone" name="phone" class="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-white" required placeholder="Contoh: 081234567890"></div><button type="submit" id="submit-reservation" class="w-full btn-primary py-3 rounded-md flex items-center justify-center"><span id="submit-text">Konfirmasi Reservasi</span><div id="submit-spinner" class="w-5 h-5 border-2 border-black border-dashed rounded-full animate-spin hidden ml-2"></div></button></form></div></div>
+                <div id="reservation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"><div class="bg-[#2a2a2a] rounded-lg p-8 m-4 max-w-md w-full card border-gray-700"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-white">Konfirmasi Reservasi</h3><button id="close-modal" class="text-gray-400 hover:text-white text-3xl">&times;</button></div><p class="mb-4 text-gray-300">Anda memilih sesi: <strong id="modal-session-time" class="text-white"></strong></p><form id="reservation-form"><input type="hidden" id="session-id-input"><div class="mb-4"><label for="name" class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap</label><input type="text" id="name" name="name" class="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-white" required></div><div class="mb-6"><label for="phone" class="block text-sm font-medium text-gray-300 mb-1">No. WhatsApp</label><div class="flex"><span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-500 bg-gray-300 text-black text-sm font-semibold">+62</span><input type="tel" id="phone" class="w-full px-3 py-2 rounded-r-md bg-gray-300 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white" required placeholder="81234567890"></div></div><button type="submit" id="submit-reservation" class="w-full btn-primary py-3 rounded-md flex items-center justify-center"><span id="submit-text">Konfirmasi Reservasi</span><div id="submit-spinner" class="w-5 h-5 border-2 border-black border-dashed rounded-full animate-spin hidden ml-2"></div></button></form></div></div>
                 <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"><div class="bg-[#2a2a2a] rounded-lg p-8 m-4 max-w-md w-full text-center card border-gray-700"><div class="mx-auto bg-green-900/50 w-20 h-20 rounded-full flex items-center justify-center border border-green-500"><i class="ph ph-check-fat text-5xl text-green-400"></i></div><h3 class="text-2xl font-bold mt-6 text-white">Reservasi Berhasil!</h3><p class="text-gray-300 mt-2">Terima kasih <strong id="success-name" class="text-white"></strong>. Slot Anda untuk sesi <strong id="success-session" class="text-white"></strong> telah kami amankan.</p><p class="text-gray-400 mt-1">Sampai jumpa di Vinca Gym!</p><button id="close-success-modal" class="mt-6 w-full btn-primary py-2 rounded-md">Tutup</button></div></div>
             </div>
         </section>
         <!-- Location Section -->
         <section id="lokasi" class="py-20 bg-secondary">
             <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div><h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2><p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p><div class="mt-8 space-y-4"><div class="flex items-start"><i class="ph ph-map-pin-line text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Alamat</h4><p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p></div></div><div class="flex items-start"><i class="ph ph-whatsapp-logo text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Reservasi & Informasi</h4><p class="text-gray-300"><a href="https://wa.me/6285782919391" target="_blank" class="hover:underline">0857 8291 9391 (Vinca Gym)</a></p></div></div></div></div>
+                <div><h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2><p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p><div class="mt-8 space-y-4"><div class="flex items-start"><i class="ph ph-map-pin-line text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Alamat</h4><p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p></div></div><div class="flex items-start"><i class="ph ph-whatsapp-logo text-2xl text-white mt-1"></i><div class="ml-4"><h4 class="font-bold text-white">Reservasi & Informasi</h4><p class="text-gray-300"><a href="https://wa.me/6285782919391" target="_blank" class="hover:underline">0857 8291 9391 (Reni Jaya)</a></p></div></div></div></div>
                 <div class="rounded-lg overflow-hidden shadow-lg h-96 border-2 border-gray-700"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.344158498877!2d106.7080983152794!3d-6.349681995404419!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e5f5f5f5f5f5%3A0x8a6f6e3a4d4b4a4d!2sJl.%20Bratasena%20IX%2C%20Pd.%20Benda%2C%20Kec.%20Pamulang%2C%20Kota%20Tangerang%20Selatan%2C%20Banten!5e0!3m2!1sen!2sid!4v1662882100000!5m2!1sen!2sid" width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
             </div>
         </section>
     </main>
     <!-- Footer -->
     <footer class="bg-black py-8 border-t border-gray-800"><div class="container mx-auto px-6 text-center"><p class="text-gray-300">&copy; 2025 Vinca Gym. All Rights Reserved.</p><p class="text-sm text-gray-500 mt-2">Didesain khusus untuk para muslimah.</p></div></footer>
-    
     <!-- Floating WhatsApp Button -->
     <a href="https://wa.me/6285782919391" target="_blank" class="fixed bottom-8 right-8 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-110 z-50">
         <i class="ph ph-whatsapp-logo text-3xl"></i>
     </a>
-
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -168,7 +167,8 @@
             submitSpinner.classList.remove('hidden');
             const sessionId = document.getElementById('session-id-input').value;
             const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
+            const phoneInput = document.getElementById('phone').value.replace(/\D/g, '');
+            const phone = `62${phoneInput.startsWith('0') ? phoneInput.substring(1) : phoneInput}`;
             if (!name || !phone) { alert("Nama dan Nomor WhatsApp tidak boleh kosong."); resetSubmitButton(); return; }
             const sessionDocRef = doc(db, COLLECTION_NAME, sessionId);
             try {
@@ -218,6 +218,3 @@
     </script>
 </body>
 </html>
-
-
-
