@@ -18,6 +18,9 @@
         .btn-primary:hover { background-color: #dcdcdc; }
         input, textarea, input[type="date"] { background-color: #333; border: 1px solid #555; color: white; }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        .copy-btn { background-color: transparent; border: none; cursor: pointer; }
+        .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .copy-btn:hover .tooltip { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="antialiased">
@@ -41,7 +44,7 @@
                     <div class="flex justify-between"><span>Paket Pilihan:</span><strong id="paket-nama" class="text-white">Memuat...</strong></div>
                     <div class="flex justify-between"><span>Harga Paket:</span><span id="paket-harga">Rp 0</span></div>
                     <div id="biaya-member-container" class="flex justify-between"><span>Biaya Member Baru:</span><span id="biaya-member-harga">Rp 50.000</span></div>
-                    <hr class="border-gray-600 my-2">qris
+                    <hr class="border-gray-600 my-2">
                     <div class="flex justify-between text-lg font-bold"><span class="text-white">Total Bayar:</span><span id="total-bayar" class="text-white">Rp 50.000</span></div>
                 </div>
             </div>
@@ -68,20 +71,26 @@
             <p class="text-gray-300 mt-2">Terima kasih telah mendaftar. Silakan lakukan pembayaran untuk mengaktifkan membership Anda.</p>
             
             <div id="payment-info" class="card p-6 mt-6 text-left">
-                <p class="text-lg">Kode Pendaftaran Anda: <strong id="kode-sukses" class="text-yellow-400 font-mono"></strong></p>
+                <div class="flex items-center justify-between">
+                    <p class="text-lg">No. Member: <strong id="kode-sukses" class="text-yellow-400 font-mono"></strong></p>
+                    <button id="copy-kode-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                </div>
                 <hr class="border-gray-600 my-4">
                 <h3 class="font-bold text-white mb-2">Metode Pembayaran:</h3>
                 <div class="flex flex-col md:flex-row gap-4 items-center">
                     <div class="w-full md:w-1/2">
-                       <p class="font-semibold">QRIS</p>
-                        <img src="qris-code.png" alt="QRIS Code"
+                        <p class="font-semibold">QRIS</p>
+                        <img src="qris-code.png" alt="QRIS Code" 
                             class="rounded-lg mt-2 mx-auto md:mx-0 w-48 h-48"
                             onerror="this.src='fallback-qris.png'">
                     </div>
                     <div class="w-full md:w-1/2 text-sm">
                         <p class="font-semibold">Transfer Bank</p>
                         <p>Bank BCA</p>
-                        <p class="font-mono text-lg">4060622839</p>
+                        <div class="flex items-center gap-2">
+                            <p id="rekening-nomor" class="font-mono text-lg">4060622839</p>
+                            <button id="copy-rekening-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                        </div>
                         <p>a.n. RIMA RIZKY AMELIA</p>
                     </div>
                 </div>
@@ -119,6 +128,8 @@
         const formContainer = document.getElementById('form-container');
         const successMessage = document.getElementById('success-message');
         const downloadPaymentBtn = document.getElementById('download-payment-btn');
+        const copyKodeBtn = document.getElementById('copy-kode-btn');
+        const copyRekeningBtn = document.getElementById('copy-rekening-btn');
         
         let paketTerpilih = null;
         let paketKeyGlobal = null;
@@ -222,12 +233,40 @@
             }
         });
 
+        function copyToClipboard(text, buttonElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const originalIcon = buttonElement.innerHTML;
+            const tooltip = buttonElement.querySelector('.tooltip');
+            buttonElement.innerHTML = '<i class="ph ph-check text-green-400"></i>';
+            if (tooltip) tooltip.textContent = 'Tersalin!';
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalIcon;
+                if (tooltip) tooltip.textContent = 'Salin';
+            }, 2000);
+        }
+
+        copyKodeBtn.addEventListener('click', () => {
+            const kode = document.getElementById('kode-sukses').textContent;
+            copyToClipboard(kode, copyKodeBtn);
+        });
+
+        copyRekeningBtn.addEventListener('click', () => {
+            const rekening = document.getElementById('rekening-nomor').textContent;
+            copyToClipboard(rekening, copyRekeningBtn);
+        });
+
         downloadPaymentBtn.addEventListener('click', () => {
             const downloadText = document.getElementById('download-text');
             const downloadIcon = document.getElementById('download-icon');
             const downloadSpinner = document.getElementById('download-spinner');
 
-            // Beri feedback visual instan
             downloadPaymentBtn.disabled = true;
             if (downloadText) downloadText.textContent = 'Mempersiapkan...';
             if (downloadIcon) downloadIcon.classList.add('hidden');
@@ -240,7 +279,6 @@
                 link.href = canvas.toDataURL();
                 link.click();
 
-                // Kembalikan tombol ke keadaan semula
                 downloadPaymentBtn.disabled = false;
                 if (downloadText) downloadText.textContent = 'Unduh Info Pembayaran';
                 if (downloadIcon) downloadIcon.classList.remove('hidden');
