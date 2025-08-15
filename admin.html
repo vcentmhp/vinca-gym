@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Vinca Gym</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="https://i.imgur.com/upiRXbW.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Pustaka untuk membuat file Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
         .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
@@ -44,7 +46,7 @@
             <section id="pendaftaran-member" class="mb-12">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
-                    <button id="export-member-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member</button>
+                    <button id="export-member-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member (Excel)</button>
                 </div>
                 <div id="member-content" class="card p-6">
                     <p>Memuat data pendaftar...</p>
@@ -54,7 +56,7 @@
             <section id="reservasi-grand-opening">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-white">Reservasi Grand Opening</h2>
-                    <button id="export-reservasi-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Reservasi</button>
+                    <button id="export-reservasi-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Reservasi (Excel)</button>
                 </div>
                 <div id="reservasi-content" class="space-y-8">
                     <p>Memuat data reservasi...</p>
@@ -110,9 +112,9 @@
                 if (allMemberData.length > 0) {
                     allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
                     allMemberData.forEach(member => {
-                        const noWa = member.whatsapp.replace(/\D/g, '');
+                        const noWa = (member.whatsapp || '').replace(/\D/g, '');
                         const waLink = `https://wa.me/${noWa}`;
-                        const displayWa = `0${noWa.substring(2)}`;
+                        const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
                         tableHtml += `<tr class="border-b border-gray-700 text-sm"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${formatDate(member.tanggalLahir)}</td><td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatDate(member.tanggalMulai)}</td><td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td></tr>`;
                     });
                 } else {
@@ -140,7 +142,12 @@
                     allReservasiData.push({ session, attendees });
                     const sessionCard = document.createElement('div');
                     sessionCard.className = 'card p-6';
-                    let tableRows = attendees.length > 0 ? attendees.map((attendee, index) => `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name}</td><td class="py-2 px-4">${attendee.phone}</td></tr>`).join('') : `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
+                    let tableRows = attendees.length > 0 ? attendees.map((attendee, index) => {
+                        const noWa = (attendee.phone || '').replace(/\D/g, '');
+                        const waLink = `https://wa.me/${noWa}`;
+                        const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
+                        return `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td></tr>`;
+                    }).join('') : `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
                     sessionCard.innerHTML = `<h3 class="text-xl font-bold text-white mb-4">Sesi ${session.time} (${sessionData.count} / 10)</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4 w-16">No.</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">No. WhatsApp</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
                     reservasiContent.appendChild(sessionCard);
                 });
@@ -150,51 +157,41 @@
             }
         }
 
-        function exportToCsv(filename, headers, data) {
-            let csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\r\n";
-            data.forEach(item => {
-                const row = headers.map(header => {
-                    const key = header.replace(/\s+/g, '').toLowerCase();
-                    return JSON.stringify(item[key] || '');
-                });
-                csvContent += row.join(',') + "\r\n";
-            });
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        function exportToExcel(filename, sheetName, data) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            XLSX.writeFile(wb, filename);
         }
 
         exportMemberBtn.addEventListener('click', () => {
-            const headers = ['No. Member', 'Nama Lengkap', 'Tanggal Lahir', 'Alamat Lengkap', 'No. WhatsApp', 'Paket', 'Tanggal Mulai', 'Tanggal Selesai', 'Total Bayar'];
             const dataForExport = allMemberData.map(m => ({ 
-                nomember: m.kodePendaftaran,
-                namalengkap: m.nama, 
-                tanggallahir: formatDate(m.tanggalLahir),
-                alamatlengkap: m.alamat,
-                nowhatsapp: m.whatsapp, 
-                paket: m.paket, 
-                tanggalmulai: formatDate(m.tanggalMulai),
-                tanggalselesai: formatDate(m.tanggalSelesai),
-                totalbayar: m.totalBayar
+                'No. Member': m.kodePendaftaran,
+                'Nama Lengkap': m.nama, 
+                'Tanggal Lahir': formatDate(m.tanggalLahir),
+                'Alamat Lengkap': m.alamat,
+                'No. WhatsApp': m.whatsapp, 
+                'Paket': m.paket, 
+                'Tanggal Mulai': formatDate(m.tanggalMulai),
+                'Tanggal Selesai': formatDate(m.tanggalSelesai),
+                'Total Bayar': m.totalBayar
             }));
-            exportToCsv('pendaftar_member.csv', headers, dataForExport);
+            exportToExcel('pendaftar_member.xlsx', 'Pendaftar Member', dataForExport);
         });
 
         exportReservasiBtn.addEventListener('click', () => {
-            const headers = ['Sesi', 'Nama', 'WhatsApp'];
             const dataForExport = [];
             allReservasiData.forEach(item => {
                 item.attendees.forEach(attendee => {
-                    dataForExport.push({ sesi: item.session.time, nama: attendee.name, whatsapp: attendee.phone });
+                    dataForExport.push({ 
+                        'Sesi': item.session.time, 
+                        'Nama': attendee.name, 
+                        'WhatsApp': attendee.phone 
+                    });
                 });
             });
-            exportToCsv('reservasi_grand_opening.csv', headers, dataForExport);
+            exportToExcel('reservasi_grand_opening.xlsx', 'Reservasi', dataForExport);
         });
     </script>
 </body>
 </html>
-
-
