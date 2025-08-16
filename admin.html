@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Vinca Gym</title>
-    <link rel="icon" type="image/png" href="https://i.imgur.com/upiRXbW.png">
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,9 @@
         .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
         .btn-primary:hover { background-color: #dcdcdc; }
         .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; }
-        input[type="password"] { background-color: #333; border: 1px solid #555; color: white; }
+        input[type="password"], input[type="text"] { background-color: #333; border: 1px solid #555; color: white; }
+        .unpaid-row { background-color: rgba(239, 68, 68, 0.1); }
+        .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
     </style>
 </head>
 <body class="antialiased">
@@ -28,7 +30,15 @@
             <h1 class="text-2xl font-bold text-center text-white mb-2">Vinca Gym</h1>
             <h2 class="text-xl font-semibold text-center text-white mb-6">Admin Panel</h2>
             <form id="login-form">
-                <div class="mb-4"><label for="password" class="block text-sm font-medium text-gray-300 mb-2">Masukkan Kata Sandi</label><input type="password" id="password" autocomplete="current-password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2 text-left">Masukkan Kata Sandi</label>
+                    <div class="relative">
+                        <input type="password" id="password" autocomplete="current-password" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white pr-10" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white">
+                            <i id="eye-icon" class="ph ph-eye"></i>
+                        </button>
+                    </div>
+                </div>
                 <p id="login-error" class="text-red-400 text-sm mb-4 hidden">Kata sandi salah.</p>
                 <button type="submit" class="w-full btn-primary py-2 rounded-md">Masuk</button>
             </form>
@@ -42,6 +52,12 @@
             </div>
         </header>
         <main class="container mx-auto px-6 py-8">
+             <!-- Summary Section -->
+            <section id="summary" class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6"><h3 class="text-gray-400">Total Pendaftar</h3><p id="total-pendaftar" class="text-4xl font-bold text-white">0</p></div>
+                <div class="card p-6"><h3 class="text-gray-400">Sudah Bayar</h3><p id="sudah-bayar" class="text-4xl font-bold text-green-400">0</p></div>
+                <div class="card p-6"><h3 class="text-gray-400">Belum Bayar</h3><p id="belum-bayar" class="text-4xl font-bold text-red-400">0</p></div>
+            </section>
             <!-- Pendaftaran Member Section -->
             <section id="pendaftaran-member" class="mb-12">
                 <div class="flex justify-between items-center mb-4">
@@ -67,9 +83,9 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
-        const ADMIN_PASSWORD = "vincaadmin2025";
+        const ADMIN_PASSWORD = "vinca2025";
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const loginSection = document.getElementById('login-section');
@@ -81,6 +97,8 @@
         const reservasiContent = document.getElementById('reservasi-content');
         const exportMemberBtn = document.getElementById('export-member-btn');
         const exportReservasiBtn = document.getElementById('export-reservasi-btn');
+        const togglePassword = document.getElementById('toggle-password');
+        const eyeIcon = document.getElementById('eye-icon');
         let allMemberData = [];
         let allReservasiData = [];
         
@@ -95,36 +113,99 @@
             }
         });
 
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeIcon.classList.toggle('ph-eye');
+            eyeIcon.classList.toggle('ph-eye-slash');
+        });
+
         function loadAllData() {
             loadMemberData();
             loadReservasiData();
         }
 
-        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
-        function formatDate(timestamp) { return timestamp ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'; }
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0); }
+        function formatDate(timestamp) { 
+            if (timestamp && typeof timestamp.seconds === 'number') {
+                return new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            }
+            return '-';
+        }
 
         async function loadMemberData() {
             try {
                 const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
-                allMemberData = querySnapshot.docs.map(doc => doc.data());
+                allMemberData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Tanggal Lahir</th><th class="py-2 px-4">Alamat Lengkap</th><th class="py-2 px-4">No. WhatsApp</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Mulai</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Total Bayar</th></tr></thead><tbody>`;
+                updateSummary();
+                
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Alamat Lengkap</th><th class="py-2 px-4">No. WhatsApp</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Mulai</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
                 if (allMemberData.length > 0) {
                     allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
                     allMemberData.forEach(member => {
                         const noWa = (member.whatsapp || '').replace(/\D/g, '');
                         const waLink = `https://wa.me/${noWa}`;
                         const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
-                        tableHtml += `<tr class="border-b border-gray-700 text-sm"><td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td><td class="py-2 px-4">${member.nama}</td><td class="py-2 px-4">${formatDate(member.tanggalLahir)}</td><td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td><td class="py-2 px-4">${member.paket}</td><td class="py-2 px-4">${formatDate(member.tanggalMulai)}</td><td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td><td class="py-2 px-4">${formatRupiah(member.totalBayar)}</td></tr>`;
+                        const isPaid = member.statusPembayaran === true;
+                        const rowClass = !isPaid ? 'unpaid-row' : '';
+                        tableHtml += `
+                            <tr class="border-b border-gray-700 text-sm ${rowClass}">
+                                <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
+                                <td class="py-2 px-4">${member.nama}</td>
+                                <td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td>
+                                <td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td>
+                                <td class="py-2 px-4">${member.paket}</td>
+                                <td class="py-2 px-4">${formatDate(member.tanggalMulai)}</td>
+                                <td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td>
+                                <td class="py-2 px-4"><input type="checkbox" data-doc-id="${member.id}" class="payment-checkbox" ${isPaid ? 'checked' : ''}></td>
+                            </tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="9" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
+                    tableHtml += `<tr><td colspan="8" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 memberContent.innerHTML = tableHtml;
+
+                document.querySelectorAll('.payment-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', handlePaymentStatusChange);
+                });
+
             } catch (error) {
                 console.error("Error loading member data: ", error);
                 memberContent.innerHTML = `<p class="text-red-500">Gagal memuat data pendaftar.</p>`;
+            }
+        }
+        
+        function updateSummary() {
+            const total = allMemberData.length;
+            const paid = allMemberData.filter(m => m.statusPembayaran === true).length;
+            const unpaid = total - paid;
+            document.getElementById('total-pendaftar').textContent = total;
+            document.getElementById('sudah-bayar').textContent = paid;
+            document.getElementById('belum-bayar').textContent = unpaid;
+        }
+
+        async function handlePaymentStatusChange(event) {
+            const checkbox = event.target;
+            const docId = checkbox.dataset.docId;
+            const isChecked = checkbox.checked;
+
+            try {
+                const memberRef = doc(db, "pendaftaran_member", docId);
+                await updateDoc(memberRef, { statusPembayaran: isChecked });
+                
+                const memberIndex = allMemberData.findIndex(m => m.id === docId);
+                if (memberIndex > -1) {
+                    allMemberData[memberIndex].statusPembayaran = isChecked;
+                }
+                checkbox.closest('tr').classList.toggle('unpaid-row', !isChecked);
+                updateSummary();
+
+            } catch (error) {
+                console.error("Gagal update status pembayaran:", error);
+                alert("Gagal memperbarui status. Coba lagi.");
+                checkbox.checked = !isChecked;
             }
         }
 
@@ -146,7 +227,7 @@
                         const noWa = (attendee.phone || '').replace(/\D/g, '');
                         const waLink = `https://wa.me/${noWa}`;
                         const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
-                        return `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td></tr>`;
+                        return `<tr class="border-b border-gray-700"><td class="py-2 px-4">${index + 1}</td><td class="py-2 px-4">${attendee.name || ''}</td><td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td></tr>`;
                     }).join('') : `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada pendaftar</td></tr>`;
                     sessionCard.innerHTML = `<h3 class="text-xl font-bold text-white mb-4">Sesi ${session.time} (${sessionData.count} / 10)</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4 w-16">No.</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">No. WhatsApp</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
                     reservasiContent.appendChild(sessionCard);
@@ -174,7 +255,8 @@
                 'Paket': m.paket, 
                 'Tanggal Mulai': formatDate(m.tanggalMulai),
                 'Tanggal Selesai': formatDate(m.tanggalSelesai),
-                'Total Bayar': m.totalBayar
+                'Total Bayar': m.totalBayar,
+                'Status Bayar': m.statusPembayaran ? 'Lunas' : 'Belum Lunas'
             }));
             exportToExcel('pendaftar_member.xlsx', 'Pendaftar Member', dataForExport);
         });
