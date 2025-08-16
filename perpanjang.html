@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perpanjang Membership - Vinca Gym</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
+        .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; }
+        .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { background-color: #dcdcdc; }
+        input, textarea, input[type="date"] { background-color: #333; border: 1px solid #555; color: white; }
+        .paket-card { cursor: pointer; transition: all 0.2s ease-in-out; border: 2px solid #333; }
+        .paket-card:hover { border-color: #777; transform: translateY(-4px); }
+        .paket-card.selected { border-color: #fff; background-color: #333; }
+        .copy-btn { background-color: transparent; border: none; cursor: pointer; }
+        .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .copy-btn:hover .tooltip { visibility: visible; opacity: 1; }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header -->
+    <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-3 text-2xl font-bold text-white">
+                <img src="https://i.imgur.com/upiRXbW.png" alt="Vinca Gym Logo" class="h-10 w-auto">
+                <span>Vinca Gym</span>
+            </a>
+        </nav>
+    </header>
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center py-12 px-4">
+        <!-- Tahap 1: Verifikasi Member -->
+        <div id="verifikasi-container" class="card p-8 w-full max-w-lg text-center">
+            <h1 class="text-3xl font-bold text-white mb-4">Perpanjang Membership</h1>
+            <p class="text-gray-400 mb-6">Silakan masukkan No. Member Anda untuk melanjutkan.</p>
+            <form id="verifikasi-form">
+                <div class="mb-4">
+                    <label for="no-member" class="block text-sm font-medium text-gray-300 mb-1 text-left">No. Member</label>
+                    <input type="text" id="no-member" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white font-mono" placeholder="Contoh: VG-R0001" required>
+                </div>
+                <button type="submit" id="submit-verifikasi" class="w-full btn-primary py-3 rounded-md flex items-center justify-center">
+                    <span id="verifikasi-text">Cari Member</span>
+                    <div id="verifikasi-spinner" class="w-5 h-5 border-2 border-black border-dashed rounded-full animate-spin hidden ml-2"></div>
+                </button>
+                <p id="verifikasi-error" class="text-red-400 text-sm mt-4 hidden">No. Member tidak ditemukan.</p>
+            </form>
+        </div>
+
+        <!-- Tahap 2: Detail & Pilihan Paket -->
+        <div id="perpanjang-container" class="hidden w-full max-w-4xl">
+            <div class="card p-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Selamat Datang Kembali, <span id="nama-member" class="text-yellow-400"></span>!</h1>
+                <p class="text-gray-400">Membership Anda saat ini akan berakhir pada: <strong id="tanggal-selesai-lama" class="text-white"></strong></p>
+                <hr class="border-gray-700 my-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Pilih Paket Perpanjangan</h2>
+                <div id="paket-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Paket akan dimuat di sini oleh JS -->
+                </div>
+                <div id="rincian-container" class="hidden mt-6 bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+                     <h2 class="text-xl font-semibold text-white mb-4">Rincian Biaya</h2>
+                     <div class="space-y-2 text-gray-300">
+                        <div class="flex justify-between"><span>Paket Pilihan:</span><strong id="paket-pilihan-nama" class="text-white"></strong></div>
+                        <div class="flex justify-between text-lg font-bold"><span class="text-white">Total Bayar:</span><span id="total-bayar-perpanjang" class="text-white"></span></div>
+                     </div>
+                     <button id="submit-perpanjang" class="w-full btn-primary py-3 rounded-md mt-6">Lanjutkan ke Pembayaran</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tahap 3: Halaman Sukses -->
+        <div id="success-message" class="hidden text-center max-w-lg w-full">
+            <div class="mx-auto bg-green-900/50 w-24 h-24 rounded-full flex items-center justify-center border-2 border-green-500"><i class="ph ph-check-fat text-6xl text-green-400"></i></div>
+            <h1 class="text-3xl font-bold mt-6 text-white">Perpanjangan Berhasil!</h1>
+            <p class="text-gray-300 mt-2">Terima kasih telah memperpanjang membership Anda. Silakan lakukan pembayaran untuk mengaktifkan perpanjangan.</p>
+            
+            <div id="payment-info" class="card p-6 mt-6 text-left">
+                <div class="flex items-center justify-between">
+                    <p class="text-lg">No. Member Anda: <strong id="kode-sukses" class="text-yellow-400 font-mono"></strong></p>
+                    <button id="copy-kode-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                </div>
+                <hr class="border-gray-600 my-4">
+                <h3 class="font-bold text-white mb-2">Metode Pembayaran:</h3>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="w-full md:w-1/2">
+                        <p class="font-semibold">QRIS</p>
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBgQEBgQOCwkLEw8ODg8ODw8PDw8ODw8PDw8ODw8PDw8PDw8PDw8ODw8PDw8ODw8PDw8PDw8PDw8PDw//wAARCAEsASwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-Y/gD/A" alt="QRIS Code" class="rounded-lg mt-2 mx-auto md:mx-0 w-48 h-48">
+                    </div>
+                    <div class="w-full md:w-1/2 text-sm">
+                        <p class="font-semibold">Transfer Bank</p>
+                        <p>Bank BCA</p>
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <p id="rekening-nomor" class="font-mono text-lg">1234567890</p>
+                            <button id="copy-rekening-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                        </div>
+                        <p>a.n. Vinca Gym</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-4 text-center italic">
+                    Harap konfirmasi dan mengirimkan foto bukti transfer kepada kami melalui nomor Whatsapp dibawah ini. Barakallahu fiik.
+                </p>
+            </div>
+
+            <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                <button id="download-payment-btn" class="w-full bg-gray-600 text-white py-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-700">
+                    <i id="download-icon" class="ph ph-download-simple"></i>
+                    <span id="download-text">Unduh Info Pembayaran</span>
+                    <div id="download-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+                </button>
+                <a id="whatsapp-confirm-btn" href="#" target="_blank" class="w-full bg-green-500 text-white py-3 rounded-md flex items-center justify-center gap-2 hover:bg-green-600"><i class="ph ph-whatsapp-logo"></i>Konfirmasi via WhatsApp</a>
+            </div>
+             <a href="index.html" class="mt-4 inline-block text-gray-400 hover:text-white py-3 px-8 rounded-md">Kembali ke Halaman Utama</a>
+        </div>
+    </main>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, runTransaction, getDoc, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const PAKET_MEMBERSHIP = {
+            regular: { nama: "Regular (1 Bulan)", harga: 200000, prefix: "R", durasiBulan: 1 },
+            silver: { nama: "Silver (3 Bulan)", harga: 525000, prefix: "S", durasiBulan: 3 },
+            gold: { nama: "Gold (6 Bulan)", harga: 900000, prefix: "G", durasiBulan: 6 },
+            platinum: { nama: "Platinum (1 Tahun)", harga: 1200000, prefix: "P", durasiBulan: 12 }
+        };
+        
+        let memberDataGlobal = null;
+        let memberDocId = null;
+        let paketTerpilih = null;
+
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
+        function formatDate(timestamp) { return timestamp ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'; }
+
+        function copyToClipboard(text, buttonElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const originalIcon = buttonElement.innerHTML;
+            const tooltip = buttonElement.querySelector('.tooltip');
+            buttonElement.innerHTML = '<i class="ph ph-check text-green-400"></i>';
+            if (tooltip) tooltip.textContent = 'Tersalin!';
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalIcon;
+                if (tooltip) tooltip.textContent = 'Salin';
+            }, 2000);
+        }
+
+        async function handleVerifikasiSubmit(e) {
+            e.preventDefault();
+            const noMemberInput = document.getElementById('no-member').value.trim().toUpperCase();
+            const submitButton = document.getElementById('submit-verifikasi');
+            const verifikasiText = document.getElementById('verifikasi-text');
+            const verifikasiSpinner = document.getElementById('verifikasi-spinner');
+            const verifikasiError = document.getElementById('verifikasi-error');
+
+            submitButton.disabled = true;
+            verifikasiText.classList.add('hidden');
+            verifikasiSpinner.classList.remove('hidden');
+            verifikasiError.classList.add('hidden');
+
+            try {
+                const q = query(collection(db, "pendaftaran_member"), where("kodePendaftaran", "==", noMemberInput));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    throw new Error("No. Member tidak ditemukan.");
+                }
+
+                const memberDoc = querySnapshot.docs[0];
+                memberDocId = memberDoc.id;
+                memberDataGlobal = memberDoc.data();
+
+                document.getElementById('nama-member').textContent = memberDataGlobal.nama;
+                document.getElementById('tanggal-selesai-lama').textContent = formatDate(memberDataGlobal.tanggalSelesai);
+
+                const paketContainer = document.getElementById('paket-container');
+                let paketCardsHtml = '';
+                for (const key in PAKET_MEMBERSHIP) {
+                    const paket = PAKET_MEMBERSHIP[key];
+                    paketCardsHtml += `
+                        <div class="card p-4 text-center paket-card" data-paket-key="${key}">
+                            <h3 class="font-bold">${paket.nama}</h3>
+                            <p class="text-lg font-semibold my-2">${formatRupiah(paket.harga)}</p>
+                        </div>
+                    `;
+                }
+                paketContainer.innerHTML = paketCardsHtml;
+
+                document.getElementById('verifikasi-container').classList.add('hidden');
+                document.getElementById('perpanjang-container').classList.remove('hidden');
+
+                document.querySelectorAll('.paket-card').forEach(card => {
+                    card.addEventListener('click', (event) => handlePaketSelection(event.currentTarget.dataset.paketKey));
+                });
+
+            } catch (error) {
+                verifikasiError.textContent = error.message;
+                verifikasiError.classList.remove('hidden');
+            } finally {
+                submitButton.disabled = false;
+                verifikasiText.classList.remove('hidden');
+                verifikasiSpinner.classList.add('hidden');
+            }
+        }
+
+        function handlePaketSelection(paketKey) {
+            paketTerpilih = PAKET_MEMBERSHIP[paketKey];
+            
+            document.querySelectorAll('.paket-card').forEach(card => card.classList.remove('selected'));
+            document.querySelector(`[data-paket-key="${paketKey}"]`).classList.add('selected');
+
+            document.getElementById('paket-pilihan-nama').textContent = paketTerpilih.nama;
+            document.getElementById('total-bayar-perpanjang').textContent = formatRupiah(paketTerpilih.harga);
+            document.getElementById('rincian-container').classList.remove('hidden');
+        }
+
+        async function handleSubmitPerpanjangan() {
+            if (!paketTerpilih || !memberDocId) return;
+
+            const tanggalMulaiBaru = new Date();
+            let tanggalSelesaiLama = new Date(memberDataGlobal.tanggalSelesai.seconds * 1000);
+            
+            // Logika Cerdas: Jika perpanjang sebelum habis, tambahkan durasi dari tanggal selesai lama
+            const basisPerpanjangan = tanggalSelesaiLama > tanggalMulaiBaru ? tanggalSelesaiLama : tanggalMulaiBaru;
+            const tanggalSelesaiBaru = new Date(basisPerpanjangan);
+            tanggalSelesaiBaru.setMonth(tanggalSelesaiBaru.getMonth() + paketTerpilih.durasiBulan);
+
+            const dataUpdate = {
+                paket: paketTerpilih.nama,
+                totalBayar: paketTerpilih.harga,
+                tanggalMulai: tanggalMulaiBaru,
+                tanggalSelesai: tanggalSelesaiBaru,
+                statusPembayaran: false // Set status bayar ke belum lunas
+            };
+
+            try {
+                const memberRef = doc(db, "pendaftaran_member", memberDocId);
+                await updateDoc(memberRef, dataUpdate);
+
+                document.getElementById('perpanjang-container').classList.add('hidden');
+                document.getElementById('kode-sukses').textContent = memberDataGlobal.kodePendaftaran;
+                
+                const whatsappMsg = encodeURIComponent(`Halo Vinca Gym, saya ${memberDataGlobal.nama} dengan No. Member ${memberDataGlobal.kodePendaftaran} ingin konfirmasi perpanjangan untuk paket ${paketTerpilih.nama}. Terima kasih.`);
+                document.getElementById('whatsapp-confirm-btn').href = `https://wa.me/6285782919391?text=${whatsappMsg}`;
+
+                document.getElementById('success-message').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Gagal memperpanjang:", error);
+                alert("Gagal memperpanjang membership. Silakan coba lagi.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const verifikasiForm = document.getElementById('verifikasi-form');
+            const submitPerpanjang = document.getElementById('submit-perpanjang');
+            const copyKodeBtn = document.getElementById('copy-kode-btn');
+            const downloadPaymentBtn = document.getElementById('download-payment-btn');
+
+            verifikasiForm.addEventListener('submit', handleVerifikasiSubmit);
+            submitPerpanjang.addEventListener('click', handleSubmitPerpanjangan);
+            
+            copyKodeBtn.addEventListener('click', () => {
+                const kode = document.getElementById('kode-sukses').textContent;
+                copyToClipboard(kode, copyKodeBtn);
+            });
+
+            downloadPaymentBtn.addEventListener('click', () => {
+                const paymentInfo = document.getElementById('payment-info');
+                html2canvas(paymentInfo, { backgroundColor: '#242424' }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'info-pembayaran-vinca-gym.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
