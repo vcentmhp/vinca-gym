@@ -217,6 +217,7 @@
                     kodePendaftaran: newRegistrationCode,
                     tanggalMulai: tanggalMulai,
                     tanggalSelesai: tanggalSelesai,
+                    statusPembayaran: false // Status awal pembayaran
                 };
 
                 await addDoc(collection(db, "pendaftaran_member"), pendaftar);
