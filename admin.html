@@ -8,10 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Pustaka untuk membuat file Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
         .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
@@ -20,13 +23,17 @@
         input[type="password"], input[type="text"] { background-color: #333; border: 1px solid #555; color: white; }
         .unpaid-row { background-color: rgba(239, 68, 68, 0.1); }
         .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
+        .member-row { cursor: pointer; }
+        #scanner-container { width: 100%; max-width: 500px; margin: auto; }
+        .card-bg { background: linear-gradient(135deg, #3a3a3a 0%, #242424 100%); }
+        .aspect-4-3 { aspect-ratio: 4 / 3; }
     </style>
 </head>
 <body class="antialiased">
     <!-- Login Section -->
     <div id="login-section" class="min-h-screen flex items-center justify-center bg-black">
         <div class="card p-8 w-full max-w-sm text-center">
-            <img src="https://i.imgur.com/upiRXbW.png" alt="Vinca Gym Logo" class="h-20 w-auto mx-auto mb-4">
+            <img src="logo.png" alt="Vinca Gym Logo" class="h-20 w-auto mx-auto mb-4">
             <h1 class="text-2xl font-bold text-center text-white mb-2">Vinca Gym</h1>
             <h2 class="text-xl font-semibold text-center text-white mb-6">Admin Panel</h2>
             <form id="login-form">
@@ -58,16 +65,50 @@
                 <div class="card p-6"><h3 class="text-gray-400">Sudah Bayar</h3><p id="sudah-bayar" class="text-4xl font-bold text-green-400">0</p></div>
                 <div class="card p-6"><h3 class="text-gray-400">Belum Bayar</h3><p id="belum-bayar" class="text-4xl font-bold text-red-400">0</p></div>
             </section>
-            <!-- Pendaftaran Member Section -->
-            <section id="pendaftaran-member" class="mb-12">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
-                    <button id="export-member-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member (Excel)</button>
-                </div>
-                <div id="member-content" class="card p-6">
-                    <p>Memuat data pendaftar...</p>
+            
+            <!-- Check-in Section -->
+            <section id="checkin-section" class="mb-12">
+                 <h2 class="text-2xl font-bold text-white mb-4">Check-in Member</h2>
+                 <div class="card p-6">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button id="start-scan-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2"><i class="ph ph-qr-code"></i>Scan Barcode</button>
+                        <form id="manual-checkin-form" class="flex-grow flex gap-2">
+                            <input type="text" id="manual-no-member" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white font-mono" placeholder="atau masukkan No. Member manual">
+                            <button type="submit" class="btn-primary px-4 py-2 rounded-lg">Check-in</button>
+                        </form>
+                    </div>
+                    <div id="scanner-container" class="mt-4 hidden">
+                        <div id="reader"></div>
+                        <button id="stop-scan-btn" class="mt-2 bg-gray-600 hover:bg-gray-700 text-white py-1 px-3 rounded-md text-sm">Tutup Scanner</button>
+                    </div>
+                    <div id="checkin-result" class="mt-4"></div>
+                 </div>
+            </section>
+
+            <!-- Check-in History Section -->
+            <section id="checkin-history-section" class="mb-12">
+                <h2 class="text-2xl font-bold text-white mb-4">Aktivitas Check-in Hari Ini</h2>
+                <div id="checkin-history-content" class="card p-6">
+                    <p>Memuat riwayat check-in...</p>
                 </div>
             </section>
+
+            <!-- Pendaftaran Member Section -->
+            <section id="pendaftaran-member" class="mb-12">
+                <div id="member-table-view">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
+                        <button id="export-member-btn" class="btn-primary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member (Excel)</button>
+                    </div>
+                    <div id="member-content" class="card p-6">
+                        <p>Memuat data pendaftar...</p>
+                    </div>
+                </div>
+                <div id="member-detail-view" class="hidden">
+                    <!-- Kartu Detail akan diisi oleh JS -->
+                </div>
+            </section>
+            
             <!-- Reservasi Grand Opening Section -->
             <section id="reservasi-grand-opening">
                 <div class="flex justify-between items-center mb-4">
@@ -80,10 +121,39 @@
             </section>
         </main>
     </div>
+
+    <!-- Hidden Card Template for Rendering -->
+    <div id="card-render-template" class="fixed -left-[9999px] top-0 w-[480px]">
+        <div id="card-to-render" class="w-full text-white shadow-2xl card-bg aspect-4-3 flex flex-col p-6">
+             <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Vinca Gym Logo" class="h-12 w-auto">
+                    <div>
+                        <h1 class="font-bold text-xl leading-tight">Vinca Gym</h1>
+                        <p class="text-xs text-gray-300 italic">move with us</p>
+                    </div>
+                </div>
+                <span class="font-semibold text-sm bg-white">MEMBER CARD</span>
+            </div>
+            <div class="flex-grow flex items-center justify-between gap-4">
+                <div class="text-left">
+                    <h2 id="render-member-name" class="text-3xl font-bold"></h2>
+                    <p id="render-member-id" class="font-mono text-yellow-400 mt-1"></p>
+                </div>
+                <div class="mt-4">
+                    <svg id="render-barcode"></svg>
+                </div>
+            </div>
+            <div class="text-center border-t border-gray-600 pt-2">
+                <p class="text-xs font-semibold tracking-widest text-gray-400">FOR WOMEN ONLY</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
         const ADMIN_PASSWORD = "vinca2025";
         const app = initializeApp(firebaseConfig);
@@ -99,8 +169,16 @@
         const exportReservasiBtn = document.getElementById('export-reservasi-btn');
         const togglePassword = document.getElementById('toggle-password');
         const eyeIcon = document.getElementById('eye-icon');
+        const memberTableView = document.getElementById('member-table-view');
+        const memberDetailView = document.getElementById('member-detail-view');
+        const startScanBtn = document.getElementById('start-scan-btn');
+        const stopScanBtn = document.getElementById('stop-scan-btn');
+        const scannerContainer = document.getElementById('scanner-container');
+        const checkinResult = document.getElementById('checkin-result');
+        const manualCheckinForm = document.getElementById('manual-checkin-form');
         let allMemberData = [];
         let allReservasiData = [];
+        let html5QrCode;
         
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -123,6 +201,7 @@
         function loadAllData() {
             loadMemberData();
             loadReservasiData();
+            loadCheckinHistory();
         }
 
         function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0); }
@@ -136,40 +215,10 @@
         async function loadMemberData() {
             try {
                 const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
-                allMemberData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allMemberData = querySnapshot.docs.map((doc, index) => ({ docId: doc.id, index, ...doc.data() }));
                 
                 updateSummary();
-                
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Alamat Lengkap</th><th class="py-2 px-4">No. WhatsApp</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Mulai</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
-                if (allMemberData.length > 0) {
-                    allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
-                    allMemberData.forEach(member => {
-                        const noWa = (member.whatsapp || '').replace(/\D/g, '');
-                        const waLink = `https://wa.me/${noWa}`;
-                        const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
-                        const isPaid = member.statusPembayaran === true;
-                        const rowClass = !isPaid ? 'unpaid-row' : '';
-                        tableHtml += `
-                            <tr class="border-b border-gray-700 text-sm ${rowClass}">
-                                <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
-                                <td class="py-2 px-4">${member.nama}</td>
-                                <td class="py-2 px-4 max-w-xs break-words">${member.alamat}</td>
-                                <td class="py-2 px-4"><a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></td>
-                                <td class="py-2 px-4">${member.paket}</td>
-                                <td class="py-2 px-4">${formatDate(member.tanggalMulai)}</td>
-                                <td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td>
-                                <td class="py-2 px-4"><input type="checkbox" data-doc-id="${member.id}" class="payment-checkbox" ${isPaid ? 'checked' : ''}></td>
-                            </tr>`;
-                    });
-                } else {
-                    tableHtml += `<tr><td colspan="8" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
-                }
-                tableHtml += `</tbody></table></div>`;
-                memberContent.innerHTML = tableHtml;
-
-                document.querySelectorAll('.payment-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', handlePaymentStatusChange);
-                });
+                renderMemberTable();
 
             } catch (error) {
                 console.error("Error loading member data: ", error);
@@ -177,6 +226,106 @@
             }
         }
         
+        function renderMemberTable() {
+            let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
+            if (allMemberData.length > 0) {
+                allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
+                allMemberData.forEach((member, index) => {
+                    member.index = index; // Update index after sort
+                    const isPaid = member.statusPembayaran === true;
+                    const rowClass = !isPaid ? 'unpaid-row' : '';
+                    tableHtml += `
+                        <tr class="border-b border-gray-700 text-sm ${rowClass} member-row" data-index="${index}">
+                            <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
+                            <td class="py-2 px-4">${member.nama}</td>
+                            <td class="py-2 px-4">${member.paket}</td>
+                            <td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td>
+                            <td class="py-2 px-4">${isPaid ? '<span class="text-green-400">Lunas</span>' : '<span class="text-red-400">Belum Lunas</span>'}</td>
+                        </tr>`;
+                });
+            } else {
+                tableHtml += `<tr><td colspan="5" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
+            }
+            tableHtml += `</tbody></table></div>`;
+            memberContent.innerHTML = tableHtml;
+
+            document.querySelectorAll('.member-row').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    const index = e.currentTarget.dataset.index;
+                    showMemberDetail(index);
+                });
+            });
+        }
+
+        function showMemberDetail(index) {
+            const member = allMemberData[index];
+            if (!member) return;
+
+            const noWa = (member.whatsapp || '').replace(/\D/g, '');
+            const waLink = `https://wa.me/${noWa}`;
+            const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
+            const isPaid = member.statusPembayaran === true;
+            
+            const detailHtml = `
+                <div class="card p-8">
+                    <button id="back-to-table" class="mb-6 text-gray-400 hover:text-white flex items-center gap-2"><i class="ph ph-arrow-left"></i> Kembali ke Daftar</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
+                            <h2 class="text-2xl font-bold text-white">${member.nama}</h2>
+                            <p class="font-mono text-yellow-400">${member.kodePendaftaran}</p>
+                            <div id="status-bayar-detail" class="mt-2 text-lg font-semibold ${isPaid ? 'text-green-400' : 'text-red-400'}">
+                                ${isPaid ? 'Lunas' : 'Belum Lunas'}
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 space-y-3 text-sm">
+                            <p><strong class="text-gray-400 w-32 inline-block">Tanggal Lahir:</strong> ${formatDate(member.tanggalLahir)}</p>
+                            <p><strong class="text-gray-400 w-32 inline-block">No. WhatsApp:</strong> <a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></p>
+                            <p><strong class="text-gray-400 w-32 inline-block">Email:</strong> ${member.email || '-'}</p>
+                            <p><strong class="text-gray-400 w-32 inline-block">Alamat:</strong> ${member.alamat}</p>
+                            <hr class="border-gray-700">
+                            <p><strong class="text-gray-400 w-32 inline-block">Paket:</strong> ${member.paket}</p>
+                            <p><strong class="text-gray-400 w-32 inline-block">Tanggal Mulai:</strong> ${formatDate(member.tanggalMulai)}</p>
+                            <p><strong class="text-gray-400 w-32 inline-block">Tanggal Selesai:</strong> ${formatDate(member.tanggalSelesai)}</p>
+                            <p><strong class="text-gray-400 w-32 inline-block">Total Bayar:</strong> ${formatRupiah(member.totalBayar)}</p>
+                            <div class="flex items-center gap-4 pt-2">
+                                <label for="payment-checkbox-detail" class="font-bold text-white">Konfirmasi Bayar:</label>
+                                <input type="checkbox" id="payment-checkbox-detail" data-doc-id="${member.docId}" data-index="${index}" class="payment-checkbox-detail w-5 h-5" ${isPaid ? 'checked' : ''}>
+                            </div>
+                            <div id="send-card-container" class="${isPaid ? '' : 'hidden'} pt-2 flex gap-2">
+                                <button id="download-card-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-download-simple"></i>Unduh Kartu</button>
+                                <a id="send-whatsapp-btn" href="#" target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-whatsapp-logo"></i>Kirim Kartu via WA</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            memberDetailView.innerHTML = detailHtml;
+            memberTableView.classList.add('hidden');
+            memberDetailView.classList.remove('hidden');
+
+            document.getElementById('back-to-table').addEventListener('click', () => {
+                memberDetailView.classList.add('hidden');
+                memberTableView.classList.remove('hidden');
+                renderMemberTable(); 
+            });
+            
+            document.getElementById('download-card-btn').addEventListener('click', () => downloadMemberCard(member));
+            document.getElementById('payment-checkbox-detail').addEventListener('change', handlePaymentStatusChange);
+            updateWhatsappLink(member);
+        }
+        
+        function updateWhatsappLink(member) {
+            const waButton = document.getElementById('send-whatsapp-btn');
+            if (waButton) {
+                const noWa = (member.whatsapp || '').replace(/\D/g, '');
+                const waLink = `https://wa.me/${noWa}`;
+                const message = `Ahlan *${member.nama}*, Jazakillahu khayraa telah menjadi member Vinca Gym. Anda Berada Pada Paket Membership *${member.paket}* dengan Tgl Expired : *${formatDate(member.tanggalSelesai)}*.
+                \n\nSimpan Kartu Virtual untuk melakukan checkin\n\nPastikan keanggotaan member Vinca Gym kamu aktif agar dapat terus melakukan latihan. Baraakallahu Fiikum.
+                \n\nPesan ini dikirim oleh *Vinca Gym*.\nJl. Bratasena IX Blok U7/41, Pamulang. Tangerang Selatan\nContact Person : 085782919391`;
+                waButton.href = `${waLink}?text=${encodeURIComponent(message)}`;
+            }
+        }
+
         function updateSummary() {
             const total = allMemberData.length;
             const paid = allMemberData.filter(m => m.statusPembayaran === true).length;
@@ -189,17 +338,20 @@
         async function handlePaymentStatusChange(event) {
             const checkbox = event.target;
             const docId = checkbox.dataset.docId;
+            const index = checkbox.dataset.index;
             const isChecked = checkbox.checked;
 
             try {
                 const memberRef = doc(db, "pendaftaran_member", docId);
                 await updateDoc(memberRef, { statusPembayaran: isChecked });
                 
-                const memberIndex = allMemberData.findIndex(m => m.id === docId);
-                if (memberIndex > -1) {
-                    allMemberData[memberIndex].statusPembayaran = isChecked;
+                if (index !== undefined) {
+                    allMemberData[index].statusPembayaran = isChecked;
+                    const statusDiv = document.getElementById('status-bayar-detail');
+                    statusDiv.textContent = isChecked ? 'Lunas' : 'Belum Lunas';
+                    statusDiv.className = `mt-2 text-lg font-semibold ${isChecked ? 'text-green-400' : 'text-red-400'}`;
+                    document.getElementById('send-card-container').classList.toggle('hidden', !isChecked);
                 }
-                checkbox.closest('tr').classList.toggle('unpaid-row', !isChecked);
                 updateSummary();
 
             } catch (error) {
@@ -237,6 +389,65 @@
                 reservasiContent.innerHTML = `<p class="text-red-500">Gagal memuat data reservasi.</p>`;
             }
         }
+        
+        async function loadCheckinHistory() {
+            const historyContent = document.getElementById('checkin-history-content');
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                const q = query(collection(db, "riwayat_checkin"), 
+                    where("waktuCheckin", ">=", today),
+                    where("waktuCheckin", "<", tomorrow)
+                );
+                
+                const querySnapshot = await getDocs(q);
+                const checkinData = [];
+                querySnapshot.forEach(doc => {
+                    checkinData.push(doc.data());
+                });
+
+                // Urutkan dari yang terbaru
+                checkinData.sort((a, b) => b.waktuCheckin.seconds - a.waktuCheckin.seconds);
+
+                let tableHtml = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-700/50">
+                                <tr>
+                                    <th class="py-2 px-4">Waktu</th>
+                                    <th class="py-2 px-4">No. Member</th>
+                                    <th class="py-2 px-4">Nama</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                if (checkinData.length > 0) {
+                    checkinData.forEach(checkin => {
+                        const checkinTime = new Date(checkin.waktuCheckin.seconds * 1000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        tableHtml += `
+                            <tr class="border-b border-gray-700 text-sm">
+                                <td class="py-2 px-4">${checkinTime}</td>
+                                <td class="py-2 px-4 font-mono">${checkin.kodePendaftaran}</td>
+                                <td class="py-2 px-4">${checkin.nama}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tableHtml += `<tr><td colspan="3" class="text-center py-4 text-gray-400">Belum ada aktivitas check-in hari ini.</td></tr>`;
+                }
+
+                tableHtml += `</tbody></table></div>`;
+                historyContent.innerHTML = tableHtml;
+
+            } catch (error) {
+                console.error("Error loading check-in history: ", error);
+                historyContent.innerHTML = `<p class="text-red-500">Gagal memuat riwayat check-in.</p>`;
+            }
+        }
 
         function exportToExcel(filename, sheetName, data) {
             const wb = XLSX.utils.book_new();
@@ -252,6 +463,7 @@
                 'Tanggal Lahir': formatDate(m.tanggalLahir),
                 'Alamat Lengkap': m.alamat,
                 'No. WhatsApp': m.whatsapp, 
+                'Email': m.email,
                 'Paket': m.paket, 
                 'Tanggal Mulai': formatDate(m.tanggalMulai),
                 'Tanggal Selesai': formatDate(m.tanggalSelesai),
@@ -274,6 +486,125 @@
             });
             exportToExcel('reservasi_grand_opening.xlsx', 'Reservasi', dataForExport);
         });
+
+        // --- LOGIKA CHECK-IN ---
+        startScanBtn.addEventListener('click', () => {
+            scannerContainer.classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText, decodedResult) => {
+                    handleCheckin(decodedText);
+                    html5QrCode.stop();
+                    scannerContainer.classList.add('hidden');
+                },
+                (errorMessage) => { /* abaikan error */ }
+            ).catch((err) => console.log(err));
+        });
+
+        stopScanBtn.addEventListener('click', () => {
+            if (html5QrCode) {
+                html5QrCode.stop();
+            }
+            scannerContainer.classList.add('hidden');
+        });
+
+        manualCheckinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const noMember = document.getElementById('manual-no-member').value;
+            if (noMember) {
+                handleCheckin(noMember.toUpperCase());
+            }
+        });
+
+        async function handleCheckin(memberId) {
+            checkinResult.innerHTML = `<p>Memvalidasi ${memberId}...</p>`;
+            try {
+                const q = query(collection(db, "pendaftaran_member"), where("kodePendaftaran", "==", memberId));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    showCheckinResult('notfound');
+                    return;
+                }
+
+                const memberData = querySnapshot.docs[0].data();
+                const now = new Date();
+                const tanggalSelesai = new Date(memberData.tanggalSelesai.seconds * 1000);
+
+                if (memberData.statusPembayaran === false) {
+                    showCheckinResult('unpaid', memberData);
+                    return;
+                }
+
+                if (now > tanggalSelesai) {
+                    showCheckinResult('expired', memberData);
+                    return;
+                }
+
+                await addDoc(collection(db, "riwayat_checkin"), {
+                    kodePendaftaran: memberData.kodePendaftaran,
+                    nama: memberData.nama,
+                    waktuCheckin: new Date()
+                });
+                showCheckinResult('success', memberData);
+                loadCheckinHistory();
+
+            } catch (error) {
+                console.error("Error during check-in: ", error);
+                showCheckinResult('error');
+            }
+        }
+        
+        function showCheckinResult(type, data = {}) {
+            let resultHtml = '';
+            switch(type) {
+                case 'success':
+                    resultHtml = `<div class="bg-green-900/50 border border-green-500 text-green-300 p-4 rounded-lg"><strong>Check-in Berhasil:</strong> ${data.nama} (Aktif s/d ${formatDate(data.tanggalSelesai)})</div>`;
+                    break;
+                case 'expired':
+                    resultHtml = `<div class="bg-yellow-900/50 border border-yellow-500 text-yellow-300 p-4 rounded-lg"><strong>Membership Kedaluwarsa:</strong> ${data.nama} (Berakhir pada ${formatDate(data.tanggalSelesai)})</div>`;
+                    break;
+                case 'unpaid':
+                    resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Pembayaran Belum Lunas:</strong> ${data.nama}</div>`;
+                    break;
+                case 'notfound':
+                    resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> No. Member tidak ditemukan.</div>`;
+                    break;
+                case 'error':
+                    resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Terjadi kesalahan sistem.</div>`;
+                    break;
+            }
+            checkinResult.innerHTML = resultHtml;
+            setTimeout(() => { checkinResult.innerHTML = ''; }, 6000);
+        }
+
+        async function downloadMemberCard(member) {
+            const renderName = document.getElementById('render-member-name');
+            const renderId = document.getElementById('render-member-id');
+            
+            renderName.textContent = member.nama;
+            renderId.textContent = member.kodePendaftaran;
+
+            JsBarcode("#render-barcode", member.kodePendaftaran, {
+                format: "CODE128",
+                lineColor: "#ffffff",
+                background: "transparent",
+                width: 2,
+                height: 60,
+                displayValue: false
+            });
+
+            const cardToRender = document.getElementById('card-to-render');
+            
+            html2canvas(cardToRender).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `kartu-member-${member.kodePendaftaran}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
     </script>
 </body>
 </html>
