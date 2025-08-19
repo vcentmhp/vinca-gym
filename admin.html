@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { 
@@ -69,10 +69,42 @@
         .unpaid-row { background-color: rgba(239, 68, 68, 0.1); }
         .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
         .member-row { cursor: pointer; }
-        #scanner-container { width: 100%; max-width: 500px; margin: auto; }
-        #reader { border: 2px solid #555; border-radius: 0.5rem; }
+        
+        /* Scanner Modal Styles */
+        #scanner-modal {
+            background-color: rgba(0, 0, 0, 0.7);
+            transition: opacity 0.3s ease;
+        }
+        #reader {
+            position: relative;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        #reader__scan_region {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scan-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #34d399, transparent);
+            animation: scan 2.5s infinite linear;
+            box-shadow: 0 0 10px #34d399;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+
         .card-bg { background: linear-gradient(135deg, #3a3a3a 0%, #242424 100%); }
         .aspect-4-3 { aspect-ratio: 4 / 3; }
+        #render-qrcode img { margin: auto; }
     </style>
 </head>
 <body class="antialiased">
@@ -134,15 +166,11 @@
                         <div>
                             <h3 class="text-lg font-semibold text-white mb-3">Absensi Member</h3>
                             <div class="flex flex-col md:flex-row gap-4">
-                                <button id="start-scan-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2"><i class="ph ph-qr-code"></i>Scan Barcode</button>
+                                <button id="start-scan-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2"><i class="ph ph-qr-code"></i>Scan QR Code</button>
                                 <form id="manual-checkin-form" class="flex-grow flex gap-2">
                                     <input type="text" id="manual-no-member" class="w-full" placeholder="atau masukkan No. Member manual">
                                     <button type="submit" class="btn-primary px-4 py-2 rounded-lg">Proses</button>
                                 </form>
-                            </div>
-                            <div id="scanner-container" class="mt-4 hidden">
-                                <div id="reader"></div>
-                                <button id="stop-scan-btn" class="mt-2 bg-gray-600 hover:bg-gray-700 text-white py-1 px-3 rounded-md text-sm">Tutup Scanner</button>
                             </div>
                             <div id="checkin-result" class="mt-4"></div>
                         </div>
@@ -212,6 +240,19 @@
         </main>
     </div>
 
+    <!-- Scanner Modal -->
+    <div id="scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70"></div>
+        <div class="relative bg-[#242424] p-6 rounded-2xl w-full max-w-md shadow-xl">
+            <h3 class="text-xl font-bold text-center text-white mb-4">Pindai QR Code Member</h3>
+            <div id="reader" class="w-full">
+                <div class="scan-line"></div>
+            </div>
+            <button id="stop-scan-btn" class="mt-4 w-full btn-secondary py-2 rounded-lg">Tutup</button>
+        </div>
+    </div>
+
+
     <!-- Hidden Card Template for Rendering -->
     <div id="card-render-template" class="fixed -left-[9999px] top-0 w-[480px]">
         <div id="card-to-render" class="w-full text-white shadow-2xl card-bg aspect-4-3 flex flex-col p-6">
@@ -230,9 +271,7 @@
                     <h2 id="render-member-name" class="text-3xl font-bold"></h2>
                     <p id="render-member-id" class="font-mono text-yellow-400 mt-1"></p>
                 </div>
-                <div class="mt-4">
-                    <svg id="render-barcode"></svg>
-                </div>
+                <div id="render-qrcode" class="p-2 bg-white rounded-md"></div>
             </div>
             <div class="text-center border-t border-gray-600 pt-2">
                 <p class="text-xs font-semibold tracking-widest text-gray-400">FOR WOMEN ONLY</p>
@@ -249,7 +288,7 @@
             
             // --- KONFIGURASI & INISIALISASI ---
             const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
-            const ADMIN_PASSWORD = "vincaadmin2025";
+            const ADMIN_PASSWORD = "vinca2025";
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
@@ -279,8 +318,8 @@
                 },
                 attendance: {
                     startScanBtn: document.getElementById('start-scan-btn'),
+                    scannerModal: document.getElementById('scanner-modal'),
                     stopScanBtn: document.getElementById('stop-scan-btn'),
-                    scannerContainer: document.getElementById('scanner-container'),
                     reader: document.getElementById('reader'),
                     manualForm: document.getElementById('manual-checkin-form'),
                     manualInput: document.getElementById('manual-no-member'),
@@ -305,7 +344,7 @@
                     container: document.getElementById('card-to-render'),
                     name: document.getElementById('render-member-name'),
                     id: document.getElementById('render-member-id'),
-                    barcode: document.getElementById('render-barcode')
+                    qrcode: document.getElementById('render-qrcode')
                 }
             };
 
@@ -394,18 +433,26 @@
             async function downloadMemberCard(member) {
                 DOMElements.cardTemplate.name.textContent = member.nama || 'Nama Member';
                 DOMElements.cardTemplate.id.textContent = member.kodePendaftaran || 'VG-XXXX';
-
-                JsBarcode("#render-barcode", member.kodePendaftaran || "N/A", {
-                    format: "CODE128", lineColor: "#ffffff", background: "transparent",
-                    width: 2, height: 60, displayValue: false
+                
+                const qrcodeContainer = DOMElements.cardTemplate.qrcode;
+                qrcodeContainer.innerHTML = "";
+                new QRCode(qrcodeContainer, {
+                    text: member.kodePendaftaran || "N/A",
+                    width: 80,
+                    height: 80,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
                 });
 
                 try {
-                    const canvas = await html2canvas(DOMElements.cardTemplate.container, {useCORS: true});
-                    const link = document.createElement('a');
-                    link.download = `kartu-member-${member.kodePendaftaran}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
+                    setTimeout(async () => {
+                        const canvas = await html2canvas(DOMElements.cardTemplate.container, {useCORS: true, backgroundColor: null});
+                        const link = document.createElement('a');
+                        link.download = `kartu-member-${member.kodePendaftaran}.png`;
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }, 500);
                 } catch (error) {
                     console.error('Gagal mengunduh kartu:', error);
                     alert('Gagal mengunduh kartu member.');
@@ -867,18 +914,16 @@
             });
 
             DOMElements.attendance.startScanBtn.addEventListener('click', () => {
-                DOMElements.attendance.scannerContainer.classList.remove('hidden');
+                DOMElements.attendance.scannerModal.classList.remove('hidden');
                 html5QrCode = new Html5Qrcode("reader");
                 const onScanSuccess = (decodedText, decodedResult) => {
                     handleMemberAttendance(decodedText);
-                    if (html5QrCode.isScanning) {
+                    if (html5QrCode && html5QrCode.isScanning) {
                         html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner:", err));
                     }
-                    DOMElements.attendance.scannerContainer.classList.add('hidden');
+                    DOMElements.attendance.scannerModal.classList.add('hidden');
                 };
-                const onScanFailure = (error) => {
-                    // console.warn(`Scan error: ${error}`);
-                };
+                const onScanFailure = (error) => { /* ignore */ };
                 
                 Html5Qrcode.getCameras().then(devices => {
                     if (devices && devices.length) {
@@ -886,15 +931,15 @@
                         html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, onScanFailure)
                             .catch(err => {
                                 console.error("Gagal memulai scanner:", err);
-                                DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Tidak dapat memulai kamera. Pastikan Anda telah memberikan izin akses kamera.</div>`;
+                                showAttendanceResult('error', { message: 'Tidak dapat memulai kamera. Pastikan Anda telah memberikan izin akses kamera.' });
                             });
                     } else {
                          console.error("Tidak ada kamera ditemukan.");
-                         DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Tidak ada kamera yang ditemukan di perangkat ini.</div>`;
+                         showAttendanceResult('error', { message: 'Tidak ada kamera yang ditemukan di perangkat ini.' });
                     }
                 }).catch(err => {
                     console.error("Error mendapatkan akses kamera:", err);
-                    DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Gagal mendapatkan akses kamera. Mohon berikan izin pada browser.</div>`;
+                    showAttendanceResult('error', { message: 'Gagal mendapatkan akses kamera. Mohon berikan izin pada browser.' });
                 });
             });
 
@@ -902,7 +947,7 @@
                 if (html5QrCode && html5QrCode.isScanning) {
                     html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner:", err));
                 }
-                DOMElements.attendance.scannerContainer.classList.add('hidden');
+                DOMElements.attendance.scannerModal.classList.add('hidden');
             });
 
             DOMElements.attendance.manualForm.addEventListener('submit', (e) => {
