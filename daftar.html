@@ -1,200 +1,293 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vinca Gym - Khusus Wanita</title>
+    <title>Pendaftaran Member - Vinca Gym</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
-        .primary-color { color: #ffffff; } .bg-primary { background-color: #ffffff; }
-        .bg-secondary { background-color: #1c1c1c; } .border-primary { border-color: #333333; }
-        .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 14px 0 rgba(255, 255, 255, 0.1); }
-        .btn-primary:hover { background-color: #dcdcdc; transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(255, 255, 255, 0.15); }
-        .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); transition: all 0.3s ease; }
-        .card-link { display: block; text-decoration: none; color: inherit; }
-        .card-link:hover .card { transform: translateY(-5px); border-color: #555555; box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3); }
-        .hero-bg {
-            background-color: #1a1a1a;
-            background-image: linear-gradient(to bottom right, #2d3748, #1a202c);
-        }
-        .section-title {
-            color: #ffffff;
-        }
+        .card { background: #242424; border-radius: 1rem; border: 1px solid #333333; }
+        .btn-primary { background-color: #ffffff; color: #121212; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { background-color: #dcdcdc; }
+        input, textarea, input[type="date"] { background-color: #333; border: 1px solid #555; color: white; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        .copy-btn { background-color: transparent; border: none; cursor: pointer; }
+        .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .copy-btn:hover .tooltip { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="antialiased">
     <!-- Header -->
     <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-3 text-2xl font-bold primary-color">
-                <img src="logo.png" alt="Vinca Gym Logo" class="h-10 w-auto">
+            <a href="index.html" class="flex items-center gap-3 text-2xl font-bold text-white">
+                <img src="https://i.imgur.com/upiRXbW.png" alt="Vinca Gym Logo" class="h-10 w-auto">
                 <span>Vinca Gym</span>
             </a>
-            <div class="hidden md:flex space-x-8 items-center">
-                <a href="#why-us" class="text-gray-300 hover:primary-color transition-colors">Tentang Kami</a>
-                <a href="perpanjang.html" class="text-gray-300 hover:primary-color transition-colors">Perpanjang</a>
-                <a href="#harga" class="text-gray-300 hover:primary-color transition-colors">Harga</a>
-                <a href="#lokasi" class="text-gray-300 hover:primary-color transition-colors">Lokasi</a>
-                <a href="admin.html" class="text-gray-300 hover:primary-color transition-colors">Admin</a>
-                <a href="#harga" class="btn-primary px-6 py-2 rounded-full">Daftar Membership</a>
-            </div>
-            <div class="md:hidden"><button id="menu-btn" class="text-white focus:outline-none"><i class="ph ph-list text-3xl"></i></button></div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden bg-black/90">
-            <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800 font-bold text-white">Daftar Membership</a>
-            <a href="#why-us" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Tentang Kami</a>
-            <a href="perpanjang.html" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Perpanjang</a>
-            <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Harga</a>
-            <a href="#lokasi" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Lokasi</a>
-            <a href="admin.html" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Admin</a>
-        </div>
     </header>
     <!-- Main Content -->
-    <main>
-        <!-- Hero Section -->
-        <section class="relative h-[90vh] min-h-[600px] flex items-center justify-center text-white text-center px-6" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=2574&auto=format&fit=crop') no-repeat center center/cover;">
-            <div class="z-10">
-                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">Ruang Aman & Nyaman <br>untuk Wanita Berolahraga</h1>
-                <p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-gray-200">Bergabunglah dengan komunitas kami dan capai tujuan kebugaran Anda di lingkungan yang mendukung dan eksklusif untuk wanita.</p>
-                <p class="mt-6 text-xl md:text-2xl font-semibold tracking-widest text-white/80 uppercase">Move With Us | Women Only</p>
-                <a href="#harga" class="mt-10 inline-block btn-primary px-10 py-4 rounded-full text-lg">Jelajahi Paket Kami</a>
+    <main class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div id="form-container" class="card p-8 w-full max-w-lg">
+            <h1 class="text-3xl font-bold text-center text-white mb-4">Formulir Pendaftaran Member</h1>
+            <!-- Rincian Biaya -->
+            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700 mb-6">
+                <h2 class="text-xl font-semibold text-white mb-4">Rincian Biaya</h2>
+                <div class="space-y-2 text-gray-300">
+                    <div class="flex justify-between"><span>Paket Pilihan:</span><strong id="paket-nama" class="text-white">Memuat...</strong></div>
+                    <div class="flex justify-between"><span>Harga Paket:</span><span id="paket-harga">Rp 0</span></div>
+                    <div id="biaya-member-container" class="flex justify-between"><span>Biaya Member Baru:</span><span id="biaya-member-harga">Rp 50.000</span></div>
+                    <hr class="border-gray-600 my-2">
+                    <div class="flex justify-between text-lg font-bold"><span class="text-white">Total Bayar:</span><span id="total-bayar" class="text-white">Rp 50.000</span></div>
+                </div>
             </div>
-        </section>
+            <!-- Form -->
+            <form id="pendaftaran-form">
+                <div class="mb-4"><label for="nama-lengkap" class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap</label><input type="text" id="nama-lengkap" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
+                <div class="mb-4"><label for="tanggal-lahir" class="block text-sm font-medium text-gray-300 mb-1">Tanggal Lahir</label><input type="date" id="tanggal-lahir" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
+                <div class="mb-4">
+                    <label for="whatsapp" class="block text-sm font-medium text-gray-300 mb-1">No. WhatsApp</label>
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-500 bg-gray-300 text-black text-sm font-semibold">+62</span>
+                        <input type="tel" id="whatsapp" class="w-full px-3 py-2 rounded-r-md bg-gray-300 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white" required placeholder="81234567890">
+                    </div>
+                </div>
+                <div class="mb-4"><label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label><input type="email" id="email" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></div>
+                <div class="mb-6"><label for="alamat" class="block text-sm font-medium text-gray-300 mb-1">Alamat Lengkap</label><textarea id="alamat" rows="3" class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white" required></textarea></div>
+                <button type="submit" id="submit-pendaftaran" class="w-full btn-primary py-3 rounded-md flex items-center justify-center"><span id="submit-text">Daftar Sekarang</span><div id="submit-spinner" class="w-5 h-5 border-2 border-black border-dashed rounded-full animate-spin hidden ml-2"></div></button>
+            </form>
+        </div>
+        <!-- Success Message -->
+        <div id="success-message" class="hidden text-center max-w-lg w-full">
+            <div class="mx-auto bg-green-900/50 w-24 h-24 rounded-full flex items-center justify-center border-2 border-green-500"><i class="ph ph-check-fat text-6xl text-green-400"></i></div>
+            <h1 class="text-3xl font-bold mt-6 text-white">Pendaftaran Berhasil!</h1>
+            <p class="text-gray-300 mt-2">Terima kasih telah mendaftar. Silakan lakukan pembayaran untuk mengaktifkan membership Anda.</p>
+            
+            <div id="payment-info" class="card p-6 mt-6 text-left">
+                <div class="flex items-center justify-between">
+                    <p class="text-lg">No. Member: <strong id="kode-sukses" class="text-yellow-400 font-mono"></strong></p>
+                    <button id="copy-kode-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                </div>
+                <hr class="border-gray-600 my-4">
+                <h3 class="font-bold text-white mb-2">Metode Pembayaran:</h3>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="w-full md:w-1/2">
+                        <p class="font-semibold">QRIS</p>
+                        <img src="qris-code.png" alt="QRIS Code" 
+                            class="rounded-lg mt-2 mx-auto md:mx-0 w-48 h-48"
+                            onerror="this.src='fallback-qris.png'">
+                    </div>
+                    <div class="w-full md:w-1/2 text-sm">
+                        <p class="font-semibold">Transfer Bank</p>
+                        <p>Bank BCA</p>
+                        <div class="flex items-center gap-2">
+                            <p id="rekening-nomor" class="font-mono text-lg">4060622839</p>
+                            <button id="copy-rekening-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                        </div>
+                        <p>a.n. RIMA RIZKY AMELIA</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-4 text-center italic">
+                    Harap konfirmasi dan mengirimkan foto bukti transfer melalui nomor Whatsapp kami dibawah ini. Barakallahu fiik.
+                </p>
+            </div>
 
-        <!-- Why Us Section -->
-        <section id="why-us" class="py-20 bg-secondary">
-            <div class="container mx-auto px-6">
-                <h2 class="section-title text-3xl font-bold text-center mb-12">Mengapa Memilih Vinca Gym?</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-                    <div class="p-6">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-                            <i class="ph ph-sparkle text-4xl"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2 text-white">Eksklusif Wanita</h3>
-                        <p class="text-gray-400">Lingkungan yang 100% aman dan nyaman, dirancang khusus untuk memenuhi kebutuhan kebugaran wanita.</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-                            <i class="ph ph-users-three text-4xl"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2 text-white">Komunitas Solid</h3>
-                        <p class="text-gray-400">Temukan teman baru dan saling dukung dalam perjalanan kebugaran Anda bersama member lain.</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-                            <i class="ph ph-barbell text-4xl"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2 text-white">Fasilitas Lengkap</h3>
-                        <p class="text-gray-400">Peralatan modern dan kelas-kelas menarik yang siap membantu Anda mencapai target.</p>
-                    </div>
-                </div>
+            <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                <button id="download-payment-btn" class="w-full bg-gray-600 text-white py-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-700">
+                    <i id="download-icon" class="ph ph-download-simple"></i>
+                    <span id="download-text">Unduh Info Pembayaran</span>
+                    <div id="download-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+                </button>
+                <a id="whatsapp-confirm-btn" href="#" target="_blank" class="w-full bg-green-500 text-white py-3 rounded-md flex items-center justify-center gap-2 hover:bg-green-600"><i class="ph ph-whatsapp-logo"></i>Konfirmasi via WhatsApp</a>
             </div>
-        </section>
-
-        <!-- Pricing Section -->
-        <section id="harga" class="py-20 bg-black">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold primary-color">Paket Membership</h2>
-                    <p class="mt-2 text-gray-400">Pilih paket bulanan yang paling sesuai untuk Anda.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Regular Package -->
-                    <a href="daftar.html?paket=regular" class="card-link">
-                        <div class="card p-8 text-center h-full ring-2 ring-white relative">
-                            <span class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-sm font-semibold">Populer</span>
-                            <h3 class="text-xl font-bold mt-4">Regular</h3>
-                            <p class="text-4xl font-bold my-4 primary-color">200.000</p>
-                            <p class="text-gray-400">Membership 1 Bulan</p>
-                        </div>
-                    </a>
-                    <!-- Silver Package -->
-                    <a href="daftar.html?paket=silver" class="card-link">
-                        <div class="card p-8 text-center h-full">
-                            <h3 class="text-xl font-bold">Silver</h3>
-                            <p class="text-4xl font-bold my-4 primary-color">525.000</p>
-                            <p class="text-gray-400">Membership 3 Bulan</p>
-                        </div>
-                    </a>
-                    <!-- Gold Package -->
-                    <a href="daftar.html?paket=gold" class="card-link">
-                        <div class="card p-8 text-center h-full">
-                            <h3 class="text-xl font-bold">Gold</h3>
-                            <p class="text-4xl font-bold my-4 primary-color">900.000</p>
-                            <p class="text-gray-400">Membership 6 Bulan</p>
-                        </div>
-                    </a>
-                    <!-- Platinum Package -->
-                    <a href="daftar.html?paket=platinum" class="card-link">
-                        <div class="card p-8 text-center h-full">
-                            <h3 class="text-xl font-bold">Platinum</h3>
-                            <p class="text-4xl font-bold my-4 primary-color">1.200.000</p>
-                            <p class="text-gray-400">Membership 1 Tahun</p>
-                        </div>
-                    </a>
-                </div>
-                
-                <div class="text-center mt-16">
-                    <h3 class="text-2xl font-bold primary-color">Biaya Lainnya</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto mt-6">
-                        <div class="card p-8 text-center"><h3 class="text-xl font-bold">Registrasi Awal</h3><p class="text-4xl font-bold my-4 primary-color">50.000</p><p class="text-gray-400">Hanya untuk member baru</p></div>
-                        <div class="card p-8 text-center"><h3 class="text-xl font-bold">Kunjungan Harian</h3><p class="text-4xl font-bold my-4 primary-color">25.000</p><p class="text-gray-400">Untuk non-member per sesi</p></div>
-                    </div>
-                </div>
-
-                <div class="mt-12 text-center bg-gray-800/50 p-6 rounded-lg border border-gray-700 max-w-3xl mx-auto"><h4 class="font-bold text-lg text-white">Catatan Penting:</h4><ul class="mt-2 text-gray-300 list-inside"><li><i class="ph ph-check-circle text-green-400 mr-2"></i>Jika off selama 3 bulan maka wajib melakukan registrasi member baru.</li><li><i class="ph ph-x-circle text-red-400 mr-2"></i>Member tidak dapat digantikan dengan orang lain.</li></ul></div>
-            </div>
-        </section>
-        <!-- Location Section -->
-        <section id="lokasi" class="py-20 bg-secondary">
-            <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2>
-                    <p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p>
-                    <div class="mt-8 space-y-4">
-                        <div class="flex items-start">
-                            <i class="ph ph-map-pin-line text-2xl text-white mt-1"></i>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">Alamat</h4>
-                                <p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <i class="ph ph-clock text-2xl text-white mt-1"></i>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">Jam Buka</h4>
-                                <p class="text-gray-300">Buka Setiap Hari: 07.30-18.00 WIB</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <i class="ph ph-whatsapp-logo text-2xl text-white mt-1"></i>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">Informasi & Pendaftaran</h4>
-                                <p class="text-gray-300"><a href="https://wa.me/6285782919391" target="_blank" class="hover:underline">0857 8291 9391 (Admin)</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="rounded-lg overflow-hidden shadow-lg h-96 border-2 border-gray-700"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247.83230783077238!2d106.72555907485084!3d-6.353001774697865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ef002203bef9%3A0x3e98fa3ca72a4246!2sVinca%20Gym!5e0!3m2!1sen!2sid!4v1755610089148!5m2!1sen!2sid"  width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-            </div>
-        </section>
+             <a href="index.html" class="mt-4 inline-block text-gray-400 hover:text-white py-3 px-8 rounded-md">Kembali ke Halaman Utama</a>
+        </div>
     </main>
-    <!-- Footer -->
-    <footer class="bg-black py-8 border-t border-gray-800"><div class="container mx-auto px-6 text-center"><p class="text-gray-300">&copy; 2025 Vinca Gym. All Rights Reserved.</p><p class="text-sm text-gray-500 mt-2">Didesain khusus untuk para muslimah.</p></div></footer>
-    <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/6285782919391" target="_blank" class="fixed bottom-8 right-8 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-110 z-50">
-        <i class="ph ph-whatsapp-logo text-3xl"></i>
-    </a>
-    <!-- Script for Mobile Menu -->
-    <script>
-        document.getElementById('menu-btn').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const PAKET_MEMBERSHIP = {
+            regular: { nama: "Regular (1 Bulan)", harga: 200000, prefix: "R", durasiBulan: 1 },
+            silver: { nama: "Silver (3 Bulan)", harga: 525000, prefix: "S", durasiBulan: 3 },
+            gold: { nama: "Gold (6 Bulan)", harga: 900000, prefix: "G", durasiBulan: 6 },
+            platinum: { nama: "Platinum (1 Tahun)", harga: 1200000, prefix: "P", durasiBulan: 12 }
+        };
+        const BIAYA_MEMBER_BARU = 50000;
+        const GRAND_OPENING_DEADLINE = new Date('2025-08-18T00:00:00');
+
+        const pendaftaranForm = document.getElementById('pendaftaran-form');
+        const formContainer = document.getElementById('form-container');
+        const successMessage = document.getElementById('success-message');
+        const downloadPaymentBtn = document.getElementById('download-payment-btn');
+        const copyKodeBtn = document.getElementById('copy-kode-btn');
+        const copyRekeningBtn = document.getElementById('copy-rekening-btn');
+        
+        let paketTerpilih = null;
+        let paketKeyGlobal = null;
+        let isPromoActive = false;
+
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
+        
+        async function generateSequentialCode(packageKey) {
+            const counterRef = doc(db, "counters", "member_registration");
+            let newCode = "";
+            await runTransaction(db, async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                let currentCount = 0;
+                if (counterDoc.exists() && counterDoc.data()[packageKey] !== undefined) { currentCount = counterDoc.data()[packageKey]; }
+                const newCount = currentCount + 1;
+                const updateData = {};
+                updateData[packageKey] = newCount;
+                transaction.set(counterRef, updateData, { merge: true });
+                const prefix = `VG-${PAKET_MEMBERSHIP[packageKey].prefix}`;
+                const paddedNumber = String(newCount).padStart(4, '0');
+                newCode = `${prefix}${paddedNumber}`;
+            });
+            return newCode;
+        }
+
+        function initializePage() {
+            const params = new URLSearchParams(window.location.search);
+            paketKeyGlobal = params.get('paket');
+            paketTerpilih = PAKET_MEMBERSHIP[paketKeyGlobal] || null;
+
+            if (paketTerpilih) {
+                const now = new Date();
+                isPromoActive = now < GRAND_OPENING_DEADLINE;
+                const biayaMember = isPromoActive ? 0 : BIAYA_MEMBER_BARU;
+                
+                document.getElementById('paket-nama').textContent = paketTerpilih.nama;
+                document.getElementById('paket-harga').textContent = formatRupiah(paketTerpilih.harga);
+                
+                const biayaMemberContainer = document.getElementById('biaya-member-container');
+                if(isPromoActive) {
+                    biayaMemberContainer.innerHTML = `<span>Biaya Member Baru:</span><span class="text-green-400">GRATIS (Promo Grand Opening)</span>`;
+                } else {
+                    document.getElementById('biaya-member-harga').textContent = formatRupiah(biayaMember);
+                }
+
+                document.getElementById('total-bayar').textContent = formatRupiah(paketTerpilih.harga + biayaMember);
+            } else {
+                formContainer.innerHTML = `<h1 class="text-2xl font-bold text-center text-red-400">Paket tidak valid.</h1><p class="text-center mt-2">Silakan kembali ke halaman utama dan pilih paket yang tersedia.</p><a href="index.html" class="mt-6 inline-block btn-primary py-2 px-6 rounded-md">Kembali</a>`;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+        pendaftaranForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!paketTerpilih || !paketKeyGlobal) return;
+
+            const submitButton = document.getElementById('submit-pendaftaran');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            submitButton.disabled = true;
+            submitText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                const newRegistrationCode = await generateSequentialCode(paketKeyGlobal);
+                const tanggalMulai = new Date();
+                const tanggalSelesai = new Date(tanggalMulai);
+                tanggalSelesai.setMonth(tanggalSelesai.getMonth() + paketTerpilih.durasiBulan);
+                
+                const whatsappInput = document.getElementById('whatsapp').value.replace(/\D/g, '');
+                const whatsappNumber = `62${whatsappInput.startsWith('0') ? whatsappInput.substring(1) : whatsappInput}`;
+
+                const pendaftar = {
+                    nama: document.getElementById('nama-lengkap').value,
+                    tanggalLahir: new Date(document.getElementById('tanggal-lahir').value),
+                    whatsapp: whatsappNumber,
+                    email: document.getElementById('email').value,
+                    alamat: document.getElementById('alamat').value,
+                    paket: paketTerpilih.nama,
+                    totalBayar: paketTerpilih.harga + (isPromoActive ? 0 : BIAYA_MEMBER_BARU),
+                    kodePendaftaran: newRegistrationCode,
+                    tanggalMulai: tanggalMulai,
+                    tanggalSelesai: tanggalSelesai,
+                    statusPembayaran: false // Status awal pembayaran
+                };
+
+                await addDoc(collection(db, "pendaftaran_member"), pendaftar);
+                formContainer.classList.add('hidden');
+                document.getElementById('kode-sukses').textContent = pendaftar.kodePendaftaran;
+                
+                const whatsappMsg = encodeURIComponent(`Bismillah Vinca Gym, saya ${pendaftar.nama} sudah mendaftar untuk paket ${pendaftar.paket} dengan kode pendaftaran ${pendaftar.kodePendaftaran}. Mohon segera diproses. Barakallahu fiik.`);
+                document.getElementById('whatsapp-confirm-btn').href = `https://wa.me/6285782919391?text=${whatsappMsg}`;
+
+                successMessage.classList.remove('hidden');
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Pendaftaran gagal, silakan coba lagi. Error: " + error);
+                submitButton.disabled = false;
+                submitText.classList.remove('hidden');
+                submitSpinner.classList.add('hidden');
+            }
+        });
+
+        function copyToClipboard(text, buttonElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const originalIcon = buttonElement.innerHTML;
+            const tooltip = buttonElement.querySelector('.tooltip');
+            buttonElement.innerHTML = '<i class="ph ph-check text-green-400"></i>';
+            if (tooltip) tooltip.textContent = 'Tersalin!';
+
+            setTimeout(() => {
+                buttonElement.innerHTML = originalIcon;
+                if (tooltip) tooltip.textContent = 'Salin';
+            }, 2000);
+        }
+
+        copyKodeBtn.addEventListener('click', () => {
+            const kode = document.getElementById('kode-sukses').textContent;
+            copyToClipboard(kode, copyKodeBtn);
+        });
+
+        copyRekeningBtn.addEventListener('click', () => {
+            const rekening = document.getElementById('rekening-nomor').textContent;
+            copyToClipboard(rekening, copyRekeningBtn);
+        });
+
+        downloadPaymentBtn.addEventListener('click', () => {
+            const downloadText = document.getElementById('download-text');
+            const downloadIcon = document.getElementById('download-icon');
+            const downloadSpinner = document.getElementById('download-spinner');
+
+            downloadPaymentBtn.disabled = true;
+            if (downloadText) downloadText.textContent = 'Mempersiapkan...';
+            if (downloadIcon) downloadIcon.classList.add('hidden');
+            if (downloadSpinner) downloadSpinner.classList.remove('hidden');
+
+            const paymentInfo = document.getElementById('payment-info');
+            html2canvas(paymentInfo, { backgroundColor: '#242424' }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'info-pembayaran-vinca-gym.png';
+                link.href = canvas.toDataURL();
+                link.click();
+
+                downloadPaymentBtn.disabled = false;
+                if (downloadText) downloadText.textContent = 'Unduh Info Pembayaran';
+                if (downloadIcon) downloadIcon.classList.remove('hidden');
+                if (downloadSpinner) downloadSpinner.classList.add('hidden');
+            });
         });
     </script>
 </body>
