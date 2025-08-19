@@ -249,7 +249,7 @@
             
             // --- KONFIGURASI & INISIALISASI ---
             const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
-            const ADMIN_PASSWORD = "vinca2025";
+            const ADMIN_PASSWORD = "vincaadmin2025";
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
@@ -592,12 +592,13 @@
             }
 
             async function handleMemberAttendance(memberId) {
+                memberId = memberId.trim(); // Membersihkan spasi
                 DOMElements.attendance.result.innerHTML = `<p>Memproses ${memberId}...</p>`;
                 try {
                     const memberData = await findMemberByCode(memberId);
 
                     if (!memberData) {
-                        showAttendanceResult('notfound');
+                        showAttendanceResult('notfound', {id: memberId});
                         return;
                     }
                     
@@ -613,12 +614,10 @@
                         );
 
                         if (openCheckinIndex > -1) {
-                            // --- CHECK-OUT ---
                             entries[openCheckinIndex].waktuCheckout = new Date();
                             transaction.set(attendanceDocRef, { entries: entries }, { merge: true });
                             showAttendanceResult('checkout_success', memberData);
                         } else {
-                            // --- CHECK-IN ---
                             const now = new Date();
                             if (!memberData.tanggalSelesai || !memberData.tanggalSelesai.seconds) {
                                 showAttendanceResult('error', { nama: memberData.nama, message: 'Data tanggal selesai tidak valid.' });
@@ -685,7 +684,7 @@
                         resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Pembayaran Belum Lunas:</strong> ${data.nama}</div>`;
                         break;
                     case 'notfound':
-                        resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> No. Member tidak ditemukan.</div>`;
+                        resultHtml = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> No. Member "${data.id}" tidak ditemukan.</div>`;
                         break;
                     case 'error':
                         let errorMessage = data.message || "Terjadi kesalahan sistem.";
@@ -870,20 +869,36 @@
             DOMElements.attendance.startScanBtn.addEventListener('click', () => {
                 DOMElements.attendance.scannerContainer.classList.remove('hidden');
                 html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start(
-                    { facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
-                    (decodedText, decodedResult) => {
-                        handleMemberAttendance(decodedText);
-                        html5QrCode.stop().catch(err => console.error("Failed to stop scanner:", err));
-                        DOMElements.attendance.scannerContainer.classList.add('hidden');
-                    },
-                    (errorMessage) => { /* ignore */ }
-                ).catch((err) => console.log(err));
+                const onScanSuccess = (decodedText, decodedResult) => {
+                    handleMemberAttendance(decodedText);
+                    html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner:", err));
+                    DOMElements.attendance.scannerContainer.classList.add('hidden');
+                };
+                const onScanFailure = (error) => {
+                    // console.warn(`Scan error: ${error}`);
+                };
+                
+                Html5Qrcode.getCameras().then(devices => {
+                    if (devices && devices.length) {
+                        const cameraId = devices.find(d => d.label.toLowerCase().includes('back'))?.id || devices[0].id;
+                        html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, onScanFailure)
+                            .catch(err => {
+                                console.error("Gagal memulai scanner:", err);
+                                DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Tidak dapat memulai kamera. Pastikan Anda telah memberikan izin akses kamera.</div>`;
+                            });
+                    } else {
+                         console.error("Tidak ada kamera ditemukan.");
+                         DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Tidak ada kamera yang ditemukan di perangkat ini.</div>`;
+                    }
+                }).catch(err => {
+                    console.error("Error mendapatkan akses kamera:", err);
+                    DOMElements.attendance.result.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"><strong>Error:</strong> Gagal mendapatkan akses kamera. Mohon berikan izin pada browser.</div>`;
+                });
             });
 
             DOMElements.attendance.stopScanBtn.addEventListener('click', () => {
-                if (html5QrCode) {
-                    html5QrCode.stop().catch(err => console.error("Failed to stop scanner:", err));
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().catch(err => console.error("Gagal menghentikan scanner:", err));
                 }
                 DOMElements.attendance.scannerContainer.classList.add('hidden');
             });
