@@ -38,6 +38,15 @@
         .btn-secondary:hover { 
             background-color: #6a6a6a; 
         }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
         .nav-btn {
             background-color: transparent;
             color: #9ca3af;
@@ -69,42 +78,11 @@
         .unpaid-row { background-color: rgba(239, 68, 68, 0.1); }
         .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
         .member-row { cursor: pointer; }
-        
-        /* Scanner Modal Styles */
-        #scanner-modal {
-            background-color: rgba(0, 0, 0, 0.7);
-            transition: opacity 0.3s ease;
-        }
-        #reader {
-            position: relative;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1rem;
-            overflow: hidden;
-        }
-        #reader__scan_region {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .scan-line {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #34d399, transparent);
-            animation: scan 2.5s infinite linear;
-            box-shadow: 0 0 10px #34d399;
-        }
-        @keyframes scan {
-            0% { top: 0; }
-            50% { top: 100%; }
-            100% { top: 0; }
-        }
-
+        #reader { border: 2px solid #555; border-radius: 0.5rem; }
         .card-bg { background: linear-gradient(135deg, #3a3a3a 0%, #242424 100%); }
         .aspect-4-3 { aspect-ratio: 4 / 3; }
         #render-qrcode img { margin: auto; }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); }
     </style>
 </head>
 <body class="antialiased">
@@ -224,10 +202,14 @@
             <div id="members-view" class="hidden">
                  <section id="pendaftaran-member" class="mb-12">
                     <div id="member-table-view">
-                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
-                            <button id="export-member-btn" class="btn-secondary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data Member (Excel)</button>
+                            <div class="flex gap-2">
+                                <button id="archive-members-btn" class="btn-danger px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-archive"></i>Arsipkan Member Tidak Aktif</button>
+                                <button id="export-member-btn" class="btn-secondary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data</button>
+                            </div>
                         </div>
+                        <div id="archive-message" class="mb-4"></div>
                         <div id="member-content" class="card p-6">
                             <p>Memuat data pendaftar...</p>
                         </div>
@@ -242,13 +224,32 @@
 
     <!-- Scanner Modal -->
     <div id="scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/70"></div>
+        <div class="absolute inset-0 modal-backdrop"></div>
         <div class="relative bg-[#242424] p-6 rounded-2xl w-full max-w-md shadow-xl">
             <h3 class="text-xl font-bold text-center text-white mb-4">Pindai QR Code Member</h3>
             <div id="reader" class="w-full">
                 <div class="scan-line"></div>
             </div>
             <button id="stop-scan-btn" class="mt-4 w-full btn-secondary py-2 rounded-lg">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Archive Confirmation Modal -->
+    <div id="archive-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative card p-8 w-full max-w-md text-center">
+            <div class="mx-auto bg-yellow-900/50 w-20 h-20 rounded-full flex items-center justify-center border-2 border-yellow-500">
+                <i class="ph ph-warning text-5xl text-yellow-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold mt-6 text-white">Konfirmasi Arsip</h2>
+            <p class="text-gray-300 mt-2">Anda akan mengarsipkan member yang masa aktifnya telah berakhir lebih dari 3 bulan. Data tidak akan dihapus permanen. Lanjutkan?</p>
+            <div class="mt-6 flex gap-4">
+                <button id="cancel-archive-btn" class="w-full btn-secondary py-2 rounded-md">Batal</button>
+                <button id="confirm-archive-btn" class="w-full btn-danger py-2 rounded-md flex items-center justify-center">
+                    <span id="archive-text">Ya, Arsipkan</span>
+                    <div id="archive-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -282,13 +283,13 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- KONFIGURASI & INISIALISASI ---
             const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
-            const ADMIN_PASSWORD = "vinca2025";
+            const ADMIN_PASSWORD = "vincaadmin2025";
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
@@ -338,7 +339,14 @@
                     tableView: document.getElementById('member-table-view'),
                     detailView: document.getElementById('member-detail-view'),
                     content: document.getElementById('member-content'),
-                    exportBtn: document.getElementById('export-member-btn')
+                    exportBtn: document.getElementById('export-member-btn'),
+                    archiveBtn: document.getElementById('archive-members-btn'),
+                    archiveMessage: document.getElementById('archive-message'),
+                    archiveConfirmModal: document.getElementById('archive-confirm-modal'),
+                    confirmArchiveBtn: document.getElementById('confirm-archive-btn'),
+                    cancelArchiveBtn: document.getElementById('cancel-archive-btn'),
+                    archiveText: document.getElementById('archive-text'),
+                    archiveSpinner: document.getElementById('archive-spinner'),
                 },
                 cardTemplate: {
                     container: document.getElementById('card-to-render'),
@@ -549,7 +557,7 @@
                 const waButton = document.getElementById('send-whatsapp-btn');
                 if (waButton) {
                     const noWa = (member.whatsapp || '').replace(/\D/g, '');
-                    const message = `Ahlan *${member.nama}*, Jazakillahu khayraa telah menjadi member Vinca Gym. Anda Berada Pada Paket Membership *${member.paket}* dengan Tgl Expired : *${formatDate(member.tanggalSelesai)}*.\nSimpan Kartu Virtual untuk melakukan checkin\nPastikan keanggotaan member Vinca Gym kamu aktif agar dapat terus melakukan latihan. Baraakallahu Fiikum.\nPesan ini dikirim oleh *Vinca Gym*.\nJl. Bratasena IX Blok U7/41, Pamulang. Tangerang Selatan\nContact Person : 085782919391`;
+                    const message = `Ahlan *${member.nama}*, Jazakillahu khayraa telah menjadi member Vinca Gym. Anda Berada Pada Paket Membership *${member.paket}* dengan Tgl Expired : *${formatDate(member.tanggalSelesai)}*.\n\nSimpan Kartu Virtual untuk melakukan checkin\n\nPastikan keanggotaan member Vinca Gym kamu aktif agar dapat terus melakukan latihan. Baraakallahu Fiikum.\n\nPesan ini dikirim oleh *Vinca Gym*.\nJl. Bratasena IX Blok U7/41, Pamulang. Tangerang Selatan\nContact Person : 085782919391`;
                     waButton.href = `https://wa.me/${noWa}?text=${encodeURIComponent(message)}`;
                 }
             }
@@ -745,7 +753,9 @@
             async function loadMemberData() {
                 try {
                     const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
-                    allMemberData = querySnapshot.docs.map((doc, index) => ({ docId: doc.id, index, ...doc.data() }));
+                    allMemberData = querySnapshot.docs
+                        .map((doc, index) => ({ docId: doc.id, index, ...doc.data() }))
+                        .filter(member => member.isArchived !== true);
                     updateSummary();
                     renderMemberTable();
                 } catch (error) {
@@ -861,6 +871,62 @@
                 }
             }
 
+            async function archiveInactiveMembers() {
+                const archiveBtn = DOMElements.members.confirmArchiveBtn;
+                const archiveText = DOMElements.members.archiveText;
+                const archiveSpinner = DOMElements.members.archiveSpinner;
+                const archiveMessage = DOMElements.members.archiveMessage;
+
+                archiveBtn.disabled = true;
+                archiveText.textContent = 'Mengarsipkan...';
+                archiveSpinner.classList.remove('hidden');
+                archiveMessage.innerHTML = '';
+
+                try {
+                    const threeMonthsAgo = new Date();
+                    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+                    const q = query(collection(db, "pendaftaran_member"), 
+                        where("tanggalSelesai", "<", threeMonthsAgo)
+                    );
+                    
+                    const querySnapshot = await getDocs(q);
+                    const membersToArchive = querySnapshot.docs.filter(doc => doc.data().isArchived !== true);
+
+                    if (membersToArchive.length === 0) {
+                        archiveMessage.innerHTML = `<div class="bg-blue-900/50 border border-blue-500 text-blue-300 p-3 rounded-lg text-sm">Tidak ada member tidak aktif yang perlu diarsipkan.</div>`;
+                        return;
+                    }
+
+                    const batch = writeBatch(db);
+                    let archivedCount = 0;
+
+                    membersToArchive.forEach(docSnap => {
+                        const memberRef = doc(db, "pendaftaran_member", docSnap.id);
+                        const archiveRef = doc(db, "arsip_member", docSnap.id);
+                        
+                        const dataToArchive = docSnap.data();
+                        batch.set(archiveRef, dataToArchive); // Copy to archive
+                        batch.update(memberRef, { isArchived: true }); // Mark as archived
+                        archivedCount++;
+                    });
+
+                    await batch.commit();
+                    
+                    archiveMessage.innerHTML = `<div class="bg-green-900/50 border border-green-500 text-green-300 p-3 rounded-lg text-sm"><strong>Berhasil:</strong> ${archivedCount} member telah diarsipkan.</div>`;
+                    loadMemberData(); // Refresh the member list
+
+                } catch (error) {
+                    console.error("Error archiving members:", error);
+                    archiveMessage.innerHTML = `<div class="bg-red-900/50 border border-red-500 text-red-300 p-3 rounded-lg text-sm"><strong>Gagal:</strong> Terjadi kesalahan saat mengarsipkan data.</div>`;
+                } finally {
+                    archiveBtn.disabled = false;
+                    archiveText.textContent = 'Ya, Arsipkan';
+                    archiveSpinner.classList.add('hidden');
+                    DOMElements.members.archiveConfirmModal.classList.add('hidden');
+                }
+            }
+
             function loadAllData() {
                 loadMemberData();
                 loadAttendanceHistory();
@@ -960,8 +1026,15 @@
             DOMElements.attendance.exportBtn.addEventListener('click', exportAttendanceHistory);
             
             DOMElements.attendance.visitorForm.addEventListener('submit', handleVisitorSubmit);
+
+            DOMElements.members.archiveBtn.addEventListener('click', () => {
+                DOMElements.members.archiveConfirmModal.classList.remove('hidden');
+            });
+            DOMElements.members.cancelArchiveBtn.addEventListener('click', () => {
+                DOMElements.members.archiveConfirmModal.classList.add('hidden');
+            });
+            DOMElements.members.confirmArchiveBtn.addEventListener('click', archiveInactiveMembers);
         });
     </script>
 </body>
 </html>
-
