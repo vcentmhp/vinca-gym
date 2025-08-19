@@ -89,18 +89,18 @@
                 <hr class="border-gray-600 my-4">
                 <h3 class="font-bold text-white mb-2">Metode Pembayaran:</h3>
                 <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <div class="w-full md:w-1/2">
-                        <p class="font-semibold">QRIS</p>
-                        <img src="qris-code.png" alt="QRIS Code" 
-                            class="rounded-lg mt-2 mx-auto md:mx-0 w-48 h-48"
-                            onerror="this.src='fallback-qris.png'">
+                    <!-- QRIS -->
+                    <div class="w-full md:w-1/2 flex flex-col items-center">
+                        <img src="qris-logo.png" alt="QRIS Logo" class="h-6 mb-3">
+                        <img src="qris-code.png" alt="QRIS Code" class="rounded-lg w-40 h-40 border-4 border-white">
                     </div>
-                    <div class="w-full md:w-1/2 text-sm">
-                        <p class="font-semibold">Transfer Bank</p>
-                        <p>Bank BCA</p>
-                        <div class="flex items-center justify-center md:justify-start gap-2">
-                            <p id="rekening-nomor" class="font-mono text-lg">4060622839    </p>
-                            <button id="copy-rekening-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
+                    <!-- Bank Transfer -->
+                    <div class="w-full md:w-1/2 flex flex-col items-center md:items-start">
+                        <img src="bca-logo.png" alt="BCA Logo" class="h-6 mb-3">
+                        <p class="font-semibold">Bank BCA</p>
+                        <div class="flex items-center gap-2">
+                           <p id="rekening-nomor" class="font-mono text-lg">4060622839</p>
+                           <button id="copy-rekening-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
                         </div>
                         <p>a.n. RIMA RIZKY AMELIA</p>
                     </div>
