@@ -320,8 +320,8 @@
                 const noWa = (member.whatsapp || '').replace(/\D/g, '');
                 const waLink = `https://wa.me/${noWa}`;
                 const message = `Ahlan *${member.nama}*, Jazakillahu khayraa telah menjadi member Vinca Gym. Anda Berada Pada Paket Membership *${member.paket}* dengan Tgl Expired : *${formatDate(member.tanggalSelesai)}*.
-                \n\nSimpan Kartu Virtual untuk melakukan checkin\n\nPastikan keanggotaan member Vinca Gym kamu aktif agar dapat terus melakukan latihan. Baraakallahu Fiikum.
-                \n\nPesan ini dikirim oleh *Vinca Gym*.\nJl. Bratasena IX Blok U7/41, Pamulang. Tangerang Selatan\nContact Person : 085782919391`;
+                \nSimpan Kartu Virtual untuk melakukan checkin\nPastikan keanggotaan member Vinca Gym kamu aktif agar dapat terus melakukan latihan. Baraakallahu Fiikum.
+                \nPesan ini dikirim oleh *Vinca Gym*.\nJl. Bratasena IX Blok U7/41, Pamulang. Tangerang Selatan\nContact Person : 085782919391`;
                 waButton.href = `${waLink}?text=${encodeURIComponent(message)}`;
             }
         }
@@ -608,3 +608,4 @@
     </script>
 </body>
 </html>
+
