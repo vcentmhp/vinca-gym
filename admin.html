@@ -70,6 +70,7 @@
         .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
         .member-row { cursor: pointer; }
         #scanner-container { width: 100%; max-width: 500px; margin: auto; }
+        #reader { border: 2px solid #555; border-radius: 0.5rem; }
         .card-bg { background: linear-gradient(135deg, #3a3a3a 0%, #242424 100%); }
         .aspect-4-3 { aspect-ratio: 4 / 3; }
     </style>
@@ -814,6 +815,11 @@
                 }
             }
 
+            function loadAllData() {
+                loadMemberData();
+                loadAttendanceHistory();
+            }
+
             function switchView(viewToShow) {
                 if (viewToShow === 'attendance') {
                     DOMElements.navigation.attendanceView.classList.remove('hidden');
@@ -826,11 +832,6 @@
                     DOMElements.navigation.showAttendanceBtn.classList.remove('active');
                     DOMElements.navigation.showMembersBtn.classList.add('active');
                 }
-            }
-
-            function loadAllData() {
-                loadMemberData();
-                loadAttendanceHistory();
             }
 
             // --- EVENT LISTENERS & LOGIKA UTAMA ---
@@ -901,4 +902,3 @@
     </script>
 </body>
 </html>
-
