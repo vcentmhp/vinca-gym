@@ -64,7 +64,7 @@
             border-radius: 0.75rem; 
             border: 1px solid #333333;
         }
-        input, select { 
+        input, select, textarea { 
             background-color: #333; 
             border: 1px solid #555; 
             color: white; 
@@ -77,6 +77,8 @@
         }
         .unpaid-row { background-color: rgba(239, 68, 68, 0.1); }
         .unpaid-row:hover { background-color: rgba(239, 68, 68, 0.2); }
+        .expiring-row { background-color: rgba(250, 204, 21, 0.1); }
+        .expiring-row:hover { background-color: rgba(250, 204, 21, 0.2); }
         .member-row { cursor: pointer; }
         #reader { border: 2px solid #555; border-radius: 0.5rem; }
         .card-bg { background: linear-gradient(135deg, #3a3a3a 0%, #242424 100%); }
@@ -204,10 +206,14 @@
                     <div id="member-table-view">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <h2 class="text-2xl font-bold text-white">Pendaftar Member Baru</h2>
-                            <div class="flex gap-2">
-                                <button id="archive-members-btn" class="btn-danger px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-archive"></i>Arsipkan Member Tidak Aktif</button>
-                                <button id="export-member-btn" class="btn-secondary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data</button>
+                            <div class="relative w-full sm:w-64">
+                                <input type="text" id="search-member-input" placeholder="Cari Nama atau No. Member..." class="w-full pl-10 pr-4 py-2 rounded-full">
+                                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             </div>
+                        </div>
+                        <div class="flex justify-end gap-2 mb-4">
+                            <button id="archive-members-btn" class="btn-danger px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-archive"></i>Arsipkan Member Tidak Aktif</button>
+                            <button id="export-member-btn" class="btn-secondary px-4 py-2 rounded-full text-sm flex items-center gap-2"><i class="ph ph-download-simple"></i>Unduh Data</button>
                         </div>
                         <div id="archive-message" class="mb-4"></div>
                         <div id="member-content" class="card p-6">
@@ -339,6 +345,7 @@
                     tableView: document.getElementById('member-table-view'),
                     detailView: document.getElementById('member-detail-view'),
                     content: document.getElementById('member-content'),
+                    searchInput: document.getElementById('search-member-input'),
                     exportBtn: document.getElementById('export-member-btn'),
                     archiveBtn: document.getElementById('archive-members-btn'),
                     archiveMessage: document.getElementById('archive-message'),
@@ -361,6 +368,11 @@
             // Fungsi Utilitas
             const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
             const formatDate = (timestamp) => (timestamp && timestamp.seconds) ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+            const formatDateForInput = (timestamp) => {
+                if (!timestamp || !timestamp.seconds) return '';
+                const date = new Date(timestamp.seconds * 1000);
+                return date.toISOString().split('T')[0];
+            };
             const formatTimeForInput = (timestamp) => {
                 if (!timestamp || typeof timestamp.seconds !== 'number') return '';
                 const date = new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds / 1000000));
@@ -468,16 +480,29 @@
             }
 
             // --- FUNGSI RENDER (Update UI) ---
-            function renderMemberTable() {
+            function renderMemberTable(membersToRender = allMemberData) {
                 let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
-                if (allMemberData.length > 0) {
-                    allMemberData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
-                    allMemberData.forEach((member, index) => {
-                        member.index = index;
+                if (membersToRender.length > 0) {
+                    membersToRender.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
+                    membersToRender.forEach((member) => {
                         const isPaid = member.statusPembayaran === true;
-                        const rowClass = !isPaid ? 'unpaid-row' : '';
+                        
+                        let rowClass = '';
+                        if (!isPaid) {
+                            rowClass = 'unpaid-row';
+                        } else {
+                            const now = new Date();
+                            const expiryDate = member.tanggalSelesai.toDate();
+                            const timeDiff = expiryDate.getTime() - now.getTime();
+                            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                            if (dayDiff >= 0 && dayDiff <= 1) { 
+                                rowClass = 'expiring-row';
+                            }
+                        }
+
                         tableHtml += `
-                            <tr class="border-b border-gray-700 text-sm ${rowClass} member-row" data-index="${index}">
+                            <tr class="border-b border-gray-700 text-sm ${rowClass} member-row" data-doc-id="${member.docId}">
                                 <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
                                 <td class="py-2 px-4">${member.nama || 'N/A'}</td>
                                 <td class="py-2 px-4">${member.paket || 'N/A'}</td>
@@ -486,71 +511,137 @@
                             </tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="5" class="text-center py-4 text-gray-400">Belum ada pendaftar member baru</td></tr>`;
+                    tableHtml += `<tr><td colspan="5" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 DOMElements.members.content.innerHTML = tableHtml;
 
                 document.querySelectorAll('.member-row').forEach(row => {
-                    row.addEventListener('click', (e) => showMemberDetail(e.currentTarget.dataset.index));
+                    row.addEventListener('click', (e) => showMemberDetail(e.currentTarget.dataset.docId, 'view'));
                 });
             }
 
-            function showMemberDetail(index) {
-                const member = allMemberData[index];
+            function showMemberDetail(docId, mode = 'view') {
+                const member = allMemberData.find(m => m.docId === docId);
                 if (!member) return;
 
-                const noWa = (member.whatsapp || '').replace(/\D/g, '');
-                const waLink = `https://wa.me/${noWa}`;
-                const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
                 const isPaid = member.statusPembayaran === true;
                 
-                const detailHtml = `
-                    <div class="card p-8">
-                        <button id="back-to-table" class="mb-6 text-gray-400 hover:text-white flex items-center gap-2"><i class="ph ph-arrow-left"></i> Kembali ke Daftar</button>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="md:col-span-1">
-                                <h2 class="text-2xl font-bold text-white">${member.nama}</h2>
-                                <p class="font-mono text-yellow-400">${member.kodePendaftaran}</p>
-                                <div id="status-bayar-detail" class="mt-2 text-lg font-semibold ${isPaid ? 'text-green-400' : 'text-red-400'}">
-                                    ${isPaid ? 'Lunas' : 'Belum Lunas'}
-                                </div>
+                let detailHtml = '';
+
+                if (mode === 'edit') {
+                    detailHtml = `
+                        <div class="card p-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-white">Edit Data: ${member.nama}</h2>
+                                <div id="detail-message" class="text-sm"></div>
                             </div>
-                            <div class="md:col-span-2 space-y-3 text-sm">
-                                <p><strong class="text-gray-400 w-32 inline-block">Tanggal Lahir:</strong> ${formatDate(member.tanggalLahir)}</p>
-                                <p><strong class="text-gray-400 w-32 inline-block">No. WhatsApp:</strong> <a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></p>
-                                <p><strong class="text-gray-400 w-32 inline-block">Email:</strong> ${member.email || '-'}</p>
-                                <p><strong class="text-gray-400 w-32 inline-block">Alamat:</strong> ${member.alamat}</p>
-                                <hr class="border-gray-700">
-                                <p><strong class="text-gray-400 w-32 inline-block">Paket:</strong> ${member.paket}</p>
-                                <p><strong class="text-gray-400 w-32 inline-block">Tanggal Mulai:</strong> ${formatDate(member.tanggalMulai)}</p>
-                                <p><strong class="text-gray-400 w-32 inline-block">Tanggal Selesai:</strong> ${formatDate(member.tanggalSelesai)}</p>
-                                <p><strong class="text-gray-400 w-32 inline-block">Total Bayar:</strong> ${formatRupiah(member.totalBayar)}</p>
+                            <div class="space-y-4">
+                                <div><label for="detail-nama" class="block text-xs font-medium text-gray-400">Nama Lengkap</label><input type="text" id="detail-nama" class="w-full mt-1" value="${member.nama}"></div>
+                                <div><label for="detail-dob" class="block text-xs font-medium text-gray-400">Tanggal Lahir</label><input type="date" id="detail-dob" class="w-full mt-1" value="${formatDateForInput(member.tanggalLahir)}"></div>
+                                <div><label for="detail-whatsapp" class="block text-xs font-medium text-gray-400">No. WhatsApp (+62)</label><input type="tel" id="detail-whatsapp" class="w-full mt-1" value="${(member.whatsapp || '').replace('62', '')}"></div>
+                                <div><label for="detail-email" class="block text-xs font-medium text-gray-400">Email</label><input type="email" id="detail-email" class="w-full mt-1" value="${member.email || ''}"></div>
+                                <div><label for="detail-alamat" class="block text-xs font-medium text-gray-400">Alamat</label><textarea id="detail-alamat" rows="2" class="w-full mt-1">${member.alamat}</textarea></div>
+                                <hr class="border-gray-700 my-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label for="detail-start-date" class="block text-xs font-medium text-gray-400">Tanggal Mulai</label><input type="date" id="detail-start-date" class="w-full mt-1" value="${formatDateForInput(member.tanggalMulai)}"></div>
+                                    <div><label for="detail-end-date" class="block text-xs font-medium text-gray-400">Tanggal Selesai</label><input type="date" id="detail-end-date" class="w-full mt-1" value="${formatDateForInput(member.tanggalSelesai)}"></div>
+                                </div>
                                 <div class="flex items-center gap-4 pt-2">
-                                    <label for="payment-checkbox-detail" class="font-bold text-white">Konfirmasi Bayar:</label>
-                                    <input type="checkbox" id="payment-checkbox-detail" data-doc-id="${member.docId}" data-index="${index}" class="payment-checkbox-detail w-5 h-5" ${isPaid ? 'checked' : ''}>
+                                    <label for="payment-checkbox-detail" class="font-bold text-white">Status Lunas:</label>
+                                    <input type="checkbox" id="payment-checkbox-detail" data-doc-id="${member.docId}" data-index="${member.index}" class="payment-checkbox-detail w-5 h-5" ${isPaid ? 'checked' : ''}>
                                 </div>
-                                <div id="send-card-container" class="${isPaid ? '' : 'hidden'} pt-2 flex gap-2">
-                                    <button id="download-card-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-download-simple"></i>Unduh Kartu</button>
-                                    <a id="send-whatsapp-btn" href="#" target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-whatsapp-logo"></i>Kirim Kartu via WA</a>
+                                <div class="flex gap-4 mt-6">
+                                    <button id="cancel-edit-btn" class="w-full btn-secondary py-2 rounded-lg">Batal</button>
+                                    <button id="save-member-changes-btn" class="w-full btn-primary py-2 rounded-lg">Simpan Perubahan</button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                `;
+                        </div>`;
+                } else { // View Mode
+                    const noWa = (member.whatsapp || '').replace(/\D/g, '');
+                    const waLink = `https://wa.me/${noWa}`;
+                    const displayWa = noWa ? `0${noWa.substring(2)}` : '-';
+                    detailHtml = `
+                        <div class="card p-8">
+                            <div class="flex justify-between items-start">
+                                <button id="back-to-table" class="mb-6 text-gray-400 hover:text-white flex items-center gap-2"><i class="ph ph-arrow-left"></i> Kembali</button>
+                                <button id="edit-member-btn" class="text-gray-400 hover:text-white"><i class="ph ph-pencil-simple text-2xl"></i></button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="md:col-span-1">
+                                    <h2 class="text-2xl font-bold text-white">${member.nama}</h2>
+                                    <p class="font-mono text-yellow-400">${member.kodePendaftaran}</p>
+                                    <div id="status-bayar-detail" class="mt-2 text-lg font-semibold ${isPaid ? 'text-green-400' : 'text-red-400'}">
+                                        ${isPaid ? 'Lunas' : 'Belum Lunas'}
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2 space-y-3 text-sm">
+                                    <p><strong class="text-gray-400 w-32 inline-block">Tanggal Lahir:</strong> ${formatDate(member.tanggalLahir)}</p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">No. WhatsApp:</strong> <a href="${waLink}" target="_blank" class="text-green-400 hover:underline">${displayWa}</a></p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">Email:</strong> ${member.email || '-'}</p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">Alamat:</strong> ${member.alamat}</p>
+                                    <hr class="border-gray-700">
+                                    <p><strong class="text-gray-400 w-32 inline-block">Paket:</strong> ${member.paket}</p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">Tanggal Mulai:</strong> ${formatDate(member.tanggalMulai)}</p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">Tanggal Selesai:</strong> ${formatDate(member.tanggalSelesai)}</p>
+                                    <p><strong class="text-gray-400 w-32 inline-block">Total Bayar:</strong> ${formatRupiah(member.totalBayar)}</p>
+                                    <div id="send-card-container" class="${isPaid ? '' : 'hidden'} pt-2 flex gap-2">
+                                        <button id="download-card-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-download-simple"></i>Unduh Kartu</button>
+                                        <a id="send-whatsapp-btn" href="#" target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm"><i class="ph ph-whatsapp-logo"></i>Kirim Kartu via WA</a>
+                                    </div>
+                                    <hr class="border-gray-700 my-4">
+                                    <div>
+                                        <h4 class="font-bold text-white mb-2">Manajemen Cuti</h4>
+                                        <p class="text-xs text-gray-400 mb-3">Tanggal selesai membership akan otomatis diperpanjang sesuai durasi cuti.</p>
+                                        <form id="cuti-form" class="flex items-center gap-2">
+                                            <input type="number" id="cuti-days" class="w-24" placeholder="Hari" min="1" required>
+                                            <button type="submit" class="btn-secondary px-4 py-2 rounded-lg text-sm">Ajukan Cuti</button>
+                                        </form>
+                                        <div id="cuti-history" class="mt-4 text-xs">
+                                            <p class="font-semibold text-gray-300">Riwayat Cuti:</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+                
                 DOMElements.members.detailView.innerHTML = detailHtml;
                 DOMElements.members.tableView.classList.add('hidden');
                 DOMElements.members.detailView.classList.remove('hidden');
 
-                document.getElementById('back-to-table').addEventListener('click', () => {
-                    DOMElements.members.detailView.classList.add('hidden');
-                    DOMElements.members.tableView.classList.remove('hidden');
-                    renderMemberTable(); 
-                });
-                
-                document.getElementById('download-card-btn').addEventListener('click', () => downloadMemberCard(member));
-                document.getElementById('payment-checkbox-detail').addEventListener('change', (e) => handlePaymentStatusChange(e, loadMemberData));
-                updateWhatsappLink(member);
+                // Attach event listeners based on mode
+                if (mode === 'edit') {
+                    document.getElementById('save-member-changes-btn').addEventListener('click', () => handleUpdateMember(member.docId, member.index));
+                    document.getElementById('cancel-edit-btn').addEventListener('click', () => showMemberDetail(docId, 'view'));
+                    document.getElementById('payment-checkbox-detail').addEventListener('change', (e) => handlePaymentStatusChange(e));
+                } else {
+                    document.getElementById('back-to-table').addEventListener('click', () => {
+                        DOMElements.members.detailView.classList.add('hidden');
+                        DOMElements.members.tableView.classList.remove('hidden');
+                        renderMemberTable(); 
+                    });
+                    document.getElementById('edit-member-btn').addEventListener('click', () => showMemberDetail(docId, 'edit'));
+                    if (isPaid) {
+                        document.getElementById('download-card-btn').addEventListener('click', () => downloadMemberCard(member));
+                        updateWhatsappLink(member);
+                    }
+                    const cutiForm = document.getElementById('cuti-form');
+                    if (cutiForm) {
+                        cutiForm.addEventListener('submit', (e) => handleCutiSubmit(e, member));
+                    }
+                    const cutiHistoryContainer = document.getElementById('cuti-history');
+                    if (cutiHistoryContainer && member.riwayatCuti && member.riwayatCuti.length > 0) {
+                        let historyHtml = '<ul class="list-disc list-inside mt-2 text-gray-400 space-y-1">';
+                        member.riwayatCuti.forEach(cuti => {
+                            historyHtml += `<li>Cuti <strong>${cuti.durasi} hari</strong>, mulai ${formatDate(cuti.tanggalMulai)}. Diperpanjang hingga ${formatDate(cuti.tanggalSelesaiDiperpanjangKe)}.</li>`;
+                        });
+                        historyHtml += '</ul>';
+                        cutiHistoryContainer.innerHTML += historyHtml;
+                    } else if (cutiHistoryContainer) {
+                         cutiHistoryContainer.innerHTML += '<p class="text-gray-500 mt-2">Belum ada riwayat cuti.</p>';
+                    }
+                }
             }
             
             function updateWhatsappLink(member) {
@@ -571,7 +662,7 @@
                 DOMElements.summary.unpaid.textContent = unpaid;
             }
 
-            async function handlePaymentStatusChange(event, callback) {
+            async function handlePaymentStatusChange(event) {
                 const checkbox = event.target;
                 const docId = checkbox.dataset.docId;
                 const index = checkbox.dataset.index;
@@ -581,16 +672,11 @@
                     const memberRef = doc(db, "pendaftaran_member", docId);
                     await updateDoc(memberRef, { statusPembayaran: isChecked });
                     
-                    if (index !== undefined) {
-                        allMemberData[index].statusPembayaran = isChecked;
-                        const statusDiv = document.getElementById('status-bayar-detail');
-                        statusDiv.textContent = isChecked ? 'Lunas' : 'Belum Lunas';
-                        statusDiv.className = `mt-2 text-lg font-semibold ${isChecked ? 'text-green-400' : 'text-red-400'}`;
-                        document.getElementById('send-card-container').classList.toggle('hidden', !isChecked);
+                    const memberIndex = allMemberData.findIndex(m => m.docId === docId);
+                    if (memberIndex !== -1) {
+                        allMemberData[memberIndex].statusPembayaran = isChecked;
                     }
                     updateSummary();
-                    if (callback) callback();
-
                 } catch (error) {
                     console.error("Gagal update status pembayaran:", error);
                     alert("Gagal memperbarui status. Coba lagi.");
@@ -927,6 +1013,114 @@
                 }
             }
 
+            async function handleCutiSubmit(e, member) {
+                e.preventDefault();
+                const cutiDaysInput = document.getElementById('cuti-days');
+                const cutiDays = parseInt(cutiDaysInput.value, 10);
+
+                if (isNaN(cutiDays) || cutiDays <= 0) {
+                    alert("Jumlah hari cuti tidak valid.");
+                    return;
+                }
+
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Memproses...';
+
+                try {
+                    const memberRef = doc(db, "pendaftaran_member", member.docId);
+                    
+                    await runTransaction(db, async (transaction) => {
+                        const memberDoc = await transaction.get(memberRef);
+                        if (!memberDoc.exists()) {
+                            throw "Member tidak ditemukan!";
+                        }
+
+                        const memberData = memberDoc.data();
+                        const currentTanggalSelesai = memberData.tanggalSelesai.toDate();
+                        
+                        const newTanggalSelesai = new Date(currentTanggalSelesai);
+                        newTanggalSelesai.setDate(newTanggalSelesai.getDate() + cutiDays);
+
+                        const newCutiRecord = {
+                            tanggalMulai: new Date(),
+                            durasi: cutiDays,
+                            tanggalSelesaiDiperpanjangKe: newTanggalSelesai
+                        };
+
+                        const riwayatCuti = memberData.riwayatCuti || [];
+                        riwayatCuti.push(newCutiRecord);
+
+                        transaction.update(memberRef, {
+                            tanggalSelesai: newTanggalSelesai,
+                            riwayatCuti: riwayatCuti
+                        });
+                    });
+
+                    alert(`Cuti berhasil diajukan. Tanggal selesai member diperpanjang.`);
+                    
+                    await loadMemberData();
+                    const updatedMember = allMemberData.find(m => m.docId === member.docId);
+                    if (updatedMember) {
+                        showMemberDetail(updatedMember.docId);
+                    }
+
+                } catch (error) {
+                    console.error("Gagal mengajukan cuti:", error);
+                    alert("Terjadi kesalahan saat mengajukan cuti. Silakan coba lagi.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Ajukan Cuti';
+                }
+            }
+            
+            async function handleUpdateMember(docId, index) {
+                const saveButton = document.getElementById('save-member-changes-btn');
+                saveButton.disabled = true;
+                saveButton.textContent = 'Menyimpan...';
+                
+                try {
+                    const whatsappInput = document.getElementById('detail-whatsapp').value.replace(/\D/g, '');
+                    const whatsappNumber = `62${whatsappInput.startsWith('0') ? whatsappInput.substring(1) : whatsappInput}`;
+
+                    const updatedData = {
+                        nama: document.getElementById('detail-nama').value,
+                        tanggalLahir: new Date(document.getElementById('detail-dob').value),
+                        whatsapp: whatsappNumber,
+                        email: document.getElementById('detail-email').value,
+                        alamat: document.getElementById('detail-alamat').value,
+                        tanggalMulai: new Date(document.getElementById('detail-start-date').value),
+                        tanggalSelesai: new Date(document.getElementById('detail-end-date').value),
+                    };
+
+                    const memberRef = doc(db, "pendaftaran_member", docId);
+                    await updateDoc(memberRef, updatedData);
+                    
+                    const memberIndex = allMemberData.findIndex(m => m.docId === docId);
+                    if(memberIndex !== -1) {
+                       allMemberData[memberIndex] = { ...allMemberData[memberIndex], ...updatedData };
+                    }
+
+                    const msgEl = document.getElementById('detail-message');
+                    msgEl.textContent = 'Data berhasil diperbarui!';
+                    msgEl.className = 'text-sm text-green-400';
+                    setTimeout(() => msgEl.textContent = '', 3000);
+                    
+                    loadMemberData(); // Refresh main table data in background
+                    showMemberDetail(docId, 'view'); // Switch back to view mode
+
+                } catch (error) {
+                    console.error("Gagal update data member:", error);
+                    const msgEl = document.getElementById('detail-message');
+                    msgEl.textContent = 'Gagal menyimpan. Coba lagi.';
+                    msgEl.className = 'text-sm text-red-400';
+                    setTimeout(() => msgEl.textContent = '', 3000);
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Simpan Perubahan';
+                }
+            }
+
             function loadAllData() {
                 loadMemberData();
                 loadAttendanceHistory();
@@ -968,6 +1162,19 @@
             
             DOMElements.navigation.showAttendanceBtn.addEventListener('click', () => switchView('attendance'));
             DOMElements.navigation.showMembersBtn.addEventListener('click', () => switchView('members'));
+
+            DOMElements.members.searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                if (!searchTerm) {
+                    renderMemberTable(allMemberData);
+                    return;
+                }
+                const filteredMembers = allMemberData.filter(member => 
+                    member.nama.toLowerCase().includes(searchTerm) || 
+                    member.kodePendaftaran.toLowerCase().includes(searchTerm)
+                );
+                renderMemberTable(filteredMembers);
+            });
 
             DOMElements.members.exportBtn.addEventListener('click', () => {
                 const dataForExport = allMemberData.map(m => ({ 
@@ -1038,4 +1245,3 @@
     </script>
 </body>
 </html>
-
