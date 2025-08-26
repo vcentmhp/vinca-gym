@@ -8,322 +8,1105 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #e0e0e0; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+      color: #e0e0e0; 
+    }
+    .font-serif { font-family: 'Playfair Display', serif; }
     .primary-color { color: #ffffff; }
-    .bg-primary { background-color: #ffffff; }
-    .bg-secondary { background-color: #1c1c1c; }
-    .border-primary { border-color: #333333; }
+    
+    /* Urban Rose Color Palette */
+    .urban-dark { color: #2D2329; }
+    .urban-gray { color: #8C868D; }
+    .rose-cream { color: #F9EBEE; }
+    .rose-light { color: #F7A7D3; }
+    .rose-bright { color: #F15CA1; }
+    
+    /* Gradien Background dengan Urban Rose theme */
+    .bg-gradient-feminine {
+      background: linear-gradient(135deg, #1f1f1f 0%, #2D2329 30%, #2a1f25 70%, #1f1f1f 100%);
+    }
+    
+    .bg-gradient-card {
+      background: linear-gradient(145deg, #1e1e1e 0%, #2a2a2a 100%);
+      border: 1px solid rgba(241, 92, 161, 0.15);
+    }
+
+    /* Button Styles dengan Urban Rose gradient */
     .btn-primary {
-      background-color: #ffffff;
-      color: #121212;
+      background: linear-gradient(135deg, #8C868D 0%, #F15CA1 100%);
+      color: #ffffff;
       font-weight: 600;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 14px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(241, 92, 161, 0.3);
+      border: none;
     }
     .btn-primary:hover {
-      background-color: #dcdcdc;
+      background: linear-gradient(135deg, #6B6167 0%, #D84A8F 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px 0 rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 25px rgba(241, 92, 161, 0.4);
     }
 
-    /* ✅ Card Styling dengan Glow */
-    .card {
-      background: #242424;
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(247, 167, 211, 0.3);
+      color: #ffffff;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(241, 92, 161, 0.1);
+      border-color: #F15CA1;
+      color: #F15CA1;
+      transform: translateY(-2px);
+    }
+
+    /* Card Styling dengan Urban Rose Glassmorphism */
+    .card-modern {
+      background: rgba(30, 30, 30, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(241, 92, 161, 0.12);
+      border-radius: 1.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-modern::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #8C868D, #F15CA1, transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .card-modern:hover {
+      transform: translateY(-12px) scale(1.02);
+      border-color: rgba(241, 92, 161, 0.25);
+      box-shadow: 0 25px 50px rgba(241, 92, 161, 0.15),
+                  0 0 0 1px rgba(247, 167, 211, 0.1);
+    }
+    
+    .card-modern:hover::before {
+      opacity: 1;
+    }
+
+    /* Popular Badge dengan Urban Rose gradient */
+    .popular-badge {
+      background: linear-gradient(135deg, #8C868D, #F15CA1);
+      color: white;
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      position: absolute;
+      top: -0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 4px 15px rgba(241, 92, 161, 0.4);
+      z-index: 10;
+    }
+
+    /* Icon dengan Urban Rose Effects */
+    .icon-modern {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 1.5rem;
+      background: linear-gradient(135deg, rgba(140, 134, 141, 0.1), rgba(241, 92, 161, 0.1));
+      border: 1px solid rgba(247, 167, 211, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      margin: 0 auto 1rem auto;
+    }
+    
+    .icon-modern:hover {
+      background: linear-gradient(135deg, rgba(140, 134, 141, 0.2), rgba(241, 92, 161, 0.2));
+      border-color: #F15CA1;
+      transform: rotate(5deg) scale(1.1);
+    }
+
+    /* Animasi untuk elemen */
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Badge dengan Urban Rose styling */
+    .badge-modern {
+      background: rgba(241, 92, 161, 0.12);
+      border: 1px solid rgba(247, 167, 211, 0.2);
+      color: #F15CA1;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Pricing highlight dengan Urban Rose gradient */
+    .price-highlight {
+      background: linear-gradient(135deg, #8C868D, #F15CA1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Custom scrollbar dengan Urban Rose */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #8C868D, #F15CA1);
+      border-radius: 4px;
+    }
+
+    /* Header blur effect */
+    .header-blur {
+      background: rgba(15, 15, 15, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(241, 92, 161, 0.1);
+    }
+
+    /* Benefit list styling */
+    .benefit-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .benefit-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      color: #d1d5db;
+      font-size: 0.875rem;
+    }
+    
+    .benefit-list .ph-check-circle {
+      color: #F15CA1;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Card pricing layout */
+    .pricing-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .pricing-card-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .pricing-card-footer {
+      margin-top: auto;
+      padding-top: 1.5rem;
+    }
+
+    /* Testimonial Slider dengan Urban Rose theme */
+    .testimonial-container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    
+    .testimonial-slider {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: 300%;
+    }
+    
+    .testimonial-card {
+      flex: 0 0 33.333%;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    .testimonial-nav-btn {
+      background: rgba(241, 92, 161, 0.1);
+      border: 1px solid rgba(247, 167, 211, 0.2);
+      color: #F15CA1;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+    
+    .testimonial-nav-btn:hover {
+      background: rgba(241, 92, 161, 0.2);
+      border-color: #F15CA1;
+      color: #F15CA1;
+      transform: scale(1.1);
+    }
+
+    .testimonial-nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* FAQ Accordion dengan Urban Rose */
+    .faq-item {
+      border: 1px solid rgba(241, 92, 161, 0.12);
       border-radius: 1rem;
-      border: 1px solid #333333;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      transition: all 0.4s ease;
+      background: rgba(30, 30, 30, 0.8);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      transition: all 0.3s ease;
     }
-    .card:hover {
-      transform: translateY(-8px) scale(1.03);
-      border-color: #777;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15),
-                  0 8px 25px rgba(0, 0, 0, 0.4);
+    
+    .faq-item.active {
+      border-color: rgba(241, 92, 161, 0.3);
+      box-shadow: 0 4px 20px rgba(241, 92, 161, 0.1);
+    }
+    
+    .faq-question {
+      padding: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .faq-question:hover {
+      background: rgba(241, 92, 161, 0.05);
+    }
+    
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    
+    .faq-answer.active {
+      max-height: 500px;
+    }
+    
+    .faq-icon {
+      transition: transform 0.3s ease;
+      color: #F15CA1;
+    }
+    
+    .faq-item.active .faq-icon {
+      transform: rotate(180deg);
+      color: #F7A7D3;
     }
 
-    .card-link { display: block; text-decoration: none; color: inherit; }
-    .section-title { color: #ffffff; }
-
-    /* Animasi Scroll */
-    .scroll-anim { transition: all 0.6s ease-out; }
-    .hidden-anim { opacity: 0; transform: translateY(20px); }
-    .show-anim { opacity: 1; transform: translateY(0); }
-
-    /* ✅ Ikon Glow di Location */
-    .icon-glow { transition: all 0.3s ease; }
-    .icon-glow-map:hover { color: #60a5fa; text-shadow: 0 0 12px #3b82f6; }     /* biru */
-    .icon-glow-clock:hover { color: #facc15; text-shadow: 0 0 12px #fcd34d; }   /* emas */
-    .icon-glow-wa:hover { color: #22c55e; text-shadow: 0 0 12px #4ade80; }      /* hijau */
-    .icon-glow-ig:hover { color: #ec4899; text-shadow: 0 0 12px #f472b6; }      /* pink */
+    /* Contact info hover effects dengan Urban Rose */
+    .contact-info-urban:hover { 
+      color: #F15CA1; 
+      text-shadow: 0 0 12px #F15CA1; 
+    }
+    .contact-info-gray:hover { 
+      color: #8C868D; 
+      text-shadow: 0 0 12px #8C868D; 
+    }
+    .contact-info-rose-light:hover { 
+      color: #F7A7D3; 
+      text-shadow: 0 0 12px #F7A7D3; 
+    }
   </style>
 </head>
 <body class="antialiased">
   <!-- Header -->
-  <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 shadow-lg shadow-black/20">
+  <header class="header-blur sticky top-0 z-50">
     <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="#" class="flex items-center gap-3 text-2xl font-bold primary-color">
+      <a href="#" class="flex items-center gap-3 text-2xl font-bold primary-color font-serif">
         <img src="logo.png" alt="Vinca Gym Logo" class="h-10 w-auto">
         <span>Vinca Gym</span>
       </a>
       <div class="hidden md:flex space-x-8 items-center">
-        <a href="perpanjang.html" class="text-gray-300 hover:primary-color transition-colors">Perpanjang</a>
-        <a href="#harga" class="text-gray-300 hover:primary-color transition-colors">Harga</a>
-        <a href="#why-us" class="text-gray-300 hover:primary-color transition-colors">Tentang</a>
-        <a href="#lokasi" class="text-gray-300 hover:primary-color transition-colors">Kontak</a>
-        <a href="admin.html" class="text-gray-300 hover:primary-color transition-colors">Admin</a>
-        <a href="#harga" class="btn-primary px-6 py-2 rounded-full">Daftar Membership</a>
+        <a href="perpanjang.html" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Perpanjang</a>
+        <a href="#harga" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Harga</a>
+        <a href="#why-us" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Tentang</a>
+        <a href="#testimonial" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Testimoni</a>
+        <a href="#faq" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">FAQ</a>
+        <a href="#lokasi" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Kontak</a>
+        <a href="admin.html" class="text-gray-300 hover:text-pink-300 transition-colors font-medium">Admin</a>
+        <a href="#harga" class="btn-primary px-6 py-3 rounded-full font-medium">Daftar Membership</a>
       </div>
       <div class="md:hidden"><button id="menu-btn" class="text-white focus:outline-none"><i class="ph ph-list text-3xl"></i></button></div>
     </nav>
-    <div id="mobile-menu" class="hidden md:hidden bg-black/90">
-      <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800 font-bold text-white">Daftar Membership</a>
-      <a href="perpanjang.html" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Perpanjang</a>
-      <a href="#harga" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Harga</a>
-      <a href="#why-us" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Tentang</a>
-      <a href="#lokasi" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Kontak</a>
-      <a href="admin.html" class="block py-2 px-6 text-sm text-gray-300 hover:bg-gray-800">Admin</a>
+    <div id="mobile-menu" class="hidden md:hidden bg-black/95 backdrop-blur-lg">
+      <a href="#harga" class="block py-3 px-6 text-sm font-semibold rose-bright">Daftar Membership</a>
+      <a href="perpanjang.html" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Perpanjang</a>
+      <a href="#harga" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Harga</a>
+      <a href="#why-us" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Tentang</a>
+      <a href="#testimonial" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Testimoni</a>
+      <a href="#faq" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">FAQ</a>
+      <a href="#lokasi" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Kontak</a>
+      <a href="admin.html" class="block py-3 px-6 text-sm text-gray-300 hover:bg-gray-800">Admin</a>
     </div>
   </header>
 
   <!-- Main Content -->
   <main>
-    <!-- Hero Section (Readable) -->
- <section class="relative h-[90vh] min-h-[600px] flex items-center justify-center text-white text-center px-6" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=2574&auto=format&fit=crop') no-repeat center center/cover;">
-  <div class="relative z-10 max-w-5xl mx-auto px-4">
-    <!-- Badge -->
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs md:text-sm tracking-wide mb-5">
-      <i class="ph ph-shield-check text-white/90"></i>
-      MOVE WITH US • WOMEN ONLY • SAFE SPACE
-    </div>
+    <!-- Hero Section -->
+    <section class="relative h-[90vh] min-h-[600px] flex items-center justify-center text-white text-center px-6" style="background: linear-gradient(135deg, rgba(140, 134, 141, 0.1) 0%, rgba(0,0,0,0.8) 50%, rgba(241, 92, 161, 0.1) 100%), linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=2574&auto=format&fit=crop') no-repeat center center/cover;">
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40"></div>
+      
+      <div class="relative z-10 max-w-6xl mx-auto px-4">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full badge-modern text-sm font-medium tracking-wide mb-6 float-animation">
+          <i class="ph ph-shield-check rose-bright"></i>
+          <span class="text-white">MOVE WITH US • WOMEN ONLY • SAFE SPACE</span>
+        </div>
 
-    <!-- Heading + text-shadow untuk keterbacaan -->
-    <h1 class="text-4xl md:text-6xl font-bold tracking-tight leading-tight"
-        style="text-shadow: 0 2px 10px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.35);">
-      Ruang Aman & Nyaman<br class="hidden md:block"> untuk Wanita Berolahraga
-    </h1>
+        <!-- Heading -->
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tight leading-tight font-serif mb-6"
+            style="text-shadow: 0 4px 20px rgba(0,0,0,0.6);">
+          Ruang Aman &<br>
+          <span class="bg-gradient-to-r from-pink-200 to-pink-400 bg-clip-text text-transparent">
+            Nyaman untuk Wanita
+          </span><br>
+          Berolahraga
+        </h1>
 
-    <p class="mt-4 text-lg md:text-xl max-w-3xl mx-auto text-gray-100"
-       style="text-shadow: 0 1px 8px rgba(0,0,0,0.45);">
-      Eksklusif wanita, komunitas suportif, dan fasilitas modern untuk perjalanan kebugaran yang konsisten dan menyenangkan.
-    </p>
+        <p class="mt-6 text-xl md:text-2xl max-w-4xl mx-auto text-gray-100 font-light leading-relaxed"
+           style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+          Eksklusif wanita, komunitas suportif, dan fasilitas modern untuk perjalanan kebugaran yang konsisten dan menyenangkan.
+        </p>
 
-    <!-- Blok CTA dengan backdrop-blur supaya teks kontras di area terang -->
-    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-      <div class="rounded-full px-2 py-2">
-        <a href="#harga" class="inline-flex items-center justify-center btn-primary px-8 py-3 rounded-full text-base font-semibold pulse-cta">
-          Jelajahi Paket Kami
-        </a>
+        <!-- CTA Buttons -->
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#harga" class="btn-primary px-8 py-4 rounded-full text-lg font-semibold flex items-center gap-2">
+            <i class="ph ph-sparkle"></i>
+            Jelajahi Paket Kami
+          </a>
+          <a href="#daily-pass" class="btn-secondary px-8 py-4 rounded-full text-lg font-semibold flex items-center gap-2">
+            <i class="ph ph-calendar"></i>
+            Coba Kunjungan Harian
+          </a>
+        </div>
+
+        <!-- Social Proof -->
+        <div class="mt-8 text-sm text-gray-200 flex flex-wrap items-center justify-center gap-4">
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-lg border border-white/10">
+            <i class="ph ph-users-three rose-bright"></i>±50 member aktif
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-lg border border-white/10">
+            <i class="ph ph-star text-yellow-400"></i> 5/5 rating
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-lg border border-white/10">
+            <i class="ph ph-trend-up text-green-400"></i> Bertumbuh setiap minggu
+          </span>
+        </div>
+
+        <!-- Islamic Values -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/20 text-emerald-300">
+            <i class="ph ph-speaker-slash"></i> No Music
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/20 text-emerald-300">
+            <i class="ph ph-prohibit"></i> No Ikhtilat
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/20 text-emerald-300">
+            <i class="ph ph-camera-slash"></i> No Camera
+          </span>
+        </div>
       </div>
-      <div class="rounded-full px-2 py-2">
-        <a href="#daily-pass"
-        class="inline-flex items-center justify-center px-8 py-3 rounded-full text-base font-semibold border border-white/50 text-white hover:bg-white hover:text-black transition-colors pulse-cta">
-        Coba Kunjungan Harian
-        </a>
-      </div>
-    </div>
-
-    <!-- Social proof chip dengan latar semi-gelap -->
-    <div class="mt-6 mb-8 text-sm text-gray-200 flex flex-wrap items-center justify-center gap-3">
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/35 backdrop-blur-sm border border-white/10">
-        <i class="ph ph-users-three"></i>±50 member aktif
-      </span>
-      <span class="text-gray-400">•</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/35 backdrop-blur-sm border border-white/10">
-        <i class="ph ph-star text-yellow-400"></i> 5/5 rating
-      </span>
-      <span class="text-gray-400">•</span>
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/35 backdrop-blur-sm border border-white/10">
-        <i class="ph ph-trend-up"></i> Bertumbuh setiap minggu
-      </span>
-    </div>
-
-    <!-- Tambahan social proof Islamic values -->
-  <div class="flex flex-wrap items-center justify-center gap-3 mt-3">
-    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/40 backdrop-blur-sm border border-emerald-500/20 text-emerald-200">
-      <i class="ph ph-speaker-slash"></i> No Music
-    </span>
-    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/40 backdrop-blur-sm border border-emerald-500/20 text-emerald-200">
-        <i class="ph ph-prohibit"></i> No Ikhtilat
-    </span>
-    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/40 backdrop-blur-sm border border-emerald-500/20 text-emerald-200">
-      <i class="ph ph-camera-slash"></i> No Camera
-    </span>
-  </div>
-</div>
-  </div>
-
-  <script>
-    // Parallax ringan (tetap)
-    (function(){
-      const el = document.getElementById('hero-parallax');
-      if(!el) return;
-      let raf;
-      const onScroll = ()=>{ const y = window.scrollY||window.pageYOffset; el.style.transform = `translateY(${y*-0.08}px) scale(1.03)`; raf=null; };
-      window.addEventListener('scroll', ()=>{ if(!raf) raf = requestAnimationFrame(onScroll); }, {passive:true});
-    })();
-  </script>
-</section>
+    </section>
 
     <!-- Why Us Section -->
-    <section id="why-us" class="py-20 bg-secondary">
+    <section id="why-us" class="py-24 bg-gradient-feminine">
       <div class="container mx-auto px-6">
-        <h2 class="section-title text-3xl font-bold text-center mb-12">Mengapa Memilih Vinca Gym?</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-          <div class="card p-8 transform transition duration-500 hover:scale-105 scroll-anim hidden-anim">
-            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-              <i class="ph ph-sparkle text-4xl"></i>
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold font-serif mb-4">
+            Mengapa Memilih <span class="rose-bright">Vinca Gym</span>?
+          </h2>
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            Lebih dari sekedar tempat olahraga, kami adalah rumah kedua untuk perjalanan transformasi Anda
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div class="card-modern p-8 text-center">
+            <div class="icon-modern">
+              <i class="ph ph-sparkle text-3xl rose-bright"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-white">Eksklusif Wanita</h3>
-            <p class="text-gray-400">Lingkungan yang 100% aman dan nyaman, dirancang khusus untuk memenuhi kebutuhan kebugaran wanita.</p>
+            <h3 class="text-2xl font-semibold mb-4 text-white font-serif">Eksklusif Wanita</h3>
+            <p class="text-gray-400 leading-relaxed">Lingkungan yang 100% aman dan nyaman, dirancang khusus untuk memenuhi kebutuhan kebugaran wanita modern.</p>
           </div>
-          <div class="card p-8 transform transition duration-500 hover:scale-105 scroll-anim hidden-anim">
-            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-              <i class="ph ph-users-three text-4xl"></i>
+          
+          <div class="card-modern p-8 text-center">
+            <div class="icon-modern">
+              <i class="ph ph-users-three text-3xl rose-light"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-white">Komunitas Solid</h3>
-            <p class="text-gray-400">Temukan teman baru dan saling dukung dalam perjalanan kebugaran Anda bersama member lain.</p>
+            <h3 class="text-2xl font-semibold mb-4 text-white font-serif">Komunitas Solid</h3>
+            <p class="text-gray-400 leading-relaxed">Temukan teman baru dan saling mendukung dalam perjalanan kebugaran bersama para wanita inspiratif lainnya.</p>
           </div>
-          <div class="card p-8 transform transition duration-500 hover:scale-105 scroll-anim hidden-anim">
-            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 text-white mx-auto mb-4">
-              <i class="ph ph-barbell text-4xl"></i>
+          
+          <div class="card-modern p-8 text-center">
+            <div class="icon-modern">
+              <i class="ph ph-barbell text-3xl urban-gray"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-2 text-white">Panduan & Fasilitas Terbaik</h3>
-            <p class="text-gray-400">Dari peralatan yang dirancang khusus untuk wanita hingga Gym Keeper yang siap memandu teknik latihan Anda, kami memastikan Anda mencapai target dengan cepat dan aman.</p>
+            <h3 class="text-2xl font-semibold mb-4 text-white font-serif">Fasilitas & Panduan Terbaik</h3>
+            <p class="text-gray-400 leading-relaxed">Peralatan khusus wanita dan Gym Keeper berpengalaman siap memandu setiap langkah perjalanan fitness Anda.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section id="testimonial" class="py-24 bg-black">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold font-serif mb-4">
+            Apa Kata <span class="rose-bright">Member Kami</span>?
+          </h2>
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            Cerita inspiratif dari para wanita yang telah merasakan transformasi di Vinca Gym
+          </p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+          <!-- Testimonial Slider Container -->
+          <div class="testimonial-container">
+            <div id="testimonial-slider" class="testimonial-slider">
+              <!-- Testimonial 1 -->
+              <div class="testimonial-card">
+                <div class="card-modern p-8 h-full">
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-400 to-pink-400 flex items-center justify-center text-white font-bold text-xl font-serif">
+                      S
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-white font-serif">Shofiya</h4>
+                      <p class="text-gray-400 text-sm">Member Aktif</p>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                  </div>
+                  <p class="text-gray-300 leading-relaxed italic">
+                    "Alhamdulillah, di Vinca Gym saya merasa sangat nyaman karena sesama muslimah dan nggak ada musik. Gym Keeper-nya juga sabar banget ngajarin teknik yang benar. Sekarang saya lebih percaya diri dan sehat!"
+                  </p>
+                  <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-700">
+                    <i class="ph ph-heart rose-bright"></i>
+                    <span class="text-gray-400 text-sm">Transformasi menuju body goals</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Testimonial 2 -->
+              <div class="testimonial-card">
+                <div class="card-modern p-8 h-full">
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-300 to-gray-500 flex items-center justify-center text-white font-bold text-xl font-serif">
+                      A
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-white font-serif">Aisha</h4>
+                      <p class="text-gray-400 text-sm">Member Aktif</p>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                  </div>
+                  <p class="text-gray-300 leading-relaxed italic">
+                    "Sebagai ibu dari 2 anak, saya senang banget ketemu komunitas ibu-ibu yang supportive di sini. Jadwalnya juga fleksibel, jadi bisa disesuaikan sama waktu anak-anak. Plus fasilitasnya bersih dan lengkap!"
+                  </p>
+                  <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-700">
+                    <i class="ph ph-users-three rose-light"></i>
+                    <span class="text-gray-400 text-sm">Sudah refer 3 teman ke Vinca Gym</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Testimonial 3 -->
+              <div class="testimonial-card">
+                <div class="card-modern p-8 h-full">
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-gray-400 flex items-center justify-center text-white font-bold text-xl font-serif">
+                      F
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-white font-serif">Fatima</h4>
+                      <p class="text-gray-400 text-sm">Member Aktif</p>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                    <i class="ph-fill ph-star text-yellow-400"></i>
+                  </div>
+                  <p class="text-gray-300 leading-relaxed italic">
+                    "Awalnya ragu mau mulai gym karena pemula banget. Tapi di Vinca Gym semua orang welcome dan tidak ada judgement. Sekarang malah ketagihan olahraga! Terima kasih sudah bikin saya jatuh cinta sama fitness."
+                  </p>
+                  <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-700">
+                    <i class="ph ph-trophy text-yellow-400"></i>
+                    <span class="text-gray-400 text-sm">Dari pemula jadi gym enthusiast</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex justify-center gap-4 mt-8">
+            <button id="testimonial-prev" class="testimonial-nav-btn">
+              <i class="ph ph-caret-left text-xl"></i>
+            </button>
+            <button id="testimonial-next" class="testimonial-nav-btn">
+              <i class="ph ph-caret-right text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Dots Indicator -->
+          <div class="flex justify-center gap-2 mt-6">
+            <div class="testimonial-dot w-3 h-3 rounded-full transition-all cursor-pointer" style="background-color: #F15CA1;" onclick="goToSlide(0)"></div>
+            <div class="testimonial-dot w-3 h-3 rounded-full bg-gray-600 transition-all cursor-pointer" onclick="goToSlide(1)"></div>
+            <div class="testimonial-dot w-3 h-3 rounded-full bg-gray-600 transition-all cursor-pointer" onclick="goToSlide(2)"></div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Pricing Section -->
-    <section id="harga" class="py-20 bg-black">
+    <section id="harga" class="py-24 bg-gradient-feminine">
       <div class="container mx-auto px-6">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-4xl font-bold primary-color">Paket Membership</h2>
-          <p class="mt-2 text-gray-400">Pilih paket bulanan yang paling sesuai untuk Anda.</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <a href="daftar.html?paket=regular" class="card-link">
-            <div class="card p-8 text-center h-full ring-2 ring-white relative">
-              <span class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-sm font-semibold">Populer</span>
-              <h3 class="text-xl font-bold mt-4">Regular</h3>
-              <p class="text-4xl font-bold my-4 primary-color">200.000</p>
-              <p class="text-gray-400">Membership 1 Bulan</p>
-            </div>
-          </a>
-          <a href="daftar.html?paket=silver" class="card-link">
-            <div class="card p-8 text-center h-full">
-              <h3 class="text-xl font-bold">Silver</h3>
-              <p class="text-4xl font-bold my-4 primary-color">525.000</p>
-              <p class="text-gray-400">Membership 3 Bulan</p>
-            </div>
-          </a>
-          <a href="daftar.html?paket=gold" class="card-link">
-            <div class="card p-8 text-center h-full">
-              <h3 class="text-xl font-bold">Gold</h3>
-              <p class="text-4xl font-bold my-4 primary-color">900.000</p>
-              <p class="text-gray-400">Membership 6 Bulan</p>
-            </div>
-          </a>
-          <a href="daftar.html?paket=platinum" class="card-link">
-            <div class="card p-8 text-center h-full">
-              <h3 class="text-xl font-bold">Platinum</h3>
-              <p class="text-4xl font-bold my-4 primary-color">1.200.000</p>
-              <p class="text-gray-400">Membership 1 Tahun</p>
-            </div>
-          </a>
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold font-serif mb-4">
+            Paket <span class="rose-bright">Membership</span>
+          </h2>
+          <p class="text-gray-400 text-lg">Investasi terbaik untuk kesehatan dan kepercayaan diri Anda</p>
         </div>
         
-        <div class="text-center mt-16">
-          <h3 class="text-2xl font-bold primary-color">Biaya Lainnya</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto mt-6">
-            <div class="card p-8 text-center">
-              <h3 class="text-xl font-bold">Registrasi Awal</h3>
-              <p class="text-4xl font-bold my-4 primary-color">50.000</p>
-              <p class="text-gray-400">Hanya untuk member baru</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          <!-- Regular Package -->
+          <div class="relative">
+            <div class="popular-badge">✨ Populer</div>
+            <div class="card-modern p-6 pricing-card pt-12">
+              <div class="pricing-card-content">
+                <div class="text-center mb-6">
+                  <h3 class="text-2xl font-bold font-serif mb-2">Regular</h3>
+                  <div class="text-5xl font-bold my-4 price-highlight">200K</div>
+                  <p class="text-gray-400 mb-4">Membership 1 Bulan</p>
+                </div>
+                
+                <ul class="benefit-list mb-6">
+                  <li>
+                    <i class="ph ph-check-circle"></i>
+                    <span>Akses gym unlimited</span>
+                  </li>
+                  <li>
+                    <i class="ph ph-check-circle"></i>
+                    <span>Konsultasi awal dengan gym keeper</span>
+                  </li>
+                  <li>
+                    <i class="ph ph-check-circle"></i>
+                    <span>Akses komunitas online</span>
+                  </li>
+                  <li>
+                    <i class="ph ph-check-circle"></i>
+                    <span>Program latihan dasar</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="pricing-card-footer">
+                <div class="w-full h-1 bg-gradient-to-r from-gray-400 to-pink-400 rounded-full mb-4"></div>
+                <a href="daftar.html?paket=regular" class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2">
+                  <i class="ph ph-check"></i>
+                  Pilih Paket Regular
+                </a>
+              </div>
             </div>
-            <div id="daily-pass" class="card p-8 text-center focus:ring-2 focus:ring-white/70 focus:outline-none">
-              <h3 class="text-xl font-bold">Kunjungan Harian</h3>
-              <p class="text-4xl font-bold my-4 primary-color">25.000</p>
-              <p class="text-gray-400">Untuk non-member per sesi</p>
+          </div>
+          
+          <!-- Silver Package -->
+          <div class="card-modern p-6 pricing-card">
+            <div class="pricing-card-content">
+              <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold font-serif mb-2">Silver</h3>
+                <div class="text-5xl font-bold my-4 price-highlight">525K</div>
+                <p class="text-gray-400 mb-4">Membership 3 Bulan</p>
+              </div>
+              
+              <ul class="benefit-list mb-6">
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Semua benefit Regular</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Program workout plan personal</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Monthly progress tracking</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="pricing-card-footer">
+              <div class="w-full h-1 bg-gradient-to-r from-gray-300 to-pink-300 rounded-full mb-4"></div>
+              <a href="daftar.html?paket=silver" class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2">
+                <i class="ph ph-check"></i>
+                Pilih Paket Silver
+              </a>
+            </div>
+          </div>
+          
+          <!-- Gold Package -->
+          <div class="card-modern p-6 pricing-card">
+            <div class="pricing-card-content">
+              <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold font-serif mb-2">Gold</h3>
+                <div class="text-5xl font-bold my-4 price-highlight">900K</div>
+                <p class="text-gray-400 mb-4">Membership 6 Bulan</p>
+              </div>
+              
+              <ul class="benefit-list mb-6">
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Semua benefit Silver</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Personal consultation monthly</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Nutrition guidance</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="pricing-card-footer">
+              <div class="w-full h-1 bg-gradient-to-r from-yellow-300 to-pink-300 rounded-full mb-4"></div>
+              <a href="daftar.html?paket=gold" class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2">
+                <i class="ph ph-check"></i>
+                Pilih Paket Gold
+              </a>
+            </div>
+          </div>
+          
+          <!-- Platinum Package -->
+          <div class="card-modern p-6 pricing-card">
+            <div class="pricing-card-content">
+              <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold font-serif mb-2">Platinum</h3>
+                <div class="text-5xl font-bold my-4 price-highlight">1.2M</div>
+                <p class="text-gray-400 mb-4">Membership 1 Tahun</p>
+              </div>
+              
+              <ul class="benefit-list mb-6">
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Semua benefit Gold</span>
+                </li>
+              
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Exclusive member events</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Body composition analysis</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="pricing-card-footer">
+              <div class="w-full h-1 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full mb-4"></div>
+              <a href="daftar.html?paket=platinum" class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2">
+                <i class="ph ph-crown"></i>
+                Pilih Paket Platinum
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Costs -->
+        <div class="text-center mt-20">
+          <h3 class="text-3xl font-bold font-serif mb-8">
+            Biaya <span class="rose-bright">Lainnya</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div class="card-modern p-8 text-center">
+              <div class="icon-modern">
+                <i class="ph ph-user-plus text-3xl rose-bright"></i>
+              </div>
+              <h3 class="text-xl font-bold font-serif mb-2">Registrasi Awal</h3>
+              <div class="text-4xl font-bold my-4 price-highlight">50K</div>
+              <p class="text-gray-400 mb-6">Hanya untuk member baru</p>
+              <ul class="benefit-list text-left">
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Orientasi fasilitas gym</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Assessment kondisi fisik</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Pembuatan kartu member</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div id="daily-pass" class="card-modern p-8 text-center focus:ring-2 focus:ring-pink-300/50">
+              <div class="icon-modern">
+                <i class="ph ph-calendar text-3xl rose-light"></i>
+              </div>
+              <h3 class="text-xl font-bold font-serif mb-2">Kunjungan Harian</h3>
+              <div class="text-4xl font-bold my-4 price-highlight">25K</div>
+              <p class="text-gray-400 mb-6">Untuk non-member per sesi</p>
+              <ul class="benefit-list text-left">
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Akses gym selama 1 hari</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Konsultasi singkat</span>
+                </li>
+                <li>
+                  <i class="ph ph-check-circle"></i>
+                  <span>Trial class (jika ada)</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div class="mt-12 text-center bg-gray-800/50 p-6 rounded-lg border border-gray-700 max-w-3xl mx-auto">
-          <h4 class="font-bold text-lg text-white">Catatan Penting:</h4>
-          <ul class="mt-2 text-gray-300 list-inside">
-            <li><i class="ph ph-check-circle text-green-400 mr-2"></i>Jika off selama 3 bulan maka wajib melakukan registrasi member baru.</li>
-            <li><i class="ph ph-x-circle text-red-400 mr-2"></i>Member tidak dapat digantikan dengan orang lain.</li>
+        <!-- Important Notes -->
+        <div class="mt-16 bg-gradient-to-r from-gray-800/30 to-gray-700/30 backdrop-blur-lg p-8 rounded-2xl border border-gray-600/30 max-w-4xl mx-auto">
+          <h4 class="font-bold text-xl text-white mb-6 font-serif flex items-center gap-3">
+            <i class="ph ph-info rose-bright"></i>
+            Catatan Penting
+          </h4>
+          <ul class="space-y-3 text-gray-300">
+            <li class="flex items-start gap-3">
+              <i class="ph ph-check-circle text-green-400 mt-1"></i>
+              <span>Jika off selama 3 bulan maka wajib melakukan registrasi member baru.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="ph ph-x-circle text-red-400 mt-1"></i>
+              <span>Member tidak dapat digantikan dengan orang lain.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="ph ph-info text-blue-400 mt-1"></i>
+              <span>Semua paket berlaku untuk akses sepanjang jam operasional gym.</span>
+            </li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- Location Section -->
-    <section id="lokasi" class="py-20 bg-secondary">
-      <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div>
-          <h2 class="text-3xl md:text-4xl font-bold primary-color">Kunjungi Kami</h2>
-          <p class="mt-4 text-gray-400">Kami siap menyambut Anda di lokasi kami yang strategis dan nyaman.</p>
-          <div class="mt-8 space-y-4">
-            <div class="flex items-start">
-              <i class="ph ph-map-pin-line text-2xl text-white mt-1 icon-glow icon-glow-map"></i>
-              <div class="ml-4">
-                <h4 class="font-bold text-white">Alamat</h4>
-                <p class="text-gray-300">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p>
+    <!-- FAQ Section -->
+    <section id="faq" class="py-24 bg-black">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold font-serif mb-4">
+            <span class="rose-bright">FAQ</span> - Pertanyaan Umum
+          </h2>
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            Temukan jawaban atas pertanyaan yang sering diajukan tentang Vinca Gym
+          </p>
+        </div>
+
+        <div class="max-w-4xl mx-auto space-y-4">
+          <!-- FAQ Item 1 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Apakah Vinca Gym benar-benar khusus untuk wanita saja?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Ya, Vinca Gym adalah gym eksklusif untuk wanita. Semua member, gym keeper, dan staf adalah perempuan. Ini menciptakan lingkungan yang aman dan nyaman untuk berolahraga tanpa rasa tidak percaya diri atau khawatir dengan pandangan lawan jenis.
               </div>
             </div>
-            <div class="flex items-start">
-              <i class="ph ph-clock text-2xl text-white mt-1 icon-glow icon-glow-clock"></i>
-              <div class="ml-4">
-                <h4 class="font-bold text-white">Jam Buka</h4>
-                <p class="text-gray-300">Buka Setiap Hari: 07.30-18.00 WIB</p>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Apakah ada musik di gym? Bagaimana dengan nilai-nilai islami?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Tidak, di Vinca Gym tidak ada musik yang diputar. Kami berikhtiar menciptakan lingkungan yang nyaman untuk muslimah. Suasana gym tenang dan kondusif untuk fokus pada latihan dan dzikir.
               </div>
             </div>
-            <div class="flex items-start">
-              <i class="ph ph-whatsapp-logo text-2xl text-white mt-1 icon-glow icon-glow-wa"></i>
-              <div class="ml-4">
-                <h4 class="font-bold text-white">Informasi & Pendaftaran</h4>
-                <p class="text-gray-300"><a href="https://wa.me/6285782919391" target="_blank" class="hover:underline">0857 8291 9391 (Admin)</a></p>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Saya pemula dan belum pernah gym, apakah bisa bergabung?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Tentu saja! Vinca Gym sangat welcome untuk pemula. Gym Keeper kami akan memberikan orientasi lengkap, mengajarkan teknik dasar yang benar, dan membuat program latihan yang sesuai dengan level kemampuan Anda. Tidak perlu malu atau khawatir, karena semua member saling support.
               </div>
             </div>
-            <div class="flex items-start">
-              <i class="ph ph-instagram-logo text-2xl text-white-400 mt-1 icon-glow icon-glow-ig"></i>
-              <div class="ml-4">
-                <h4 class="font-bold text-white">Instagram</h4>
-                <p class="text-gray-300"><a href="https://instagram.com/vinca.gym" target="_blank" class="hover:underline">@vinca.gym</a></p>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Bagaimana cara daftar membership dan pembayarannya?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Anda bisa daftar dengan cara datang langsung ke gym atau menghubungi admin via WhatsApp di 0857 8291 9391. Untuk member baru, ada biaya registrasi 50K. Pembayaran bisa tunai atau transfer. Setelah pembayaran, Anda akan mendapat kartu member dan bisa langsung mulai latihan.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Fasilitas apa saja yang tersedia di Vinca Gym?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Vinca Gym dilengkapi dengan berbagai alat fitness seperti treadmill, elliptical, sepeda statis, alat beban (dumbell, barbell), mesin latihan kekuatan, dan area free weight. Semua peralatan dipilih khusus untuk kebutuhan latihan wanita dan selalu dalam kondisi prima.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 6 -->
+          <div class="faq-item">
+            <div class="faq-question">
+              <div class="flex-1">
+                <h3 class="font-bold text-white font-serif">Apakah bisa freeze membership jika sedang tidak bisa datang?</h3>
+              </div>
+              <i class="ph ph-caret-down text-xl faq-icon flex-shrink-0"></i>
+            </div>
+            <div class="faq-answer">
+              <div class="p-6 pt-0 text-gray-300 leading-relaxed">
+                Untuk freeze membership, silakan konsultasi langsung dengan admin. Namun perlu diingat, jika tidak datang selama 3 bulan berturut-turut, maka harus melakukan registrasi ulang sebagai member baru. Sebaiknya diskusikan situasi khusus Anda dengan admin untuk solusi terbaik.
               </div>
             </div>
           </div>
         </div>
-        <div class="rounded-lg overflow-hidden shadow-lg h-96 border-2 border-gray-700">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247.83230783077238!2d106.72555907485084!3d-6.353001774697865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ef002203bef9%3A0x3e98fa3ca72a4246!2sVinca%20Gym!5e0!3m2!1sen!2sid!4v1755610089148!5m2!1sen!2sid"  width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+      </div>
+    </section>
+
+    <!-- Location Section -->
+    <section id="lokasi" class="py-24 bg-gradient-feminine">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl md:text-5xl font-bold font-serif mb-6">
+            Kunjungi <span class="rose-bright">Kami</span>
+          </h2>
+          <p class="text-gray-400 text-lg mb-6 leading-relaxed max-w-2xl mx-auto">
+            Kami siap menyambut Anda di lokasi yang strategis dan nyaman di jantung Pamulang
+          </p>
+        </div>
+
+        <!-- Grid Layout yang Lebih Seimbang -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto items-start">
+          <!-- Kolom Kiri - Informasi Kontak -->
+          <div class="order-2 lg:order-1">
+            <div class="space-y-4">
+              <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-pink-300/30 transition-colors">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-gray-300/20 to-pink-300/20 border border-pink-400/20 flex items-center justify-center">
+                  <i class="ph ph-map-pin-line text-xl contact-info-urban rose-bright transition-all"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-white mb-2 font-serif">Alamat</h4>
+                  <p class="text-gray-300 text-sm leading-relaxed">Reni Jaya Jl. Bratasena IX Blok U7/41, Pamulang, Tangerang Selatan</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-yellow-400/30 transition-colors">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-300/20 to-amber-300/20 border border-yellow-400/20 flex items-center justify-center">
+                  <i class="ph ph-clock text-xl text-yellow-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-white mb-2 font-serif">Jam Buka</h4>
+                  <p class="text-gray-300 text-sm">Buka Setiap Hari: 07.30-18.00 WIB</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-green-400/30 transition-colors">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-green-300/20 to-emerald-300/20 border border-green-400/20 flex items-center justify-center">
+                  <i class="ph ph-whatsapp-logo text-xl text-green-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-white mb-2 font-serif">Informasi & Pendaftaran</h4>
+                  <p class="text-gray-300 text-sm">
+                    <a href="https://wa.me/6285782919391" target="_blank" class="text-green-400 hover:text-green-300 transition-colors">
+                      0857 8291 9391 (Admin)
+                    </a>
+                  </p>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-pink-400/30 transition-colors">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-pink-300/20 to-gray-300/20 border border-pink-400/20 flex items-center justify-center">
+                  <i class="ph ph-instagram-logo text-xl contact-info-rose-light rose-light transition-all"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-bold text-white mb-2 font-serif">Instagram</h4>
+                  <p class="text-gray-300 text-sm">
+                    <a href="https://instagram.com/vinca.gym" target="_blank" class="rose-light hover:rose-bright transition-colors">
+                      @vinca.gym
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Kolom Kanan - Maps -->
+          <div class="order-1 lg:order-2">
+            <div class="card-modern p-2 h-[400px] lg:h-[500px] overflow-hidden sticky top-24">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247.83230783077238!2d106.72555907485084!3d-6.353001774697865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ef002203bef9%3A0x3e98fa3ca72a4246!2sVinca%20Gym!5e0!3m2!1sen!2sid!4v1755610089148!5m2!1sen!2sid"  
+                width="100%" 
+                height="100%" 
+                style="border:0; border-radius: 1.25rem; filter: grayscale(20%) contrast(1.1) brightness(0.9);" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-black py-8 border-t border-gray-800">
+  <footer class="bg-black py-12 border-t border-pink-300/20">
     <div class="container mx-auto px-6 text-center">
-      <p class="text-gray-300">&copy; 2025 Vinca Gym. All Rights Reserved.</p>
-      <p class="text-sm text-gray-500 mt-2">Didesain khusus untuk para muslimah.</p>
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <img src="logo.png" alt="Vinca Gym Logo" class="h-8 w-auto">
+        <span class="text-2xl font-bold font-serif text-white">Vinca Gym</span>
+      </div>
+      <p class="text-gray-300 mb-2">&copy; 2025 Vinca Gym. All Rights Reserved.</p>
+      <p class="text-sm rose-bright">💖 Didesain khusus untuk para muslimah</p>
     </div>
   </footer>
 
   <!-- Floating WhatsApp Button -->
   <a href="https://wa.me/6285782919391" target="_blank"
-    class="fixed bottom-8 right-8 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-110 z-50">
+    class="fixed bottom-8 right-8 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 z-50 animate-pulse">
     <i class="ph ph-whatsapp-logo text-3xl"></i>
   </a>
 
-  <!-- Script -->
+  <!-- Scripts -->
   <script>
+    // Mobile Menu Toggle
     document.getElementById('menu-btn').addEventListener('click', () => {
       document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // Testimonial Slider
+    let currentTestimonial = 0;
+    const testimonialSlider = document.getElementById('testimonial-slider');
+    const testimonialDots = document.querySelectorAll('.testimonial-dot');
+    const totalTestimonials = 3;
+
+    function updateTestimonialSlider() {
+      const translateX = -currentTestimonial * (100 / 3);
+      testimonialSlider.style.transform = `translateX(${translateX}%)`;
+      
+      // Update dots with Urban Rose colors
+      testimonialDots.forEach((dot, index) => {
+        if (index === currentTestimonial) {
+          dot.style.backgroundColor = '#F15CA1'; // Rose bright
+        } else {
+          dot.style.backgroundColor = '#6B7280'; // Gray
+        }
+      });
+    }
+
+    function goToSlide(slideIndex) {
+      currentTestimonial = slideIndex;
+      updateTestimonialSlider();
+    }
+
+    document.getElementById('testimonial-prev').addEventListener('click', () => {
+      currentTestimonial = currentTestimonial > 0 ? currentTestimonial - 1 : totalTestimonials - 1;
+      updateTestimonialSlider();
+    });
+
+    document.getElementById('testimonial-next').addEventListener('click', () => {
+      currentTestimonial = currentTestimonial < totalTestimonials - 1 ? currentTestimonial + 1 : 0;
+      updateTestimonialSlider();
+    });
+
+    // Auto-slide testimonials
+    setInterval(() => {
+      currentTestimonial = currentTestimonial < totalTestimonials - 1 ? currentTestimonial + 1 : 0;
+      updateTestimonialSlider();
+    }, 5000);
+
+    // FAQ Accordion
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const faqItem = question.parentElement;
+        const faqAnswer = faqItem.querySelector('.faq-answer');
+        const isActive = faqItem.classList.contains('active');
+
+        // Close all FAQ items
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.classList.remove('active');
+          item.querySelector('.faq-answer').classList.remove('active');
+        });
+
+        // Open clicked FAQ item if it wasn't active
+        if (!isActive) {
+          faqItem.classList.add('active');
+          faqAnswer.classList.add('active');
+        }
+      });
     });
 
     // Scroll Animation
@@ -338,40 +1121,32 @@
       });
     }, { threshold: 0.2 });
     animItems.forEach(item => observer.observe(item));
+
+    // Highlight functionality
+    (function () {
+      const highlight = () => {
+        const id = window.location.hash.replace('#', '');
+        if (!id) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.classList.add('ring-2', 'ring-pink-300/60');
+        el.animate(
+          [
+            { boxShadow: '0 0 0 0 rgba(241, 92, 161, 0.45)' },
+            { boxShadow: '0 0 0 12px rgba(241, 92, 161, 0.15)' },
+            { boxShadow: '0 0 0 0 rgba(241, 92, 161, 0.0)' },
+          ],
+          { duration: 900, easing: 'ease-out' }
+        );
+
+        el.focus({ preventScroll: true });
+        setTimeout(() => el.classList.remove('ring-2', 'ring-pink-300/60'), 1400);
+      };
+
+      window.addEventListener('load', highlight);
+      window.addEventListener('hashchange', highlight);
+    })();
   </script>
-
-  <script>
-  // Highlight kartu saat diarahkan via hash
-  (function () {
-    const highlight = () => {
-      const id = window.location.hash.replace('#', '');
-      if (!id) return;
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      el.classList.add('ring-2', 'ring-white/60', 'shadow-[0_0_0_9999px_rgba(0,0,0,0)]');
-      el.animate(
-        [
-          { boxShadow: '0 0 0 0 rgba(255,255,255,0.45)' },
-          { boxShadow: '0 0 0 12px rgba(255,255,255,0.15)' },
-          { boxShadow: '0 0 0 0 rgba(255,255,255,0.0)' },
-        ],
-        { duration: 900, easing: 'ease-out' }
-      );
-
-      // Fokus agar terlihat di keyboard nav juga
-      el.focus({ preventScroll: true });
-
-      // Hapus ring setelah beberapa detik
-      setTimeout(() => el.classList.remove('ring-2', 'ring-white/60'), 1400);
-    };
-
-    // Jalankan saat load jika ada hash
-    window.addEventListener('load', highlight);
-    // Jalankan tiap hash berubah (misal klik link atau navigasi balik)
-    window.addEventListener('hashchange', highlight);
-  })();
-</script>
-
 </body>
 </html>
