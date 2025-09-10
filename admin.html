@@ -355,12 +355,59 @@
             color: var(--accent-info);
         }
 
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-primary);
+        }
+        
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .pagination-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--bg-card-hover);
+            border-color: var(--border-secondary);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
         /* Legacy compatibility for original JavaScript */
         .card-bg { 
             background-color: #1a1a1a;
             background-image: 
                 radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 40%),
-                /* Pola noise halus untuk tekstur premium */
                 url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800"%3E%3Crect fill="%231a1a1a" width="800" height="800"/%3E%3Cg fill-opacity="0.12"%3E%3Ccircle fill="%233a3a3a" cx="400" cy="400" r="600"/%3E%3Ccircle fill="%23353535" cx="400" cy="400" r="500"/%3E%3Ccircle fill="%23303030" cx="400" cy="400" r="400"/%3E%3Ccircle fill="%232b2b2b" cx="400" cy="400" r="300"/%3E%3Ccircle fill="%23262626" cx="400" cy="400" r="200"/%3E%3Ccircle fill="%23242424" cx="400" cy="400" r="100"/%3E%3C/g%3E%3C/svg%3E');
         }
         .aspect-4-3 { 
@@ -674,6 +721,16 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Pagination Container -->
+                            <div id="pagination-container" class="pagination-container hidden">
+                                <div class="pagination-info" id="pagination-info">
+                                    <!-- Info akan diisi oleh JavaScript -->
+                                </div>
+                                <div class="pagination-controls" id="pagination-controls">
+                                    <!-- Tombol pagination akan diisi oleh JavaScript -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -771,7 +828,12 @@
 
             // --- Variabel Global & Cache ---
             let allMemberData = [];
+            let filteredMemberData = [];
             let html5QrCode;
+            
+            // --- Pagination variables ---
+            let currentPage = 1;
+            const itemsPerPage = 25;
 
             // --- ELEMEN DOM ---
             const DOMElements = {
@@ -824,6 +886,11 @@
                     cancelArchiveBtn: document.getElementById('cancel-archive-btn'),
                     archiveText: document.getElementById('archive-text'),
                     archiveSpinner: document.getElementById('archive-spinner'),
+                },
+                pagination: {
+                    container: document.getElementById('pagination-container'),
+                    info: document.getElementById('pagination-info'),
+                    controls: document.getElementById('pagination-controls')
                 },
                 cardTemplate: {
                     container: document.getElementById('card-to-render'),
@@ -963,13 +1030,125 @@
                 }
             }
 
+            // --- PAGINATION FUNCTIONS ---
+            function getPaginatedData(data, page, itemsPerPage) {
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                return data.slice(startIndex, endIndex);
+            }
+
+            function getTotalPages(dataLength, itemsPerPage) {
+                return Math.ceil(dataLength / itemsPerPage);
+            }
+
+            function renderPaginationControls(totalItems, currentPage, itemsPerPage) {
+                const totalPages = getTotalPages(totalItems, itemsPerPage);
+                const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+                const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+                
+                // Update info
+                DOMElements.pagination.info.textContent = `Menampilkan ${startItem}-${endItem} dari ${totalItems} data`;
+                
+                // Clear controls
+                DOMElements.pagination.controls.innerHTML = '';
+                
+                if (totalPages <= 1) {
+                    DOMElements.pagination.container.classList.add('hidden');
+                    return;
+                }
+                
+                DOMElements.pagination.container.classList.remove('hidden');
+                
+                // Previous button
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'pagination-btn';
+                prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.onclick = () => goToPage(currentPage - 1);
+                DOMElements.pagination.controls.appendChild(prevBtn);
+                
+                // Page numbers
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, currentPage + 2);
+                
+                if (startPage > 1) {
+                    const firstBtn = document.createElement('button');
+                    firstBtn.className = 'pagination-btn';
+                    firstBtn.textContent = '1';
+                    firstBtn.onclick = () => goToPage(1);
+                    DOMElements.pagination.controls.appendChild(firstBtn);
+                    
+                    if (startPage > 2) {
+                        const dots = document.createElement('span');
+                        dots.className = 'pagination-btn';
+                        dots.textContent = '...';
+                        dots.style.cursor = 'default';
+                        DOMElements.pagination.controls.appendChild(dots);
+                    }
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.onclick = () => goToPage(i);
+                    DOMElements.pagination.controls.appendChild(pageBtn);
+                }
+                
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const dots = document.createElement('span');
+                        dots.className = 'pagination-btn';
+                        dots.textContent = '...';
+                        dots.style.cursor = 'default';
+                        DOMElements.pagination.controls.appendChild(dots);
+                    }
+                    
+                    const lastBtn = document.createElement('button');
+                    lastBtn.className = 'pagination-btn';
+                    lastBtn.textContent = totalPages;
+                    lastBtn.onclick = () => goToPage(totalPages);
+                    DOMElements.pagination.controls.appendChild(lastBtn);
+                }
+                
+                // Next button
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'pagination-btn';
+                nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
+                nextBtn.disabled = currentPage === totalPages;
+                nextBtn.onclick = () => goToPage(currentPage + 1);
+                DOMElements.pagination.controls.appendChild(nextBtn);
+            }
+
+            function goToPage(page) {
+                const totalPages = getTotalPages(filteredMemberData.length, itemsPerPage);
+                if (page < 1 || page > totalPages) return;
+                
+                currentPage = page;
+                renderMemberTable(filteredMemberData);
+            }
+
             // --- FUNGSI RENDER (Update UI) ---
             function renderMemberTable(membersToRender = allMemberData) {
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
-                if (membersToRender.length > 0) {
-                    membersToRender.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
-                    membersToRender.forEach((member) => {
+                // Update filtered data
+                filteredMemberData = membersToRender;
+                
+                // Reset to first page if current page is out of bounds
+                const totalPages = getTotalPages(filteredMemberData.length, itemsPerPage);
+                if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = 1;
+                }
+                
+                // Get paginated data
+                const paginatedData = getPaginatedData(filteredMemberData, currentPage, itemsPerPage);
+                
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
+                
+                if (paginatedData.length > 0) {
+                    paginatedData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
+                    paginatedData.forEach((member, index) => {
                         const isPaid = member.statusPembayaran === true;
+                        const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;
                         
                         let rowClass = '';
                         if (!isPaid) {
@@ -987,6 +1166,7 @@
 
                         tableHtml += `
                             <tr class="border-b border-gray-700 text-sm ${rowClass} member-row" data-doc-id="${member.docId}">
+                                <td class="py-2 px-4 font-medium text-gray-400">${globalIndex}</td>
                                 <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
                                 <td class="py-2 px-4">${member.nama || 'N/A'}</td>
                                 <td class="py-2 px-4">${member.paket || 'N/A'}</td>
@@ -995,11 +1175,15 @@
                             </tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="5" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
+                    tableHtml += `<tr><td colspan="6" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 DOMElements.members.content.innerHTML = tableHtml;
 
+                // Render pagination
+                renderPaginationControls(filteredMemberData.length, currentPage, itemsPerPage);
+
+                // Add click event listeners to member rows
                 document.querySelectorAll('.member-row').forEach(row => {
                     row.addEventListener('click', (e) => showMemberDetail(e.currentTarget.dataset.docId, 'view'));
                 });
@@ -1102,7 +1286,7 @@
                     document.getElementById('back-to-table').addEventListener('click', () => {
                         DOMElements.members.detailView.classList.add('hidden');
                         DOMElements.members.tableView.classList.remove('hidden');
-                        renderMemberTable(); 
+                        renderMemberTable(filteredMemberData); 
                     });
                     document.getElementById('edit-member-btn').addEventListener('click', () => showMemberDetail(docId, 'edit'));
                     if (isPaid) {
@@ -1179,14 +1363,15 @@
                         attendanceData.sort((a, b) => (b.waktuCheckin?.seconds || 0) - (a.waktuCheckin?.seconds || 0));
                     }
 
-                    let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">Nama</th><th class="py-2 px-4">Keterangan</th><th class="py-2 px-4">Jam Masuk</th><th class="py-2 px-4">Jam Keluar</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
+                    let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">Nama</th><th class="py-2 px-4">Keterangan</th><th class="py-2 px-4">Jam Masuk</th><th class="py-2 px-4">Jam Keluar</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
                     if (attendanceData && attendanceData.length > 0) {
-                        attendanceData.forEach(entry => {
+                        attendanceData.forEach((entry, index) => {
                             const checkinTimeValue = formatTimeForInput(entry.waktuCheckin);
                             const checkoutTimeValue = formatTimeForInput(entry.waktuCheckout);
                             
                             tableHtml += `
                                 <tr class="border-b border-gray-700 text-sm align-middle">
+                                    <td class="py-2 px-4 font-medium text-gray-400">${index + 1}</td>
                                     <td class="py-2 px-4">${entry.nama}</td>
                                     <td class="py-2 px-4">${entry.type === 'Member' ? `<span class="font-mono">${entry.kodePendaftaran}</span>` : '<span class="text-blue-400">Visitor</span>'}</td>
                                     <td class="py-2 px-4"><input type="time" id="checkin-${entry.id}" class="w-full px-3 py-2" value="${checkinTimeValue}" ${entry.type === 'Visitor' ? 'disabled' : ''}></td>
@@ -1195,7 +1380,7 @@
                                 </tr>`;
                         });
                     } else {
-                        tableHtml += `<tr><td colspan="5" class="text-center py-4 text-gray-400">Belum ada aktivitas absensi hari ini.</td></tr>`;
+                        tableHtml += `<tr><td colspan="6" class="text-center py-4 text-gray-400">Belum ada aktivitas absensi hari ini.</td></tr>`;
                     }
                     tableHtml += `</tbody></table></div>`;
                     historyContent.innerHTML = tableHtml;
@@ -1325,6 +1510,10 @@
                     allMemberData = querySnapshot.docs
                         .map((doc, index) => ({ docId: doc.id, index, ...doc.data() }))
                         .filter(member => member.isArchived !== true);
+                    
+                    // Reset current page when loading new data
+                    currentPage = 1;
+                    
                     updateSummary();
                     renderMemberTable();
                 } catch (error) {
@@ -1648,6 +1837,8 @@
 
             DOMElements.members.searchInput.addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
+                currentPage = 1; // Reset to first page when searching
+                
                 if (!searchTerm) {
                     renderMemberTable(allMemberData);
                     return;
@@ -1728,9 +1919,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
