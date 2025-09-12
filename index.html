@@ -410,6 +410,15 @@
       <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40"></div>
       
       <div class="relative z-10 max-w-6xl mx-auto px-4">
+        <!-- Prayer Time Badge - MOVED TO TOP -->
+        <div class="mb-4">
+          <span id="prayer-badge" class="prayer-badge inline-flex items-center gap-2 px-6 py-3 rounded-full bg-rose-bright/15 backdrop-blur-lg border border-rose-bright/30 text-rose-bright cursor-pointer hover:bg-rose-bright/25 transition-all text-base font-semibold" onclick="showPrayerModal()">
+            <i class="ph ph-mosque text-xl"></i>
+            <span class="hidden sm:inline">Sholat Selanjutnya:</span>
+            <span id="next-prayer-time" class="font-bold">Loading...</span>
+          </span>
+        </div>
+
         <!-- Badge -->
         <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full badge-modern text-sm font-medium tracking-wide mb-6 float-animation">
           <i class="ph ph-shield-check rose-bright"></i>
@@ -456,7 +465,7 @@
           </span>
         </div>
 
-        <!-- Enhanced Islamic Values + Prayer Times -->
+        <!-- Islamic Values -->
         <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
           <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/20 text-emerald-300">
             <i class="ph ph-speaker-slash"></i> No Music
@@ -466,13 +475,6 @@
           </span>
           <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-lg border border-emerald-500/20 text-emerald-300">
             <i class="ph ph-camera-slash"></i> No Camera
-          </span>
-          
-          <!-- NEW: Prayer Time Badge -->
-          <span id="prayer-badge" class="prayer-badge inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-bright/10 backdrop-blur-lg border border-rose-bright/20 text-rose-bright cursor-pointer hover:bg-rose-bright/20 transition-all" onclick="showPrayerModal()">
-            <i class="ph ph-mosque"></i>
-            <span class="hidden sm:inline">Sholat:</span>
-            <span id="next-prayer-time" class="font-semibold">Loading...</span>
           </span>
         </div>
       </div>
