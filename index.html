@@ -1127,47 +1127,114 @@
       constructor() {
         this.latitude = -6.347891;
         this.longitude = 106.741158;
+        this.tz = 'Asia/Jakarta';
         this.prayers = {};
+        this.hijri = null;
         this.notificationEnabled = localStorage.getItem('prayerNotifications') === 'true';
         this.init();
       }
-      
+
       async init() {
-        await this.loadPrayerTimes();
+        await this.loadPrayerTimesSafe();
         this.updateBadge();
         this.updateNotificationStatus();
-        
-        // Update every minute
         setInterval(() => this.updateBadge(), 60000);
-        
-        // Check for prayer notifications
-        if (this.notificationEnabled) {
-          setInterval(() => this.checkPrayerTime(), 60000);
+        if (this.notificationEnabled) setInterval(() => this.checkPrayerTime(), 60000);
+      }
+
+      // Wrapper with fallback chain
+      async loadPrayerTimesSafe() {
+        // First: use UNIX timestamp for timezone-safe day resolution
+        const ok = await this.fetchTimingsByTimestamp();
+        if (ok) return;
+        // Second: fallback to date string
+        const ok2 = await this.fetchTimingsByDateString();
+        if (ok2) return;
+        // Third: fallback convert Gregorian to Hijri for date only (if both timing calls fail)
+        await this.fallbackHijriOnly();
+      }
+
+      // Fetch via UNIX timestamp
+      async fetchTimingsByTimestamp() {
+        try {
+          const ts = Math.floor(Date.now() / 1000);
+          const url = `https://api.aladhan.com/v1/timings/${ts}?latitude=${this.latitude}&longitude=${this.longitude}&method=2&timezonestring=${encodeURIComponent(this.tz)}`;
+          const res = await fetch(url, { cache: 'no-store' });
+          const data = await res.json();
+          if (data && data.code === 200 && data.data) {
+            this.applyTimingsPayload(data.data);
+            return true;
+          }
+        } catch (e) {
+          console.warn('timings by timestamp failed', e);
+        }
+        return false;
+      }
+
+      // Fetch via ISO date string (backup)
+      async fetchTimingsByDateString() {
+        try {
+          // Build local date (not UTC) to avoid off-by-one around midnight
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          const dateStr = `${year}-${month}-${day}`;
+          const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${this.latitude}&longitude=${this.longitude}&method=2&timezonestring=${encodeURIComponent(this.tz)}`;
+          const res = await fetch(url, { cache: 'no-store' });
+          const data = await res.json();
+          if (data && data.code === 200 && data.data) {
+            this.applyTimingsPayload(data.data);
+            return true;
+          }
+        } catch (e) {
+          console.warn('timings by date failed', e);
+        }
+        return false;
+      }
+
+      // Only get Hijri via conversion as last fallback
+      async fallbackHijriOnly() {
+        try {
+          const now = new Date();
+          const d = String(now.getDate()).padStart(2, '0');
+          const m = String(now.getMonth() + 1).padStart(2, '0');
+          const y = String(now.getFullYear());
+          const url = `https://api.aladhan.com/v1/gToH?date=${d}-${m}-${y}`;
+          const res = await fetch(url, { cache: 'no-store' });
+          const data = await res.json();
+          if (data && data.code === 200 && data.data && data.data.hijri) {
+            this.hijri = data.data.hijri;
+            this.updateHijriDate(this.hijri);
+          } else {
+            this.showErrorState();
+          }
+        } catch (e) {
+          console.error('gToH fallback failed', e);
+          this.showErrorState();
         }
       }
-      
-      async loadPrayerTimes() {
-        try {
-          const today = new Date();
-          const dateStr = today.toISOString().split('T')[0];
-          
-          const response = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${this.latitude}&longitude=${this.longitude}&method=2&timezonestring=Asia/Jakarta`);
-          const data = await response.json();
-          
-          if (data.code === 200) {
-            this.prayers = {
-              'Subuh': data.data.timings.Fajr,
-              'Dzuhur': data.data.timings.Dhuhr,
-              'Ashar': data.data.timings.Asr,
-              'Maghrib': data.data.timings.Maghrib,
-              'Isya': data.data.timings.Isha
-            };
-            
-            this.updateHijriDate(data.data.date.hijri);
-          }
-        } catch (error) {
-          console.error('Error loading prayer times:', error);
-          this.showErrorState();
+
+      // Normalize payload into state
+      applyTimingsPayload(payload) {
+        const t = payload.timings || {};
+        const clean = (s) => String(s || '').replace(/\s*\(.*?\)\s*/g, ''); // strip "(WIB)" etc
+        this.prayers = {
+          'Subuh': clean(t.Fajr),
+          'Dzuhur': clean(t.Dhuhr),
+          'Ashar': clean(t.Asr),
+          'Maghrib': clean(t.Maghrib),
+          'Isya': clean(t.Isha)
+        };
+        this.hijri = payload.date ? payload.date.hijri : null;
+
+        // Sanity check: year range reasonable
+        const hijriYear = this.hijri && parseInt(this.hijri.year, 10);
+        if (!hijriYear || hijriYear < 1400 || hijriYear > 1600) {
+          // Try a conversion fallback if hijri looks wrong
+          this.fallbackHijriOnly();
+        } else {
+          this.updateHijriDate(this.hijri);
         }
       }
       
@@ -1225,11 +1292,25 @@
         }
       }
       
+      // Optional: localize Hijri month to ID
+      hijriMonthNameID(hijriObj) {
+        const num = parseInt(hijriObj?.month?.number || '0', 10);
+        const map = {
+          1: 'Muharram', 2: 'Safar', 3: 'Rabiul Awal', 4: 'Rabiul Akhir',
+          5: 'Jumadil Awal', 6: 'Jumadil Akhir', 7: 'Rajab', 8: 'Sya’ban',
+          9: 'Ramadhan', 10: 'Syawal', 11: 'Dzulkaidah', 12: 'Dzulhijjah'
+        };
+        return map[num] || (hijriObj?.month?.en || 'Hijri');
+        // References: API provides month.number and month.en; mapping here is transliterasi ID selaras praktik umum. 
+      }
+
       updateHijriDate(hijriData) {
-        const hijriElement = document.getElementById('hijri-date');
-        if (hijriElement && hijriData) {
-          hijriElement.textContent = `${hijriData.day} ${hijriData.month.en} ${hijriData.year}H`;
-        }
+        const el = document.getElementById('hijri-date');
+        if (!el || !hijriData) return;
+        const day = hijriData.day;
+        const year = hijriData.year;
+        const monthName = this.hijriMonthNameID(hijriData);
+        el.textContent = `${day} ${monthName} ${year}H`;
       }
       
       formatTime(time24) {
