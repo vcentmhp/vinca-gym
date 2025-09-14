@@ -369,7 +369,127 @@
       0%, 100% { box-shadow: 0 0 5px rgba(241, 92, 161, 0.3); }
       50% { box-shadow: 0 0 15px rgba(241, 92, 161, 0.5); }
     }
-  </style>
+  
+
+    /* QR Scanner Floating Button - Positioned below WhatsApp */
+    .qr-scanner-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 32px;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #ec4899, #be185d);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .qr-scanner-fab:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 12px 40px rgba(236, 72, 153, 0.4);
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+    }
+
+    .qr-scanner-fab i {
+      font-size: 28px;
+      color: white;
+    }
+
+    /* QR Scanner Modal */
+    .qr-scanner-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(8px);
+    }
+
+    .qr-scanner-container {
+      background: #1a1a1a;
+      padding: 32px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .qr-scanner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .qr-scanner-close {
+      background: none;
+      border: none;
+      color: #e0e0e0;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .qr-scanner-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ec4899;
+    }
+
+    #qr-reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .success-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+      z-index: 3000;
+      max-width: 90%;
+      text-align: center;
+      font-family: Inter, sans-serif;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .qr-scanner-fab {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+      }
+
+      .qr-scanner-fab i {
+        font-size: 24px;
+      }
+
+      .qr-scanner-container {
+        padding: 24px;
+        width: 95%;
+      }
+    }</style>
 </head>
 <body class="antialiased">
   <!-- Header -->
@@ -866,12 +986,12 @@
                 <i class="ph ph-calendar text-3xl rose-light"></i>
               </div>
               <h3 class="text-xl font-bold font-serif mb-2">Kunjungan Harian</h3>
-              <div class="text-4xl font-bold my-4 price-highlight">25K</div>
+              <div class="text-4xl font-bold my-4 price-highlight">35K</div>
               <p class="text-gray-400 mb-6">Untuk non-member per sesi</p>
               <ul class="benefit-list text-left">
                 <li>
                   <i class="ph ph-check-circle"></i>
-                  <span>Akses gym selama 1 hari</span>
+                  <span>Akses gym maksimal selama 1 jam</span>
                 </li>
                 <li>
                   <i class="ph ph-check-circle"></i>
@@ -1049,7 +1169,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <h4 class="font-bold text-white mb-2 font-serif">Jam Buka</h4>
-                  <p class="text-gray-300 text-sm">Buka Setiap Hari: 07.30-18.00 WIB</p>
+                  <p class="text-gray-300 text-sm">Senin - Sabtu: 08.00-18.00 WIB<br>Ahad: 07.00-12.00 WIB</p>
                 </div>
               </div>
               
@@ -1116,7 +1236,7 @@
 
   <!-- Floating WhatsApp Button -->
   <a href="https://wa.me/6285782919391" target="_blank"
-    class="fixed bottom-8 right-8 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 z-50 animate-pulse">
+    class="fixed bottom-32 right-8 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 z-50 animate-pulse">
     <i class="ph ph-whatsapp-logo text-3xl"></i>
   </a>
 
@@ -1579,6 +1699,199 @@
     document.addEventListener('DOMContentLoaded', () => {
       window.heroPrayerTimes = new HeroPrayerTimes();
     });
+  </script>
+
+  <!-- QR Scanner Floating Action Button -->
+  <div class="qr-scanner-fab" onclick="openQRScanner()" title="Scan QR Code untuk Check-in/Check-out">
+    <i class="ph ph-qr-code"></i>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div class="qr-scanner-modal" id="qrScannerModal">
+    <div class="qr-scanner-container">
+      <div class="qr-scanner-header">
+        <h3 class="text-xl font-bold text-white font-serif">Scan QR Code</h3>
+        <button class="qr-scanner-close" onclick="closeQRScanner()" title="Tutup Scanner">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <div id="qr-reader" style="width: 100%;"></div>
+      <p class="text-gray-300 text-sm mt-4">
+        <i class="ph ph-camera mr-2"></i>
+        Arahkan kamera ke QR code untuk check-in/check-out
+      </p>
+      <div class="mt-4 text-xs text-gray-400">
+        <p>💡 Pastikan QR code terlihat jelas dalam frame</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Scanner JavaScript Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    // Global variables
+    let html5QrCode = null;
+    let isScanning = false;
+
+    // Function to open QR Scanner
+    function openQRScanner() {
+      console.log('Opening QR Scanner...');
+      const modal = document.getElementById('qrScannerModal');
+
+      if (!modal) {
+        alert('Error: QR Scanner modal tidak ditemukan!');
+        return;
+      }
+
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent body scroll
+
+      // Initialize QR Code scanner
+      try {
+        if (html5QrCode) {
+          html5QrCode.clear();
+        }
+
+        html5QrCode = new Html5Qrcode("qr-reader");
+        isScanning = true;
+
+        const config = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          disableFlip: false
+        };
+
+        html5QrCode.start(
+          { facingMode: "environment" }, // Use back camera
+          config,
+          (decodedText, decodedResult) => {
+            console.log('QR Code scanned:', decodedText);
+            handleQRScanSuccess(decodedText);
+            closeQRScanner();
+          },
+          (errorMessage) => {
+            // Ignore continuous scan errors - this is normal
+          }
+        ).catch(err => {
+          console.error('Error starting QR scanner:', err);
+          showErrorMessage('❌ Tidak dapat mengakses kamera.\n\nPastikan:\n• Izin kamera sudah diaktifkan\n• Browser mendukung kamera\n• Gunakan HTTPS (untuk production)');
+          closeQRScanner();
+        });
+
+      } catch (error) {
+        console.error('Error initializing scanner:', error);
+        showErrorMessage('Error: Gagal menginisialisasi scanner QR');
+        closeQRScanner();
+      }
+    }
+
+    // Function to close QR Scanner
+    function closeQRScanner() {
+      console.log('Closing QR Scanner...');
+      const modal = document.getElementById('qrScannerModal');
+
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore body scroll
+      }
+
+      if (html5QrCode && isScanning) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+          isScanning = false;
+        }).catch(err => {
+          console.error('Error stopping QR scanner:', err);
+        });
+      }
+    }
+
+    // Function to handle successful QR scan
+    function handleQRScanSuccess(qrData) {
+      console.log('Processing QR data:', qrData);
+
+      try {
+        // Try to parse as JSON first (structured data)
+        const data = JSON.parse(qrData);
+
+        if (data.type === 'member' && data.id) {
+          showSuccessMessage('✅ Member Check-in Berhasil!\n\nID: ' + data.id + '\nNama: ' + (data.name || 'Member') + '\nWaktu: ' + new Date().toLocaleString('id-ID'));
+        } else if (data.type === 'visitor') {
+          showSuccessMessage('✅ Visitor Check-in Berhasil!\n\nWaktu: ' + new Date().toLocaleString('id-ID'));
+        } else {
+          showSuccessMessage('✅ QR Code Berhasil di-scan!\n\nData: ' + JSON.stringify(data, null, 2));
+        }
+      } catch (e) {
+        // If not JSON, treat as plain text
+        if (qrData.match(/^[A-Z0-9]{6,10}$/)) {
+          // Looks like a member ID
+          showSuccessMessage('✅ Member Check-in Berhasil!\n\nMember ID: ' + qrData + '\nWaktu: ' + new Date().toLocaleString('id-ID'));
+        } else if (qrData.toLowerCase().includes('vinca')) {
+          // Vinca gym related QR
+          showSuccessMessage('✅ QR Code Vinca Gym terdeteksi!\n\n' + qrData);
+        } else {
+          // Generic QR code
+          showSuccessMessage('✅ QR Code berhasil di-scan!\n\nData: ' + qrData);
+        }
+      }
+
+      // Here you would typically send the data to your backend/Firebase
+      // Example: sendCheckInData(qrData);
+    }
+
+    // Function to show success message
+    function showSuccessMessage(message) {
+      const notification = document.createElement('div');
+      notification.className = 'success-notification';
+      notification.style.whiteSpace = 'pre-line';
+      notification.textContent = message;
+
+      document.body.appendChild(notification);
+
+      // Remove notification after 5 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 5000);
+    }
+
+    // Function to show error message
+    function showErrorMessage(message) {
+      alert(message);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('QR Scanner initialized');
+
+      // Close modal when clicking outside
+      document.addEventListener('click', function(event) {
+        const modal = document.getElementById('qrScannerModal');
+        if (event.target === modal) {
+          closeQRScanner();
+        }
+      });
+
+      // Handle ESC key to close modal
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          const modal = document.getElementById('qrScannerModal');
+          if (modal && modal.style.display === 'flex') {
+            closeQRScanner();
+          }
+        }
+      });
+    });
+
+    // Debug function to test QR scanner (optional)
+    window.testQRScanner = function() {
+      console.log('Testing QR Scanner...');
+      openQRScanner();
+    };
   </script>
 </body>
 </html>
