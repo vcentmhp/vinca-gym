@@ -1762,9 +1762,9 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+    import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
 
-    // Firebase configuration untuk vinca-gym-website
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCJHpggiEKydUC1HG-0ErXVScGh9-pCKgQ",
       authDomain: "vinca-gym-website.firebaseapp.com",
@@ -1780,18 +1780,16 @@
 
     // Make Firebase functions available globally
     window.db = db;
-    window.collection = collection;
-    window.addDoc = addDoc;
-    window.serverTimestamp = serverTimestamp;
-    window.query = query;
-    window.where = where;
-    window.getDocs = getDocs;
-    window.updateDoc = updateDoc;
     window.doc = doc;
+    window.getDoc = getDoc;
+    window.setDoc = setDoc;
+    window.updateDoc = updateDoc;
+    window.arrayUnion = arrayUnion;
+    window.serverTimestamp = serverTimestamp;
 
     // Set Firebase status
     document.getElementById('firebase-status').innerHTML = '<span class="text-green-400">🔥 Firebase Connected</span>';
-    console.log('Firebase initialized successfully');
+    console.log('Firebase initialized for daily attendance structure');
   </script>
 
   <!-- QR Scanner JavaScript Library -->
@@ -1875,16 +1873,32 @@
       }
     }
 
-    // Function to handle successful QR scan with Firebase integration
+    // Function to handle successful QR scan with proper daily attendance structure
     async function handleQRScanSuccess(qrData) {
       console.log('Processing QR data:', qrData);
 
       // Show loading notification
-      showLoadingMessage('⏳ Menyimpan data absensi...');
+      showLoadingMessage('⏳ Menyimpan data ke aktivitas absensi hari ini...');
 
       try {
+        // Get today's date in YYYY-MM-DD format (Indonesian timezone)
+        const today = new Date().toLocaleDateString('sv-SE'); // Swedish locale gives YYYY-MM-DD format
+        const currentTime = new Date().toLocaleTimeString('id-ID', { hour12: false });
+        const currentDateTime = new Date();
+
+        // Parse QR data to determine member vs visitor
         let memberData = null;
-        let visitType = 'visitor'; // default
+        let visitType = 'visitor';
+        let attendanceRecord = {
+          id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          timestamp: window.serverTimestamp(),
+          time: currentTime,
+          date: today,
+          type: 'visitor',
+          action: 'check_in',
+          source: 'qr_scanner_web',
+          qrData: qrData
+        };
 
         // Parse QR data
         try {
@@ -1894,8 +1908,12 @@
             memberData = {
               id: parsed.memberId || parsed.id,
               name: parsed.name || parsed.memberName || 'Member',
-              type: parsed.type || 'member'
+              type: 'member'
             };
+
+            attendanceRecord.type = 'member';
+            attendanceRecord.memberId = memberData.id;
+            attendanceRecord.memberName = memberData.name;
           }
         } catch (e) {
           // If not JSON, check if it looks like member ID
@@ -1906,91 +1924,102 @@
               name: 'Member',
               type: 'member'
             };
+
+            attendanceRecord.type = 'member';
+            attendanceRecord.memberId = memberData.id;
+            attendanceRecord.memberName = memberData.name;
           }
         }
 
-        // Prepare attendance data for Firebase
-        const attendanceData = {
-          timestamp: window.serverTimestamp(),
-          date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-          time: new Date().toLocaleTimeString('id-ID'),
-          type: visitType,
-          action: 'check_in', // or 'check_out' based on logic
-          source: 'qr_scanner_web',
-          qrData: qrData
-        };
+        console.log('Attendance record to save:', attendanceRecord);
 
-        if (memberData) {
-          attendanceData.memberId = memberData.id;
-          attendanceData.memberName = memberData.name;
-        }
+        // Reference to daily attendance document
+        const dailyAttendanceRef = window.doc(window.db, 'attendance_daily', today);
 
-        // Check if there's existing check-in today for this member/visitor
-        const today = new Date().toISOString().split('T')[0];
-        let existingCheckIn = null;
+        // Get existing daily document
+        const dailyDoc = await window.getDoc(dailyAttendanceRef);
+        let existingData = null;
+        let isCheckOut = false;
 
-        if (memberData) {
-          const q = window.query(
-            window.collection(window.db, 'daily_attendance'),
-            window.where('date', '==', today),
-            window.where('memberId', '==', memberData.id),
-            window.where('type', '==', 'member')
-          );
-          const querySnapshot = await window.getDocs(q);
-          if (!querySnapshot.empty) {
-            existingCheckIn = querySnapshot.docs[0];
+        if (dailyDoc.exists()) {
+          existingData = dailyDoc.data();
+          console.log('Found existing daily document:', existingData);
+
+          // Check if this member/visitor already checked in today
+          if (memberData && existingData.attendances) {
+            const existingCheckIn = existingData.attendances.find(att => 
+              att.memberId === memberData.id && 
+              att.type === 'member' && 
+              att.action === 'check_in' &&
+              !existingData.attendances.some(checkout => 
+                checkout.memberId === memberData.id && 
+                checkout.action === 'check_out' && 
+                checkout.time > att.time
+              )
+            );
+
+            if (existingCheckIn) {
+              attendanceRecord.action = 'check_out';
+              isCheckOut = true;
+              console.log('Setting as check-out for member:', memberData.id);
+            }
           }
         }
 
-        let result;
-        if (existingCheckIn) {
-          // Update existing record for check-out
-          attendanceData.action = 'check_out';
-          attendanceData.checkOutTime = new Date().toLocaleTimeString('id-ID');
+        // Prepare document data
+        let docData;
 
-          await window.updateDoc(existingCheckIn.ref, {
-            checkOutTime: attendanceData.checkOutTime,
-            checkOutTimestamp: window.serverTimestamp(),
-            action: 'check_out'
+        if (existingData) {
+          // Update existing document by adding new attendance record
+          await window.updateDoc(dailyAttendanceRef, {
+            attendances: window.arrayUnion(attendanceRecord),
+            lastUpdated: window.serverTimestamp()
           });
-
-          result = 'check_out';
+          console.log('Updated existing daily document with new attendance');
         } else {
-          // Add new check-in record
-          attendanceData.checkInTime = attendanceData.time;
-          attendanceData.checkInTimestamp = window.serverTimestamp();
+          // Create new daily document
+          docData = {
+            date: today,
+            attendances: [attendanceRecord],
+            stats: {
+              totalMembers: memberData ? 1 : 0,
+              totalVisitors: memberData ? 0 : 1,
+              totalCheckIns: 1,
+              totalCheckOuts: 0
+            },
+            lastUpdated: window.serverTimestamp(),
+            createdAt: window.serverTimestamp()
+          };
 
-          const docRef = await window.addDoc(
-            window.collection(window.db, 'daily_attendance'), 
-            attendanceData
-          );
-
-          console.log('Attendance saved with ID:', docRef.id);
-          result = 'check_in';
+          await window.setDoc(dailyAttendanceRef, docData);
+          console.log('Created new daily document:', docData);
         }
 
-        // Show success message
+        // Show success message based on type and action
+        let successMessage;
         if (memberData) {
-          const actionText = result === 'check_in' ? 'Check-in' : 'Check-out';
-          showSuccessMessage(
+          const actionText = isCheckOut ? 'Check-out' : 'Check-in';
+          successMessage = 
             `✅ ${actionText} Member Berhasil!\n\n` +
             `ID: ${memberData.id}\n` +
             `Nama: ${memberData.name}\n` +
-            `Waktu: ${new Date().toLocaleString('id-ID')}\n` +
-            `📊 Data tersimpan ke Firebase`
-          );
+            `Waktu: ${currentTime}\n` +
+            `📊 Data masuk ke Aktivitas Absensi Hari Ini`;
         } else {
-          showSuccessMessage(
+          successMessage = 
             `✅ Visitor Check-in Berhasil!\n\n` +
-            `Waktu: ${new Date().toLocaleString('id-ID')}\n` +
-            `📊 Data tersimpan ke Firebase`
-          );
+            `Waktu: ${currentTime}\n` +
+            `📊 Data masuk ke Aktivitas Absensi Hari Ini`;
         }
 
+        showSuccessMessage(successMessage);
+
+        console.log('Attendance successfully saved to daily document for date:', today);
+
       } catch (error) {
-        console.error('Error saving to Firebase:', error);
+        console.error('Error saving attendance to daily document:', error);
         showErrorMessage(
-          `❌ Error menyimpan data!\n\n` +
+          `❌ Error menyimpan ke aktivitas absensi!\n\n` +
           `${error.message}\n\n` +
           `QR Data: ${qrData}`
         );
@@ -2005,7 +2034,7 @@
       notification.style.whiteSpace = 'pre-line';
       notification.textContent = message;
       document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 7000);
+      setTimeout(() => notification.remove(), 8000);
     }
 
     function showErrorMessage(message) {
@@ -2024,7 +2053,6 @@
       notification.className = 'loading-notification';
       notification.textContent = message;
       document.body.appendChild(notification);
-      // Will be removed by success/error message
     }
 
     function removeExistingNotifications() {
@@ -2034,7 +2062,7 @@
 
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('QR Scanner with Firebase initialized');
+      console.log('QR Scanner with daily attendance structure initialized');
 
       document.addEventListener('click', function(event) {
         const modal = document.getElementById('qrScannerModal');
@@ -2053,20 +2081,51 @@
       });
     });
 
-    // Test function for debugging
-    window.testFirebaseConnection = async function() {
+    // Test function for debugging daily attendance structure
+    window.testDailyAttendance = async function() {
       try {
-        const testData = {
-          test: true,
+        const today = new Date().toLocaleDateString('sv-SE');
+        console.log('Testing daily attendance for date:', today);
+
+        const testRecord = {
+          id: 'test_' + Date.now(),
           timestamp: window.serverTimestamp(),
-          message: 'Test connection'
+          time: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+          date: today,
+          type: 'member',
+          action: 'check_in',
+          memberId: 'TEST001',
+          memberName: 'Test Member',
+          source: 'test_function',
+          qrData: '{"memberId":"TEST001","name":"Test Member","type":"member"}'
         };
-        const docRef = await window.addDoc(window.collection(window.db, 'daily_attendance'), testData);
-        console.log('Test document written with ID: ', docRef.id);
-        showSuccessMessage('✅ Firebase connection successful!');
+
+        const dailyRef = window.doc(window.db, 'attendance_daily', today);
+        const dailyDoc = await window.getDoc(dailyRef);
+
+        if (dailyDoc.exists()) {
+          await window.updateDoc(dailyRef, {
+            attendances: window.arrayUnion(testRecord),
+            lastUpdated: window.serverTimestamp()
+          });
+          console.log('Test record added to existing daily document');
+        } else {
+          const newDoc = {
+            date: today,
+            attendances: [testRecord],
+            stats: { totalMembers: 1, totalVisitors: 0, totalCheckIns: 1, totalCheckOuts: 0 },
+            lastUpdated: window.serverTimestamp(),
+            createdAt: window.serverTimestamp()
+          };
+          await window.setDoc(dailyRef, newDoc);
+          console.log('Test record added to new daily document');
+        }
+
+        showSuccessMessage('✅ Test daily attendance berhasil!\nCek admin panel untuk melihat data.');
+
       } catch (error) {
-        console.error('Firebase test failed:', error);
-        showErrorMessage('❌ Firebase connection failed: ' + error.message);
+        console.error('Daily attendance test failed:', error);
+        showErrorMessage('❌ Test daily attendance gagal: ' + error.message);
       }
     };
   </script>
