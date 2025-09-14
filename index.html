@@ -371,7 +371,7 @@
     }
   
 
-    /* QR Scanner Floating Button - Positioned below WhatsApp */
+    /* QR Scanner Floating Button */
     .qr-scanner-fab {
       position: fixed;
       bottom: 24px;
@@ -466,6 +466,38 @@
       padding: 16px 24px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+      z-index: 3000;
+      max-width: 90%;
+      text-align: center;
+      font-family: Inter, sans-serif;
+    }
+
+    .error-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+      z-index: 3000;
+      max-width: 90%;
+      text-align: center;
+      font-family: Inter, sans-serif;
+    }
+
+    .loading-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
       z-index: 3000;
       max-width: 90%;
       text-align: center;
@@ -1722,9 +1754,45 @@
       </p>
       <div class="mt-4 text-xs text-gray-400">
         <p>💡 Pastikan QR code terlihat jelas dalam frame</p>
+        <p id="firebase-status" class="mt-2"></p>
       </div>
     </div>
   </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+
+    // Firebase configuration untuk vinca-gym-website
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJHpggiEKydUC1HG-0ErXVScGh9-pCKgQ",
+      authDomain: "vinca-gym-website.firebaseapp.com",
+      projectId: "vinca-gym-website",
+      storageBucket: "vinca-gym-website.appspot.com",
+      messagingSenderId: "834950150175",
+      appId: "1:834950150175:web:8c9aa3e0c5e4a2a9b8c5d6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make Firebase functions available globally
+    window.db = db;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.serverTimestamp = serverTimestamp;
+    window.query = query;
+    window.where = where;
+    window.getDocs = getDocs;
+    window.updateDoc = updateDoc;
+    window.doc = doc;
+
+    // Set Firebase status
+    document.getElementById('firebase-status').innerHTML = '<span class="text-green-400">🔥 Firebase Connected</span>';
+    console.log('Firebase initialized successfully');
+  </script>
 
   <!-- QR Scanner JavaScript Library -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -1740,15 +1808,13 @@
       const modal = document.getElementById('qrScannerModal');
 
       if (!modal) {
-        alert('Error: QR Scanner modal tidak ditemukan!');
+        showErrorMessage('Error: QR Scanner modal tidak ditemukan!');
         return;
       }
 
-      // Show modal
       modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden'; // Prevent body scroll
+      document.body.style.overflow = 'hidden';
 
-      // Initialize QR Code scanner
       try {
         if (html5QrCode) {
           html5QrCode.clear();
@@ -1765,7 +1831,7 @@
         };
 
         html5QrCode.start(
-          { facingMode: "environment" }, // Use back camera
+          { facingMode: "environment" },
           config,
           (decodedText, decodedResult) => {
             console.log('QR Code scanned:', decodedText);
@@ -1773,7 +1839,7 @@
             closeQRScanner();
           },
           (errorMessage) => {
-            // Ignore continuous scan errors - this is normal
+            // Ignore continuous scan errors
           }
         ).catch(err => {
           console.error('Error starting QR scanner:', err);
@@ -1795,7 +1861,7 @@
 
       if (modal) {
         modal.style.display = 'none';
-        document.body.style.overflow = ''; // Restore body scroll
+        document.body.style.overflow = '';
       }
 
       if (html5QrCode && isScanning) {
@@ -1809,66 +1875,167 @@
       }
     }
 
-    // Function to handle successful QR scan
-    function handleQRScanSuccess(qrData) {
+    // Function to handle successful QR scan with Firebase integration
+    async function handleQRScanSuccess(qrData) {
       console.log('Processing QR data:', qrData);
 
+      // Show loading notification
+      showLoadingMessage('⏳ Menyimpan data absensi...');
+
       try {
-        // Try to parse as JSON first (structured data)
-        const data = JSON.parse(qrData);
+        let memberData = null;
+        let visitType = 'visitor'; // default
 
-        if (data.type === 'member' && data.id) {
-          showSuccessMessage('✅ Member Check-in Berhasil!\n\nID: ' + data.id + '\nNama: ' + (data.name || 'Member') + '\nWaktu: ' + new Date().toLocaleString('id-ID'));
-        } else if (data.type === 'visitor') {
-          showSuccessMessage('✅ Visitor Check-in Berhasil!\n\nWaktu: ' + new Date().toLocaleString('id-ID'));
-        } else {
-          showSuccessMessage('✅ QR Code Berhasil di-scan!\n\nData: ' + JSON.stringify(data, null, 2));
+        // Parse QR data
+        try {
+          const parsed = JSON.parse(qrData);
+          if (parsed.memberId || parsed.id) {
+            visitType = 'member';
+            memberData = {
+              id: parsed.memberId || parsed.id,
+              name: parsed.name || parsed.memberName || 'Member',
+              type: parsed.type || 'member'
+            };
+          }
+        } catch (e) {
+          // If not JSON, check if it looks like member ID
+          if (qrData.match(/^[A-Z0-9]{6,10}$/)) {
+            visitType = 'member';
+            memberData = {
+              id: qrData,
+              name: 'Member',
+              type: 'member'
+            };
+          }
         }
-      } catch (e) {
-        // If not JSON, treat as plain text
-        if (qrData.match(/^[A-Z0-9]{6,10}$/)) {
-          // Looks like a member ID
-          showSuccessMessage('✅ Member Check-in Berhasil!\n\nMember ID: ' + qrData + '\nWaktu: ' + new Date().toLocaleString('id-ID'));
-        } else if (qrData.toLowerCase().includes('vinca')) {
-          // Vinca gym related QR
-          showSuccessMessage('✅ QR Code Vinca Gym terdeteksi!\n\n' + qrData);
-        } else {
-          // Generic QR code
-          showSuccessMessage('✅ QR Code berhasil di-scan!\n\nData: ' + qrData);
+
+        // Prepare attendance data for Firebase
+        const attendanceData = {
+          timestamp: window.serverTimestamp(),
+          date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+          time: new Date().toLocaleTimeString('id-ID'),
+          type: visitType,
+          action: 'check_in', // or 'check_out' based on logic
+          source: 'qr_scanner_web',
+          qrData: qrData
+        };
+
+        if (memberData) {
+          attendanceData.memberId = memberData.id;
+          attendanceData.memberName = memberData.name;
         }
+
+        // Check if there's existing check-in today for this member/visitor
+        const today = new Date().toISOString().split('T')[0];
+        let existingCheckIn = null;
+
+        if (memberData) {
+          const q = window.query(
+            window.collection(window.db, 'daily_attendance'),
+            window.where('date', '==', today),
+            window.where('memberId', '==', memberData.id),
+            window.where('type', '==', 'member')
+          );
+          const querySnapshot = await window.getDocs(q);
+          if (!querySnapshot.empty) {
+            existingCheckIn = querySnapshot.docs[0];
+          }
+        }
+
+        let result;
+        if (existingCheckIn) {
+          // Update existing record for check-out
+          attendanceData.action = 'check_out';
+          attendanceData.checkOutTime = new Date().toLocaleTimeString('id-ID');
+
+          await window.updateDoc(existingCheckIn.ref, {
+            checkOutTime: attendanceData.checkOutTime,
+            checkOutTimestamp: window.serverTimestamp(),
+            action: 'check_out'
+          });
+
+          result = 'check_out';
+        } else {
+          // Add new check-in record
+          attendanceData.checkInTime = attendanceData.time;
+          attendanceData.checkInTimestamp = window.serverTimestamp();
+
+          const docRef = await window.addDoc(
+            window.collection(window.db, 'daily_attendance'), 
+            attendanceData
+          );
+
+          console.log('Attendance saved with ID:', docRef.id);
+          result = 'check_in';
+        }
+
+        // Show success message
+        if (memberData) {
+          const actionText = result === 'check_in' ? 'Check-in' : 'Check-out';
+          showSuccessMessage(
+            `✅ ${actionText} Member Berhasil!\n\n` +
+            `ID: ${memberData.id}\n` +
+            `Nama: ${memberData.name}\n` +
+            `Waktu: ${new Date().toLocaleString('id-ID')}\n` +
+            `📊 Data tersimpan ke Firebase`
+          );
+        } else {
+          showSuccessMessage(
+            `✅ Visitor Check-in Berhasil!\n\n` +
+            `Waktu: ${new Date().toLocaleString('id-ID')}\n` +
+            `📊 Data tersimpan ke Firebase`
+          );
+        }
+
+      } catch (error) {
+        console.error('Error saving to Firebase:', error);
+        showErrorMessage(
+          `❌ Error menyimpan data!\n\n` +
+          `${error.message}\n\n` +
+          `QR Data: ${qrData}`
+        );
       }
-
-      // Here you would typically send the data to your backend/Firebase
-      // Example: sendCheckInData(qrData);
     }
 
-    // Function to show success message
+    // Notification functions
     function showSuccessMessage(message) {
+      removeExistingNotifications();
       const notification = document.createElement('div');
       notification.className = 'success-notification';
       notification.style.whiteSpace = 'pre-line';
       notification.textContent = message;
-
       document.body.appendChild(notification);
-
-      // Remove notification after 5 seconds
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 5000);
+      setTimeout(() => notification.remove(), 7000);
     }
 
-    // Function to show error message
     function showErrorMessage(message) {
-      alert(message);
+      removeExistingNotifications();
+      const notification = document.createElement('div');
+      notification.className = 'error-notification';
+      notification.style.whiteSpace = 'pre-line';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 10000);
+    }
+
+    function showLoadingMessage(message) {
+      removeExistingNotifications();
+      const notification = document.createElement('div');
+      notification.className = 'loading-notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      // Will be removed by success/error message
+    }
+
+    function removeExistingNotifications() {
+      const notifications = document.querySelectorAll('.success-notification, .error-notification, .loading-notification');
+      notifications.forEach(n => n.remove());
     }
 
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('QR Scanner initialized');
+      console.log('QR Scanner with Firebase initialized');
 
-      // Close modal when clicking outside
       document.addEventListener('click', function(event) {
         const modal = document.getElementById('qrScannerModal');
         if (event.target === modal) {
@@ -1876,7 +2043,6 @@
         }
       });
 
-      // Handle ESC key to close modal
       document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
           const modal = document.getElementById('qrScannerModal');
@@ -1887,10 +2053,21 @@
       });
     });
 
-    // Debug function to test QR scanner (optional)
-    window.testQRScanner = function() {
-      console.log('Testing QR Scanner...');
-      openQRScanner();
+    // Test function for debugging
+    window.testFirebaseConnection = async function() {
+      try {
+        const testData = {
+          test: true,
+          timestamp: window.serverTimestamp(),
+          message: 'Test connection'
+        };
+        const docRef = await window.addDoc(window.collection(window.db, 'daily_attendance'), testData);
+        console.log('Test document written with ID: ', docRef.id);
+        showSuccessMessage('✅ Firebase connection successful!');
+      } catch (error) {
+        console.error('Firebase test failed:', error);
+        showErrorMessage('❌ Firebase connection failed: ' + error.message);
+      }
     };
   </script>
 </body>
