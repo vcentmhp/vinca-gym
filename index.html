@@ -369,159 +369,105 @@
       0%, 100% { box-shadow: 0 0 5px rgba(241, 92, 161, 0.3); }
       50% { box-shadow: 0 0 15px rgba(241, 92, 161, 0.5); }
     }
-  
+  </style>
 
-    /* QR Scanner Floating Button */
-    .qr-scanner-fab {
-      position: fixed;
-      bottom: 24px;
-      right: 32px;
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, #ec4899, #be185d);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3);
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+  <!-- QR Scanner Libraries -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = { 
+      apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", 
+      authDomain: "vinca-gym-website.firebaseapp.com", 
+      projectId: "vinca-gym-website", 
+      storageBucket: "vinca-gym-website.firebasestorage.app", 
+      messagingSenderId: "430179505282", 
+      appId: "1:430179505282:web:e7128a258fb64cebcb109b", 
+      measurementId: "G-5KVHK8RPK9" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make db available globally for QR scanner
+    window.vincaDB = db;
+    window.vincaFirestore = { 
+      collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch 
+    };
+  </script>
+
+  <style>
+    /* QR Scanner Modal Styles */
+    .qr-modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
     }
 
-    .qr-scanner-fab:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 12px 40px rgba(236, 72, 153, 0.4);
-      background: linear-gradient(135deg, #f472b6, #ec4899);
-    }
-
-    .qr-scanner-fab i {
-      font-size: 28px;
-      color: white;
-    }
-
-    /* QR Scanner Modal */
-    .qr-scanner-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      backdrop-filter: blur(8px);
-    }
-
-    .qr-scanner-container {
-      background: #1a1a1a;
-      padding: 32px;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-
-    .qr-scanner-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .qr-scanner-close {
-      background: none;
-      border: none;
-      color: #e0e0e0;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
+    .qr-scanner-btn {
+      background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
       transition: all 0.3s ease;
     }
 
-    .qr-scanner-close:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ec4899;
+    .qr-scanner-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4);
     }
 
-    #qr-reader {
-      width: 100%;
+    #reader {
       border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 20px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .success-notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
-      z-index: 3000;
-      max-width: 90%;
+    .attendance-result {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
       text-align: center;
-      font-family: Inter, sans-serif;
+      font-weight: 500;
     }
 
-    .error-notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
-      z-index: 3000;
-      max-width: 90%;
-      text-align: center;
-      font-family: Inter, sans-serif;
+    .result-success {
+      background-color: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #15803d;
     }
 
-    .loading-notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
-      z-index: 3000;
-      max-width: 90%;
-      text-align: center;
-      font-family: Inter, sans-serif;
+    .result-error {
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #dc2626;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .qr-scanner-fab {
-        bottom: 20px;
-        right: 20px;
-        width: 56px;
-        height: 56px;
-      }
+    .result-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #d97706;
+    }
 
-      .qr-scanner-fab i {
-        font-size: 24px;
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
       }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+      }
+      100% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+      }
+    }
 
-      .qr-scanner-container {
-        padding: 24px;
-        width: 95%;
-      }
-    }</style>
+    .qr-scanner-btn.active {
+      animation: pulse-ring 2s infinite;
+    }
+  </style>
 </head>
 <body class="antialiased">
   <!-- Header -->
@@ -1018,12 +964,12 @@
                 <i class="ph ph-calendar text-3xl rose-light"></i>
               </div>
               <h3 class="text-xl font-bold font-serif mb-2">Kunjungan Harian</h3>
-              <div class="text-4xl font-bold my-4 price-highlight">35K</div>
+              <div class="text-4xl font-bold my-4 price-highlight">25K</div>
               <p class="text-gray-400 mb-6">Untuk non-member per sesi</p>
               <ul class="benefit-list text-left">
                 <li>
                   <i class="ph ph-check-circle"></i>
-                  <span>Akses gym maksimal selama 1 jam</span>
+                  <span>Akses gym selama 1 hari</span>
                 </li>
                 <li>
                   <i class="ph ph-check-circle"></i>
@@ -1201,7 +1147,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <h4 class="font-bold text-white mb-2 font-serif">Jam Buka</h4>
-                  <p class="text-gray-300 text-sm">Senin - Sabtu: 08.00-18.00 WIB<br>Ahad: 07.00-12.00 WIB</p>
+                  <p class="text-gray-300 text-sm">Buka Setiap Hari: 07.30-18.00 WIB</p>
                 </div>
               </div>
               
@@ -1266,9 +1212,43 @@
     </div>
   </footer>
 
+  
+  <!-- Floating QR Scanner Button -->
+  <button id="qr-scanner-btn" 
+    class="qr-scanner-btn fixed bottom-24 right-8 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all z-50">
+    <i class="ph ph-qr-code text-3xl"></i>
+  </button>
+
+
+  <!-- QR Scanner Modal -->
+  <div id="qr-scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 qr-modal-backdrop"></div>
+    <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <i class="ph ph-qr-code text-2xl text-purple-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Scan QR Member</h3>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Arahkan kamera ke QR code member untuk check-in/out</p>
+      </div>
+
+      <div id="reader" class="w-full mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg" style="min-height: 200px;"></div>
+
+      <div id="attendance-result" class=""></div>
+
+      <div class="flex gap-3 mt-4">
+        <button id="close-qr-modal" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+          <i class="ph ph-x text-lg"></i>
+          <span>Tutup</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Floating WhatsApp Button -->
   <a href="https://wa.me/6285782919391" target="_blank"
-    class="fixed bottom-32 right-8 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 z-50 animate-pulse">
+    class="fixed bottom-8 right-8 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-110 z-50 animate-pulse">
     <i class="ph ph-whatsapp-logo text-3xl"></i>
   </a>
 
@@ -1733,401 +1713,314 @@
     });
   </script>
 
-  <!-- QR Scanner Floating Action Button -->
-  <div class="qr-scanner-fab" onclick="openQRScanner()" title="Scan QR Code untuk Check-in/Check-out">
-    <i class="ph ph-qr-code"></i>
-  </div>
-
-  <!-- QR Scanner Modal -->
-  <div class="qr-scanner-modal" id="qrScannerModal">
-    <div class="qr-scanner-container">
-      <div class="qr-scanner-header">
-        <h3 class="text-xl font-bold text-white font-serif">Scan QR Code</h3>
-        <button class="qr-scanner-close" onclick="closeQRScanner()" title="Tutup Scanner">
-          <i class="ph ph-x"></i>
-        </button>
-      </div>
-      <div id="qr-reader" style="width: 100%;"></div>
-      <p class="text-gray-300 text-sm mt-4">
-        <i class="ph ph-camera mr-2"></i>
-        Arahkan kamera ke QR code untuk check-in/check-out
-      </p>
-      <div class="mt-4 text-xs text-gray-400">
-        <p>💡 Pastikan QR code terlihat jelas dalam frame</p>
-        <p id="firebase-status" class="mt-2"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJHpggiEKydUC1HG-0ErXVScGh9-pCKgQ",
-      authDomain: "vinca-gym-website.firebaseapp.com",
-      projectId: "vinca-gym-website",
-      storageBucket: "vinca-gym-website.appspot.com",
-      messagingSenderId: "834950150175",
-      appId: "1:834950150175:web:8c9aa3e0c5e4a2a9b8c5d6"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Make Firebase functions available globally
-    window.db = db;
-    window.doc = doc;
-    window.getDoc = getDoc;
-    window.setDoc = setDoc;
-    window.updateDoc = updateDoc;
-    window.arrayUnion = arrayUnion;
-    window.serverTimestamp = serverTimestamp;
-
-    // Set Firebase status
-    document.getElementById('firebase-status').innerHTML = '<span class="text-green-400">🔥 Firebase Connected</span>';
-    console.log('Firebase initialized for daily attendance structure');
-  </script>
-
-  <!-- QR Scanner JavaScript Library -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
   <script>
-    // Global variables
-    let html5QrCode = null;
-    let isScanning = false;
 
-    // Function to open QR Scanner
-    function openQRScanner() {
-      console.log('Opening QR Scanner...');
-      const modal = document.getElementById('qrScannerModal');
 
-      if (!modal) {
-        showErrorMessage('Error: QR Scanner modal tidak ditemukan!');
-        return;
+    // QR Scanner Functionality for Member Check-in/Check-out
+    class VincaQRScanner {
+      constructor() {
+        this.scanner = null;
+        this.isScanning = false;
+        this.db = null;
+        this.firestore = null;
+        this.init();
       }
 
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-
-      try {
-        if (html5QrCode) {
-          html5QrCode.clear();
-        }
-
-        html5QrCode = new Html5Qrcode("qr-reader");
-        isScanning = true;
-
-        const config = {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          disableFlip: false
+      async init() {
+        // Wait for Firebase to be available
+        const waitForFirebase = () => {
+          return new Promise((resolve) => {
+            const check = () => {
+              if (window.vincaDB && window.vincaFirestore) {
+                this.db = window.vincaDB;
+                this.firestore = window.vincaFirestore;
+                resolve();
+              } else {
+                setTimeout(check, 100);
+              }
+            };
+            check();
+          });
         };
 
-        html5QrCode.start(
-          { facingMode: "environment" },
-          config,
-          (decodedText, decodedResult) => {
-            console.log('QR Code scanned:', decodedText);
-            handleQRScanSuccess(decodedText);
-            closeQRScanner();
-          },
-          (errorMessage) => {
-            // Ignore continuous scan errors
+        await waitForFirebase();
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        const qrBtn = document.getElementById('qr-scanner-btn');
+        const closeBtn = document.getElementById('close-qr-modal');
+        const modal = document.getElementById('qr-scanner-modal');
+
+        qrBtn?.addEventListener('click', () => this.openScanner());
+        closeBtn?.addEventListener('click', () => this.closeScanner());
+
+        // Close modal when clicking backdrop
+        modal?.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            this.closeScanner();
           }
-        ).catch(err => {
-          console.error('Error starting QR scanner:', err);
-          showErrorMessage('❌ Tidak dapat mengakses kamera.\n\nPastikan:\n• Izin kamera sudah diaktifkan\n• Browser mendukung kamera\n• Gunakan HTTPS (untuk production)');
-          closeQRScanner();
-        });
-
-      } catch (error) {
-        console.error('Error initializing scanner:', error);
-        showErrorMessage('Error: Gagal menginisialisasi scanner QR');
-        closeQRScanner();
-      }
-    }
-
-    // Function to close QR Scanner
-    function closeQRScanner() {
-      console.log('Closing QR Scanner...');
-      const modal = document.getElementById('qrScannerModal');
-
-      if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-
-      if (html5QrCode && isScanning) {
-        html5QrCode.stop().then(() => {
-          html5QrCode.clear();
-          html5QrCode = null;
-          isScanning = false;
-        }).catch(err => {
-          console.error('Error stopping QR scanner:', err);
         });
       }
-    }
 
-    // Function to handle successful QR scan with proper daily attendance structure
-    async function handleQRScanSuccess(qrData) {
-      console.log('Processing QR data:', qrData);
+      async openScanner() {
+        const modal = document.getElementById('qr-scanner-modal');
+        const btn = document.getElementById('qr-scanner-btn');
+        const resultDiv = document.getElementById('attendance-result');
 
-      // Show loading notification
-      showLoadingMessage('⏳ Menyimpan data ke aktivitas absensi hari ini...');
+        modal.classList.remove('hidden');
+        btn.classList.add('active');
+        resultDiv.innerHTML = '';
 
-      try {
-        // Get today's date in YYYY-MM-DD format (Indonesian timezone)
-        const today = new Date().toLocaleDateString('sv-SE'); // Swedish locale gives YYYY-MM-DD format
-        const currentTime = new Date().toLocaleTimeString('id-ID', { hour12: false });
-        const currentDateTime = new Date();
-
-        // Parse QR data to determine member vs visitor
-        let memberData = null;
-        let visitType = 'visitor';
-        let attendanceRecord = {
-          id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-          timestamp: window.serverTimestamp(),
-          time: currentTime,
-          date: today,
-          type: 'visitor',
-          action: 'check_in',
-          source: 'qr_scanner_web',
-          qrData: qrData
-        };
-
-        // Parse QR data
         try {
-          const parsed = JSON.parse(qrData);
-          if (parsed.memberId || parsed.id) {
-            visitType = 'member';
-            memberData = {
-              id: parsed.memberId || parsed.id,
-              name: parsed.name || parsed.memberName || 'Member',
-              type: 'member'
-            };
-
-            attendanceRecord.type = 'member';
-            attendanceRecord.memberId = memberData.id;
-            attendanceRecord.memberName = memberData.name;
-          }
-        } catch (e) {
-          // If not JSON, check if it looks like member ID
-          if (qrData.match(/^[A-Z0-9]{6,10}$/)) {
-            visitType = 'member';
-            memberData = {
-              id: qrData,
-              name: 'Member',
-              type: 'member'
-            };
-
-            attendanceRecord.type = 'member';
-            attendanceRecord.memberId = memberData.id;
-            attendanceRecord.memberName = memberData.name;
-          }
+          await this.startScanning();
+        } catch (error) {
+          console.error('Error starting scanner:', error);
+          this.showResult('error', {message: 'Gagal memulai kamera. Pastikan memberikan izin akses kamera.'});
         }
+      }
 
-        console.log('Attendance record to save:', attendanceRecord);
+      async startScanning() {
+        const readerElement = document.getElementById('reader');
 
-        // Reference to daily attendance document
-        const dailyAttendanceRef = window.doc(window.db, 'attendance_daily', today);
+        try {
+          // Clear any existing scanner
+          if (this.scanner) {
+            await this.scanner.stop();
+          }
 
-        // Get existing daily document
-        const dailyDoc = await window.getDoc(dailyAttendanceRef);
-        let existingData = null;
-        let isCheckOut = false;
+          this.scanner = new Html5Qrcode("reader");
 
-        if (dailyDoc.exists()) {
-          existingData = dailyDoc.data();
-          console.log('Found existing daily document:', existingData);
+          const onScanSuccess = (decodedText) => {
+            this.handleScanResult(decodedText);
+          };
 
-          // Check if this member/visitor already checked in today
-          if (memberData && existingData.attendances) {
-            const existingCheckIn = existingData.attendances.find(att => 
-              att.memberId === memberData.id && 
-              att.type === 'member' && 
-              att.action === 'check_in' &&
-              !existingData.attendances.some(checkout => 
-                checkout.memberId === memberData.id && 
-                checkout.action === 'check_out' && 
-                checkout.time > att.time
-              )
+          const onScanFailure = (error) => {
+            // Ignore scan failures - they happen frequently during scanning
+          };
+
+          // Get cameras and start scanning
+          const cameras = await Html5Qrcode.getCameras();
+          if (cameras && cameras.length) {
+            const cameraId = cameras.find(cam => 
+              cam.label.toLowerCase().includes('back') || 
+              cam.label.toLowerCase().includes('rear')
+            )?.id || cameras[0].id;
+
+            await this.scanner.start(
+              cameraId,
+              {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+              },
+              onScanSuccess,
+              onScanFailure
             );
 
-            if (existingCheckIn) {
-              attendanceRecord.action = 'check_out';
-              isCheckOut = true;
-              console.log('Setting as check-out for member:', memberData.id);
-            }
+            this.isScanning = true;
+          } else {
+            throw new Error('Tidak ditemukan kamera');
           }
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      async closeScanner() {
+        const modal = document.getElementById('qr-scanner-modal');
+        const btn = document.getElementById('qr-scanner-btn');
+
+        try {
+          if (this.scanner && this.isScanning) {
+            await this.scanner.stop();
+            this.isScanning = false;
+          }
+        } catch (error) {
+          console.error('Error stopping scanner:', error);
         }
 
-        // Prepare document data
-        let docData;
+        modal.classList.add('hidden');
+        btn.classList.remove('active');
 
-        if (existingData) {
-          // Update existing document by adding new attendance record
-          await window.updateDoc(dailyAttendanceRef, {
-            attendances: window.arrayUnion(attendanceRecord),
-            lastUpdated: window.serverTimestamp()
+        // Clear the reader element
+        const readerElement = document.getElementById('reader');
+        if (readerElement) {
+          readerElement.innerHTML = '';
+        }
+      }
+
+      async handleScanResult(qrCode) {
+        // Stop scanning first
+        await this.closeScanner();
+
+        // Show processing message
+        this.showResult('processing', {message: `Memproses QR: ${qrCode}...`});
+
+        try {
+          const memberId = qrCode.trim();
+          const memberData = await this.findMemberByCode(memberId);
+
+          if (!memberData) {
+            this.showResult('error', {message: `Member dengan kode ${memberId} tidak ditemukan.`});
+            return;
+          }
+
+          await this.processAttendance(memberId, memberData);
+        } catch (error) {
+          console.error('Error processing QR scan:', error);
+          this.showResult('error', {message: 'Terjadi kesalahan saat memproses absensi.'});
+        }
+      }
+
+      async findMemberByCode(kodePendaftaran) {
+        try {
+          const { collection, query, where, getDocs } = this.firestore;
+          const membersRef = collection(this.db, 'arsip_member');
+          const q = query(membersRef, where('kodePendaftaran', '==', kodePendaftaran));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            return { id: doc.id, ...doc.data() };
+          }
+          return null;
+        } catch (error) {
+          console.error('Error finding member:', error);
+          return null;
+        }
+      }
+
+      async processAttendance(memberId, memberData) {
+        try {
+          const { doc, runTransaction } = this.firestore;
+          const todayId = this.getTodayDocId();
+          const attendanceDocRef = doc(this.db, "daily_attendance", todayId);
+
+          await runTransaction(this.db, async (transaction) => {
+            const attendanceDoc = await transaction.get(attendanceDocRef);
+            let entries = attendanceDoc.exists() ? attendanceDoc.data().entries || [] : [];
+
+            // Check for open check-in
+            const openCheckinIndex = entries.findIndex(
+              entry => entry.type === 'Member' && 
+                      entry.kodePendaftaran === memberId && 
+                      entry.waktuCheckout === null
+            );
+
+            if (openCheckinIndex > -1) {
+              // Check-out
+              entries[openCheckinIndex].waktuCheckout = new Date();
+              transaction.set(attendanceDocRef, { entries: entries }, { merge: true });
+
+              this.showResult('success', {
+                type: 'checkout',
+                nama: memberData.nama,
+                kodePendaftaran: memberId,
+                waktu: new Date().toLocaleTimeString('id-ID')
+              });
+            } else {
+              // Check-in - verify membership status first
+              if (!this.isMembershipValid(memberData)) {
+                this.showResult('warning', {
+                  nama: memberData.nama,
+                  message: 'Membership telah berakhir. Silakan perpanjang membership.'
+                });
+                return;
+              }
+
+              // Create new check-in entry
+              const newEntry = {
+                type: 'Member',
+                kodePendaftaran: memberId,
+                nama: memberData.nama,
+                waktuCheckin: new Date(),
+                waktuCheckout: null
+              };
+
+              entries.push(newEntry);
+              transaction.set(attendanceDocRef, { entries: entries }, { merge: true });
+
+              this.showResult('success', {
+                type: 'checkin',
+                nama: memberData.nama,
+                kodePendaftaran: memberId,
+                waktu: new Date().toLocaleTimeString('id-ID')
+              });
+            }
           });
-          console.log('Updated existing daily document with new attendance');
-        } else {
-          // Create new daily document
-          docData = {
-            date: today,
-            attendances: [attendanceRecord],
-            stats: {
-              totalMembers: memberData ? 1 : 0,
-              totalVisitors: memberData ? 0 : 1,
-              totalCheckIns: 1,
-              totalCheckOuts: 0
-            },
-            lastUpdated: window.serverTimestamp(),
-            createdAt: window.serverTimestamp()
-          };
+        } catch (error) {
+          console.error('Error processing attendance:', error);
+          this.showResult('error', {message: 'Gagal memproses absensi. Silakan coba lagi.'});
+        }
+      }
 
-          await window.setDoc(dailyAttendanceRef, docData);
-          console.log('Created new daily document:', docData);
+      isMembershipValid(memberData) {
+        if (!memberData.statusPembayaran || memberData.statusPembayaran !== 'Lunas') {
+          return false;
         }
 
-        // Show success message based on type and action
-        let successMessage;
-        if (memberData) {
-          const actionText = isCheckOut ? 'Check-out' : 'Check-in';
-          successMessage = 
-            `✅ ${actionText} Member Berhasil!\n\n` +
-            `ID: ${memberData.id}\n` +
-            `Nama: ${memberData.name}\n` +
-            `Waktu: ${currentTime}\n` +
-            `📊 Data masuk ke Aktivitas Absensi Hari Ini`;
-        } else {
-          successMessage = 
-            `✅ Visitor Check-in Berhasil!\n\n` +
-            `Waktu: ${currentTime}\n` +
-            `📊 Data masuk ke Aktivitas Absensi Hari Ini`;
+        if (!memberData.tanggalSelesai || !memberData.tanggalSelesai.seconds) {
+          return false;
         }
 
-        showSuccessMessage(successMessage);
+        const today = new Date();
+        const endDate = new Date(memberData.tanggalSelesai.seconds * 1000);
 
-        console.log('Attendance successfully saved to daily document for date:', today);
+        return today <= endDate;
+      }
 
-      } catch (error) {
-        console.error('Error saving attendance to daily document:', error);
-        showErrorMessage(
-          `❌ Error menyimpan ke aktivitas absensi!\n\n` +
-          `${error.message}\n\n` +
-          `QR Data: ${qrData}`
-        );
+      getTodayDocId() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      showResult(type, data) {
+        const resultDiv = document.getElementById('attendance-result');
+        let message = '';
+        let className = 'attendance-result ';
+
+        switch (type) {
+          case 'processing':
+            className += 'result-info';
+            message = `<i class="ph ph-spinner text-lg animate-spin"></i> ${data.message}`;
+            break;
+          case 'success':
+            className += 'result-success';
+            if (data.type === 'checkin') {
+              message = `<i class="ph ph-check-circle text-lg"></i> <strong>Check-in Berhasil!</strong><br>
+                        ${data.nama} (${data.kodePendaftaran})<br>
+                        Waktu: ${data.waktu}`;
+            } else {
+              message = `<i class="ph ph-sign-out text-lg"></i> <strong>Check-out Berhasil!</strong><br>
+                        ${data.nama} (${data.kodePendaftaran})<br>
+                        Waktu: ${data.waktu}`;
+            }
+            break;
+          case 'warning':
+            className += 'result-warning';
+            message = `<i class="ph ph-warning text-lg"></i> <strong>${data.nama}</strong><br>${data.message}`;
+            break;
+          case 'error':
+            className += 'result-error';
+            message = `<i class="ph ph-x-circle text-lg"></i> ${data.message}`;
+            break;
+        }
+
+        resultDiv.innerHTML = `<div class="${className}">${message}</div>`;
       }
     }
 
-    // Notification functions
-    function showSuccessMessage(message) {
-      removeExistingNotifications();
-      const notification = document.createElement('div');
-      notification.className = 'success-notification';
-      notification.style.whiteSpace = 'pre-line';
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 8000);
-    }
-
-    function showErrorMessage(message) {
-      removeExistingNotifications();
-      const notification = document.createElement('div');
-      notification.className = 'error-notification';
-      notification.style.whiteSpace = 'pre-line';
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 10000);
-    }
-
-    function showLoadingMessage(message) {
-      removeExistingNotifications();
-      const notification = document.createElement('div');
-      notification.className = 'loading-notification';
-      notification.textContent = message;
-      document.body.appendChild(notification);
-    }
-
-    function removeExistingNotifications() {
-      const notifications = document.querySelectorAll('.success-notification, .error-notification, .loading-notification');
-      notifications.forEach(n => n.remove());
-    }
-
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('QR Scanner with daily attendance structure initialized');
-
-      document.addEventListener('click', function(event) {
-        const modal = document.getElementById('qrScannerModal');
-        if (event.target === modal) {
-          closeQRScanner();
-        }
-      });
-
-      document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-          const modal = document.getElementById('qrScannerModal');
-          if (modal && modal.style.display === 'flex') {
-            closeQRScanner();
-          }
-        }
-      });
+    // Initialize QR Scanner when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Wait a bit for Firebase to initialize
+      setTimeout(() => {
+        new VincaQRScanner();
+      }, 1000);
     });
 
-    // Test function for debugging daily attendance structure
-    window.testDailyAttendance = async function() {
-      try {
-        const today = new Date().toLocaleDateString('sv-SE');
-        console.log('Testing daily attendance for date:', today);
-
-        const testRecord = {
-          id: 'test_' + Date.now(),
-          timestamp: window.serverTimestamp(),
-          time: new Date().toLocaleTimeString('id-ID', { hour12: false }),
-          date: today,
-          type: 'member',
-          action: 'check_in',
-          memberId: 'TEST001',
-          memberName: 'Test Member',
-          source: 'test_function',
-          qrData: '{"memberId":"TEST001","name":"Test Member","type":"member"}'
-        };
-
-        const dailyRef = window.doc(window.db, 'attendance_daily', today);
-        const dailyDoc = await window.getDoc(dailyRef);
-
-        if (dailyDoc.exists()) {
-          await window.updateDoc(dailyRef, {
-            attendances: window.arrayUnion(testRecord),
-            lastUpdated: window.serverTimestamp()
-          });
-          console.log('Test record added to existing daily document');
-        } else {
-          const newDoc = {
-            date: today,
-            attendances: [testRecord],
-            stats: { totalMembers: 1, totalVisitors: 0, totalCheckIns: 1, totalCheckOuts: 0 },
-            lastUpdated: window.serverTimestamp(),
-            createdAt: window.serverTimestamp()
-          };
-          await window.setDoc(dailyRef, newDoc);
-          console.log('Test record added to new daily document');
-        }
-
-        showSuccessMessage('✅ Test daily attendance berhasil!\nCek admin panel untuk melihat data.');
-
-      } catch (error) {
-        console.error('Daily attendance test failed:', error);
-        showErrorMessage('❌ Test daily attendance gagal: ' + error.message);
-      }
-    };
   </script>
 </body>
 </html>
