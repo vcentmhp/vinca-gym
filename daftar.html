@@ -129,6 +129,35 @@
                     <p class="text-lg">No. Member: <strong id="kode-sukses" class="text-yellow-400 font-mono"></strong></p>
                     <button id="copy-kode-btn" class="copy-btn relative text-gray-400 hover:text-white"><i class="ph ph-copy"></i><span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded">Salin</span></button>
                 </div>
+
+                <!-- Rincian Pembayaran di Success Message -->
+                <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700 my-4">
+                    <h3 class="font-bold text-white mb-3">Rincian Pembayaran</h3>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <div class="flex justify-between">
+                            <span>Paket:</span>
+                            <span id="success-paket-nama" class="text-white font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Harga Paket:</span>
+                            <span id="success-paket-harga"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Biaya Member Baru:</span>
+                            <span id="success-biaya-member">Rp 50.000</span>
+                        </div>
+                        <div id="success-voucher-container" class="flex justify-between hidden">
+                            <span>Diskon Voucher:</span>
+                            <span id="success-voucher-discount" class="text-green-400"></span>
+                        </div>
+                        <hr class="border-gray-600 my-2">
+                        <div class="flex justify-between text-base font-semibold">
+                            <span>Total Pembayaran:</span>
+                            <span id="success-total-bayar" class="text-yellow-400"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <hr class="border-gray-600 my-4">
                 <h3 class="font-bold text-white mb-2">Metode Pembayaran:</h3>
                 <div class="flex flex-col md:flex-row gap-4 items-center">
@@ -301,6 +330,24 @@
                 totalBayar.textContent = formatRupiah(totalHargaAwal);
                 totalBayar.classList.remove('discount-highlight');
                 totalHargaAkhir = totalHargaAwal;
+            }
+        }
+
+        function updateSuccessPaymentInfo() {
+            // Update rincian pembayaran di success message
+            document.getElementById('success-paket-nama').textContent = paketTerpilih.nama;
+            document.getElementById('success-paket-harga').textContent = formatRupiah(paketTerpilih.harga);
+            document.getElementById('success-biaya-member').textContent = formatRupiah(BIAYA_MEMBER_BARU);
+            document.getElementById('success-total-bayar').textContent = formatRupiah(totalHargaAkhir);
+
+            // Tampilkan diskon voucher di success message jika ada
+            const successVoucherContainer = document.getElementById('success-voucher-container');
+            if (appliedVoucher && (totalHargaAwal - totalHargaAkhir) > 0) {
+                const diskonAmount = totalHargaAwal - totalHargaAkhir;
+                document.getElementById('success-voucher-discount').textContent = `- ${formatRupiah(diskonAmount)}`;
+                successVoucherContainer.classList.remove('hidden');
+            } else {
+                successVoucherContainer.classList.add('hidden');
             }
         }
 
@@ -484,7 +531,7 @@
 
                 formContainer.classList.add('hidden');
                 document.getElementById('kode-sukses').textContent = pendaftar.kodePendaftaran;
-
+                updateSuccessPaymentInfo();
                 const whatsappMsg = encodeURIComponent(`Bismillah Vinca Gym, saya ${pendaftar.nama} sudah mendaftar untuk paket ${pendaftar.paket} dengan kode pendaftaran ${pendaftar.kodePendaftaran}. Total bayar: ${formatRupiah(pendaftar.totalBayar)}. Mohon segera diproses. Barakallahu fiik.`);
                 document.getElementById('whatsapp-confirm-btn').href = `https://wa.me/6285782919391?text=${whatsappMsg}`;
 
