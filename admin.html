@@ -14,7 +14,6 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-primary: #0a0a0b;
@@ -418,23 +417,6 @@
             margin: auto;
             border-radius: 0.25rem;
         }
-
-        /* Revenue Chart Styles */
-        .revenue-chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        
-        .revenue-summary-card {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-        
-        .revenue-summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -502,6 +484,7 @@
                         <i class="ph ph-users text-lg"></i>
                         <span class="font-semibold">Data Member</span>
                     </button>
+                    <!-- Tombol Laporan Baru -->
                     <button id="show-reports-btn" class="nav-btn flex-1 flex items-center justify-center gap-2">
                         <i class="ph ph-chart-bar text-lg"></i>
                         <span class="font-semibold">Laporan</span>
@@ -761,151 +744,137 @@
                     </div>
                 </section>
             </div>
-
-            <!-- Reports View -->
+            
+            <!-- Reports View (TAMPILAN BARU) -->
             <div id="reports-view" class="hidden animate-slide-up">
-                <!-- Revenue Summary Cards -->
-                <section id="revenue-summary" class="mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="stat-card revenue-summary-card text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                                <i class="ph ph-currency-circle-dollar text-xl"></i>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm opacity-80">Total Bulan Ini</p>
-                                <p class="text-2xl font-bold" id="current-month-total">Rp 0</p>
-                            </div>
-                        </div>
-                        <h3 class="font-medium">Pendapatan Bulan Ini</h3>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div class="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
-                            <span class="text-sm opacity-80">Member + Visitor</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card group">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl flex items-center justify-center border border-green-500/10">
-                                <i class="ph ph-users text-xl text-green-400"></i>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-caption">Member</p>
-                                <p class="text-display text-green-400" id="member-revenue-current">Rp 0</p>
-                            </div>
-                        </div>
-                        <h3 class="text-body font-medium">Pendapatan Member</h3>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span class="text-caption">Bulan ini</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card group">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl flex items-center justify-center border border-orange-500/10">
-                                <i class="ph ph-user-plus text-xl text-orange-400"></i>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-caption">Visitor</p>
-                                <p class="text-display text-orange-400" id="visitor-revenue-current">Rp 0</p>
-                            </div>
-                        </div>
-                        <h3 class="text-body font-medium">Pendapatan Visitor</h3>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-                            <span class="text-caption">Bulan ini</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card group">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-500/10">
-                                <i class="ph ph-trend-up text-xl text-purple-400"></i>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-caption">Growth</p>
-                                <p class="text-lg font-bold text-purple-400" id="revenue-growth">+0%</p>
-                            </div>
-                        </div>
-                        <h3 class="text-body font-medium">Growth Rate</h3>
-                        <div class="mt-2 flex items-center gap-2">
-                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                            <span class="text-caption">vs bulan lalu</span>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Revenue Report Section -->
-                <section id="revenue-report-section" class="mb-12">
-                    <div class="card p-8">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center border border-blue-500/10">
-                                <i class="ph ph-chart-line text-xl text-blue-400"></i>
+                <section id="laporan-pendapatan" class="space-y-8">
+                    <!-- Header Laporan -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-teal-500/20 to-teal-600/20 rounded-xl flex items-center justify-center border border-teal-500/10">
+                                <i class="ph ph-chart-bar text-xl text-teal-400"></i>
                             </div>
                             <div>
-                                <h2 class="text-title text-primary">Laporan Pendapatan Per Bulan</h2>
-                                <p class="text-body">Analisis pendapatan dari member dan visitor</p>
+                                <h2 class="text-title text-primary">Laporan Pendapatan</h2>
+                                <p id="report-period-title" class="text-body">Pendapatan Vinca Gym</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Section -->
+                    <div class="card p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                            <!-- Quick Filters -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Filter Cepat</label>
+                                <div id="report-filter-buttons" class="flex gap-2 p-1 bg-secondary rounded-xl border border-border-primary">
+                                   <button data-period="daily" class="report-period-btn btn-secondary px-4 py-2 text-sm rounded-lg flex-1">Hari Ini</button>
+                                   <button data-period="weekly" class="report-period-btn btn-secondary px-4 py-2 text-sm rounded-lg flex-1">Minggu Ini</button>
+                                   <button data-period="monthly" class="report-period-btn btn-secondary px-4 py-2 text-sm rounded-lg flex-1">Bulan Ini</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Month/Year Filter -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Pilih Bulan</label>
+                                <div class="flex gap-2">
+                                    <select id="report-month-select" class="w-full py-2"></select>
+                                    <select id="report-year-select" class="w-full py-2"></select>
+                                </div>
+                            </div>
+
+                            <!-- Custom Date Range Filter -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Pilih Rentang Tanggal</label>
+                                <div class="flex gap-2 items-center">
+                                    <input type="date" id="report-start-date" class="w-full py-2">
+                                    <span class="text-gray-400">-</span>
+                                    <input type="date" id="report-end-date" class="w-full py-2">
+                                    <button id="report-apply-custom-date" class="btn-primary px-4 py-2.5 text-sm rounded-lg">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Pendapatan -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Card Total Pendapatan -->
+                        <div class="stat-card p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-body font-medium text-text-secondary">Total Pendapatan</h3>
+                                <div class="w-12 h-12 bg-gradient-to-br from-teal-500/20 to-teal-600/20 rounded-xl flex items-center justify-center border border-teal-500/30">
+                                    <i class="ph ph-wallet text-2xl text-teal-300"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p id="report-total-income" class="text-3xl lg:text-4xl font-bold text-teal-300 mt-2">Rp 0</p>
+                                <p class="text-caption mt-1">Total dari member & visitor</p>
                             </div>
                         </div>
 
-                        <!-- Filter Section -->
-                        <div class="flex flex-col md:flex-row gap-4 items-center mb-6 p-4 bg-gray-800/50 rounded-lg">
-                            <div class="flex-1">
-                                <label for="report-year" class="block text-sm font-medium text-gray-300 mb-1">Tahun</label>
-                                <select id="report-year" class="w-full px-3 py-2">
-                                    <!-- Akan diisi oleh JavaScript -->
-                                </select>
+                        <!-- Card Pendapatan Member -->
+                        <div class="stat-card p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-body font-medium text-text-secondary">Pendapatan Member</h3>
+                                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center border border-blue-500/30">
+                                    <i class="ph ph-users text-2xl text-blue-300"></i>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <label for="report-month" class="block text-sm font-medium text-gray-300 mb-1">Bulan (Opsional)</label>
-                                <select id="report-month" class="w-full px-3 py-2">
-                                    <option value="">Semua Bulan</option>
-                                    <option value="1">Januari</option>
-                                    <option value="2">Februari</option>
-                                    <option value="3">Maret</option>
-                                    <option value="4">April</option>
-                                    <option value="5">Mei</option>
-                                    <option value="6">Juni</option>
-                                    <option value="7">Juli</option>
-                                    <option value="8">Agustus</option>
-                                    <option value="9">September</option>
-                                    <option value="10">Oktober</option>
-                                    <option value="11">November</option>
-                                    <option value="12">Desember</option>
-                                </select>
+                            <div>
+                                <p id="report-member-income" class="text-3xl lg:text-4xl font-bold text-white mt-2">Rp 0</p>
+                                <p class="text-caption mt-1">Dari pendaftaran baru</p>
                             </div>
-                            <button id="generate-report-btn" class="btn-primary flex items-center gap-3 px-8 font-semibold">
-                                <i class="ph ph-chart-bar text-lg"></i>
-                                <span>Generate Laporan</span>
+                        </div>
+
+                        <!-- Card Pendapatan Visitor -->
+                        <div class="stat-card p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-body font-medium text-text-secondary">Pendapatan Visitor</h3>
+                                <div class="w-12 h-12 bg-gradient-to-br from-amber-500/20 to-amber-600/20 rounded-xl flex items-center justify-center border border-amber-500/30">
+                                    <i class="ph ph-user-plus text-2xl text-amber-300"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p id="report-visitor-income" class="text-3xl lg:text-4xl font-bold text-white mt-2">Rp 0</p>
+                                <p class="text-caption mt-1">Dari kunjungan harian</p>
+                            </div>
+                        </div>
+
+                        <!-- Card Growth Rate -->
+                        <div class="stat-card p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-body font-medium text-text-secondary">Growth Rate</h3>
+                                <div id="report-growth-icon-container" class="w-12 h-12 rounded-xl flex items-center justify-center">
+                                    <i id="report-growth-icon" class="ph ph-chart-line text-2xl"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p id="report-growth-rate" class="text-3xl lg:text-4xl font-bold mt-2">-%</p>
+                                <p id="report-growth-period" class="text-caption mt-1">vs periode sebelumnya</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Laporan -->
+                    <div class="card p-8">
+                         <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold text-primary">Detail Transaksi</h3>
+                            <button id="export-report-btn" class="btn-secondary flex items-center gap-2 px-6">
+                                <i class="ph ph-download-simple text-lg"></i>
+                                <span>Unduh Laporan</span>
                             </button>
-                        </div>
-
-                        <!-- Chart Container -->
-                        <div id="revenue-chart-container" class="revenue-chart-container mb-6 hidden">
-                            <canvas id="revenue-chart"></canvas>
-                        </div>
-
-                        <!-- Revenue Table -->
-                        <div id="revenue-table-container">
+                         </div>
+                         <div id="report-details-content" class="space-y-8">
+                            <!-- Konten Laporan akan di-generate oleh JS -->
                             <div class="flex items-center justify-center py-12">
                                 <div class="text-center">
                                     <div class="w-16 h-16 bg-gradient-to-br from-gray-500/20 to-gray-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
                                         <i class="ph ph-chart-bar text-2xl text-gray-400"></i>
                                     </div>
-                                    <p class="text-body">Pilih tahun dan klik "Generate Laporan" untuk melihat data</p>
+                                    <p class="text-body">Pilih periode untuk melihat laporan.</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Export Revenue Report -->
-                        <div class="flex justify-end mt-6">
-                            <button id="export-revenue-btn" class="btn-secondary flex items-center gap-2 px-6 hidden">
-                                <i class="ph ph-download-simple text-lg"></i>
-                                <span>Export Excel</span>
-                            </button>
-                        </div>
-
-                        <div id="revenue-report-message" class="mt-4"></div>
+                         </div>
                     </div>
                 </section>
             </div>
@@ -992,30 +961,19 @@
             
             // --- KONFIGURASI & INISIALISASI ---
             const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
-            const ADMIN_PASSWORD = "vinca2025";
+            const ADMIN_PASSWORD = "vinca123";
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
-
-            // --- PRICING CONSTANTS ---
-            const PRICING = {
-                visit: 25000,
-                registrasi: 50000,
-                regular: 200000,
-                silver: 525000,
-                gold: 900000,
-                platinum: 1200000
-            };
 
             // --- Variabel Global & Cache ---
             let allMemberData = [];
             let filteredMemberData = [];
             let html5QrCode;
-            let revenueChart = null;
-            let revenueData = [];
+            let currentReportData = null; // Cache for report data for export
             
             // --- Pagination variables ---
             let currentPage = 1;
-            const itemsPerPage = 25;
+            const itemsPerPage = 25
 
             // --- ELEMEN DOM ---
             const DOMElements = {
@@ -1029,10 +987,10 @@
                 navigation: {
                     showAttendanceBtn: document.getElementById('show-attendance-btn'),
                     showMembersBtn: document.getElementById('show-members-btn'),
-                    showReportsBtn: document.getElementById('show-reports-btn'),
+                    showReportsBtn: document.getElementById('show-reports-btn'), // BARU
                     attendanceView: document.getElementById('attendance-view'),
                     membersView: document.getElementById('members-view'),
-                    reportsView: document.getElementById('reports-view'),
+                    reportsView: document.getElementById('reports-view'), // BARU
                 },
                 summary: {
                     total: document.getElementById('total-pendaftar'),
@@ -1071,18 +1029,19 @@
                     archiveText: document.getElementById('archive-text'),
                     archiveSpinner: document.getElementById('archive-spinner'),
                 },
-                reports: {
-                    currentMonthTotal: document.getElementById('current-month-total'),
-                    memberRevenueCurrent: document.getElementById('member-revenue-current'),
-                    visitorRevenueCurrent: document.getElementById('visitor-revenue-current'),
-                    revenueGrowth: document.getElementById('revenue-growth'),
-                    reportYear: document.getElementById('report-year'),
-                    reportMonth: document.getElementById('report-month'),
-                    generateReportBtn: document.getElementById('generate-report-btn'),
-                    chartContainer: document.getElementById('revenue-chart-container'),
-                    tableContainer: document.getElementById('revenue-table-container'),
-                    exportRevenueBtn: document.getElementById('export-revenue-btn'),
-                    reportMessage: document.getElementById('revenue-report-message'),
+                reports: { // BARU
+                    periodTitle: document.getElementById('report-period-title'),
+                    filterButtons: document.getElementById('report-filter-buttons'),
+                    totalIncome: document.getElementById('report-total-income'),
+                    memberIncome: document.getElementById('report-member-income'),
+                    visitorIncome: document.getElementById('report-visitor-income'),
+                    detailsContent: document.getElementById('report-details-content'),
+                    exportBtn: document.getElementById('export-report-btn'),
+                    monthSelect: document.getElementById('report-month-select'),
+                    yearSelect: document.getElementById('report-year-select'),
+                    startDateInput: document.getElementById('report-start-date'),
+                    endDateInput: document.getElementById('report-end-date'),
+                    applyCustomDateBtn: document.getElementById('report-apply-custom-date'),
                 },
                 pagination: {
                     container: document.getElementById('pagination-container'),
@@ -1112,13 +1071,22 @@
             updateTime();
             setInterval(updateTime, 1000);
 
-            // --- FUNGSI UTILITAS ---
+            // --- FUNGSI-FUNGSI ---
+
+            // Fungsi Utilitas
             const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
             const formatDate = (timestamp) => (timestamp && timestamp.seconds) ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+            const formatDateShort = (date) => date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const formatDateForInput = (timestamp) => {
                 if (!timestamp || !timestamp.seconds) return '';
                 const date = new Date(timestamp.seconds * 1000);
                 return date.toISOString().split('T')[0];
+            };
+             const formatDateForDocId = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             };
             const formatTimeForInput = (timestamp) => {
                 if (!timestamp || typeof timestamp.seconds !== 'number') return '';
@@ -1136,358 +1104,15 @@
             };
             const getTodayDocId = () => {
                 const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
+                return formatDateForDocId(today);
             };
-            function exportToExcel(filename, sheetName, data) {
+            function exportToExcel(filename, sheets) { // Diperbarui untuk multi-sheet
                 const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(data);
-                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                sheets.forEach(sheet => {
+                    const ws = XLSX.utils.json_to_sheet(sheet.data);
+                    XLSX.utils.book_append_sheet(wb, ws, sheet.sheetName);
+                });
                 XLSX.writeFile(wb, filename);
-            }
-
-            // --- REVENUE CALCULATION FUNCTIONS ---
-            function getMemberPrice(paket) {
-                const paketLower = paket.toLowerCase();
-                if (paketLower.includes('regular')) return PRICING.regular;
-                if (paketLower.includes('silver')) return PRICING.silver;
-                if (paketLower.includes('gold')) return PRICING.gold;
-                if (paketLower.includes('platinum')) return PRICING.platinum;
-                return 0;
-            }
-
-            function isNewMember(member) {
-                // Consider as new member if it's their first registration
-                // For now, we'll assume all members in the system are "first-time" unless we have historical data
-                // You can enhance this logic by checking historical records
-                return true; // For simplicity, treating all as new members
-            }
-
-            function calculateMemberRevenue(member) {
-                const packagePrice = getMemberPrice(member.paket || '');
-                const registrationFee = isNewMember(member) ? PRICING.registrasi : 0;
-                return packagePrice + registrationFee;
-            }
-
-            async function generateRevenueReport(year, month = null) {
-                try {
-                    DOMElements.reports.reportMessage.textContent = 'Memproses data...';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-yellow-400';
-
-                    // Generate revenue data
-                    const revenueData = await calculateMonthlyRevenue(year, month);
-                    
-                    // Update table
-                    renderRevenueTable(revenueData);
-                    
-                    // Update chart if showing all months
-                    if (!month) {
-                        renderRevenueChart(revenueData);
-                        DOMElements.reports.chartContainer.classList.remove('hidden');
-                    } else {
-                        DOMElements.reports.chartContainer.classList.add('hidden');
-                    }
-
-                    DOMElements.reports.exportRevenueBtn.classList.remove('hidden');
-                    DOMElements.reports.reportMessage.textContent = 'Laporan berhasil dibuat.';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-green-400';
-
-                    // Store data for export
-                    window.currentRevenueData = revenueData;
-
-                } catch (error) {
-                    console.error('Error generating revenue report:', error);
-                    DOMElements.reports.reportMessage.textContent = 'Gagal membuat laporan. Silakan coba lagi.';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-red-400';
-                }
-            }
-
-            async function calculateMonthlyRevenue(year, specificMonth = null) {
-                // Get member data
-                const memberQuery = query(collection(db, "pendaftaran_member"));
-                const memberSnapshot = await getDocs(memberQuery);
-
-                // Get attendance data (for visitors)
-                const attendanceQuery = query(collection(db, "daily_attendance"));
-                const attendanceSnapshot = await getDocs(attendanceQuery);
-
-                const monthlyData = {};
-
-                // Process member revenue
-                memberSnapshot.forEach(doc => {
-                    const member = doc.data();
-                    if (member.statusPembayaran && member.tanggalMulai && member.tanggalMulai.seconds) {
-                        const date = new Date(member.tanggalMulai.seconds * 1000);
-                        const memberYear = date.getFullYear();
-                        const memberMonth = date.getMonth() + 1;
-
-                        if (memberYear === parseInt(year) && (specificMonth === null || memberMonth === parseInt(specificMonth))) {
-                            const key = `${memberYear}-${String(memberMonth).padStart(2, '0')}`;
-                            if (!monthlyData[key]) {
-                                monthlyData[key] = {
-                                    year: memberYear,
-                                    month: memberMonth,
-                                    memberRevenue: 0,
-                                    visitorRevenue: 0,
-                                    totalRevenue: 0,
-                                    memberCount: 0,
-                                    visitorCount: 0
-                                };
-                            }
-
-                            const memberRevenue = calculateMemberRevenue(member);
-                            monthlyData[key].memberRevenue += memberRevenue;
-                            monthlyData[key].memberCount++;
-                        }
-                    }
-                });
-
-                // Process visitor revenue
-                attendanceSnapshot.forEach(doc => {
-                    const attendanceDate = doc.id; // Format: YYYY-MM-DD
-                    const [attendanceYear, attendanceMonth] = attendanceDate.split('-').map(num => parseInt(num));
-                    
-                    if (attendanceYear === parseInt(year) && (specificMonth === null || attendanceMonth === parseInt(specificMonth))) {
-                        const entries = doc.data().entries || [];
-                        const visitorCount = entries.filter(entry => 
-                            entry.type === 'Pengunjung' || 
-                            (entry.type && entry.type.toLowerCase().includes('visitor'))
-                        ).length;
-
-                        if (visitorCount > 0) {
-                            const key = `${attendanceYear}-${String(attendanceMonth).padStart(2, '0')}`;
-                            if (!monthlyData[key]) {
-                                monthlyData[key] = {
-                                    year: attendanceYear,
-                                    month: attendanceMonth,
-                                    memberRevenue: 0,
-                                    visitorRevenue: 0,
-                                    totalRevenue: 0,
-                                    memberCount: 0,
-                                    visitorCount: 0
-                                };
-                            }
-
-                            monthlyData[key].visitorRevenue += visitorCount * PRICING.visit;
-                            monthlyData[key].visitorCount += visitorCount;
-                        }
-                    }
-                });
-
-                // Calculate totals
-                Object.keys(monthlyData).forEach(key => {
-                    monthlyData[key].totalRevenue = monthlyData[key].memberRevenue + monthlyData[key].visitorRevenue;
-                });
-
-                return Object.values(monthlyData).sort((a, b) => {
-                    if (a.year !== b.year) return a.year - b.year;
-                    return a.month - b.month;
-                });
-            }
-
-            function renderRevenueTable(data) {
-                const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-                let tableHtml = `
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-gray-700/50">
-                                <tr>
-                                    <th class="py-3 px-4">Bulan</th>
-                                    <th class="py-3 px-4">Pendapatan Member</th>
-                                    <th class="py-3 px-4">Jumlah Member</th>
-                                    <th class="py-3 px-4">Pendapatan Visitor</th>
-                                    <th class="py-3 px-4">Jumlah Visitor</th>
-                                    <th class="py-3 px-4 font-bold">Total Pendapatan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                if (data.length > 0) {
-                    let totalMemberRevenue = 0;
-                    let totalVisitorRevenue = 0;
-                    let totalMembers = 0;
-                    let totalVisitors = 0;
-
-                    data.forEach(item => {
-                        totalMemberRevenue += item.memberRevenue;
-                        totalVisitorRevenue += item.visitorRevenue;
-                        totalMembers += item.memberCount;
-                        totalVisitors += item.visitorCount;
-
-                        tableHtml += `
-                            <tr class="border-b border-gray-700 hover:bg-gray-800/50">
-                                <td class="py-3 px-4 font-medium">${monthNames[item.month]} ${item.year}</td>
-                                <td class="py-3 px-4 text-green-400">${formatRupiah(item.memberRevenue)}</td>
-                                <td class="py-3 px-4">${item.memberCount} orang</td>
-                                <td class="py-3 px-4 text-orange-400">${formatRupiah(item.visitorRevenue)}</td>
-                                <td class="py-3 px-4">${item.visitorCount} kunjungan</td>
-                                <td class="py-3 px-4 font-bold text-blue-400">${formatRupiah(item.totalRevenue)}</td>
-                            </tr>
-                        `;
-                    });
-
-                    // Add totals row
-                    tableHtml += `
-                        <tr class="border-t-2 border-blue-500/50 bg-blue-900/20">
-                            <td class="py-3 px-4 font-bold">TOTAL</td>
-                            <td class="py-3 px-4 font-bold text-green-400">${formatRupiah(totalMemberRevenue)}</td>
-                            <td class="py-3 px-4 font-bold">${totalMembers} orang</td>
-                            <td class="py-3 px-4 font-bold text-orange-400">${formatRupiah(totalVisitorRevenue)}</td>
-                            <td class="py-3 px-4 font-bold">${totalVisitors} kunjungan</td>
-                            <td class="py-3 px-4 font-bold text-white text-lg">${formatRupiah(totalMemberRevenue + totalVisitorRevenue)}</td>
-                        </tr>
-                    `;
-                } else {
-                    tableHtml += `
-                        <tr>
-                            <td colspan="6" class="text-center py-8 text-gray-400">Tidak ada data pendapatan untuk periode yang dipilih</td>
-                        </tr>
-                    `;
-                }
-
-                tableHtml += `</tbody></table></div>`;
-                DOMElements.reports.tableContainer.innerHTML = tableHtml;
-            }
-
-            function renderRevenueChart(data) {
-                const ctx = document.getElementById('revenue-chart').getContext('2d');
-                
-                if (revenueChart) {
-                    revenueChart.destroy();
-                }
-
-                const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
-                                 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
-
-                const labels = data.map(item => `${monthNames[item.month]} ${item.year}`);
-                const memberData = data.map(item => item.memberRevenue);
-                const visitorData = data.map(item => item.visitorRevenue);
-
-                revenueChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Pendapatan Member',
-                                data: memberData,
-                                backgroundColor: 'rgba(34, 197, 94, 0.7)',
-                                borderColor: 'rgba(34, 197, 94, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Pendapatan Visitor',
-                                data: visitorData,
-                                backgroundColor: 'rgba(249, 115, 22, 0.7)',
-                                borderColor: 'rgba(249, 115, 22, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Grafik Pendapatan Bulanan',
-                                color: 'white'
-                            },
-                            legend: {
-                                labels: {
-                                    color: 'white'
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    color: 'white',
-                                    callback: function(value) {
-                                        return formatRupiah(value);
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: 'white'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        tooltips: {
-                            callbacks: {
-                                label: function(tooltipItem, data) {
-                                    return formatRupiah(tooltipItem.yLabel);
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            async function loadRevenueSummary() {
-                try {
-                    const currentDate = new Date();
-                    const currentYear = currentDate.getFullYear();
-                    const currentMonth = currentDate.getMonth() + 1;
-                    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-                    const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-
-                    // Get current month data
-                    const currentMonthData = await calculateMonthlyRevenue(currentYear, currentMonth);
-                    const currentTotal = currentMonthData.length > 0 ? currentMonthData[0].totalRevenue : 0;
-                    const currentMemberRevenue = currentMonthData.length > 0 ? currentMonthData[0].memberRevenue : 0;
-                    const currentVisitorRevenue = currentMonthData.length > 0 ? currentMonthData[0].visitorRevenue : 0;
-
-                    // Get last month data for growth calculation
-                    const lastMonthData = await calculateMonthlyRevenue(lastMonthYear, lastMonth);
-                    const lastMonthTotal = lastMonthData.length > 0 ? lastMonthData[0].totalRevenue : 0;
-
-                    // Calculate growth
-                    let growthPercent = 0;
-                    if (lastMonthTotal > 0) {
-                        growthPercent = ((currentTotal - lastMonthTotal) / lastMonthTotal) * 100;
-                    }
-
-                    // Update UI
-                    DOMElements.reports.currentMonthTotal.textContent = formatRupiah(currentTotal);
-                    DOMElements.reports.memberRevenueCurrent.textContent = formatRupiah(currentMemberRevenue);
-                    DOMElements.reports.visitorRevenueCurrent.textContent = formatRupiah(currentVisitorRevenue);
-                    
-                    const growthElement = DOMElements.reports.revenueGrowth;
-                    const growthText = growthPercent >= 0 ? `+${growthPercent.toFixed(1)}%` : `${growthPercent.toFixed(1)}%`;
-                    growthElement.textContent = growthText;
-                    growthElement.className = `text-lg font-bold ${growthPercent >= 0 ? 'text-green-400' : 'text-red-400'}`;
-
-                } catch (error) {
-                    console.error('Error loading revenue summary:', error);
-                }
-            }
-
-            function initializeReportYearOptions() {
-                const currentYear = new Date().getFullYear();
-                const yearSelect = DOMElements.reports.reportYear;
-                
-                // Add years from 2020 to current year + 1
-                for (let year = 2020; year <= currentYear + 1; year++) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    if (year === currentYear) option.selected = true;
-                    yearSelect.appendChild(option);
-                }
             }
 
             // Fungsi Interaksi Firestore
@@ -2152,7 +1777,7 @@
                     dataForExport.sort((a,b) => new Date(a.Tanggal + ' ' + a['Jam Masuk']) - new Date(b.Tanggal + ' ' + b['Jam Masuk']));
 
                     if (dataForExport.length > 0) {
-                        exportToExcel(`laporan_absensi_${startDate}_sd_${endDate}.xlsx`, 'Absensi', dataForExport);
+                        exportToExcel(`laporan_absensi_${startDate}_sd_${endDate}.xlsx`, [{ sheetName: 'Absensi', data: dataForExport }]);
                         msgEl.textContent = 'Laporan berhasil diunduh.';
                         msgEl.className = 'text-sm mt-4 text-green-400';
                     } else {
@@ -2330,25 +1955,492 @@
                 }
             }
 
+            // --- FUNGSI LAPORAN (BARU & DIPERBARUI) ---
+
+            // Fungsi baru untuk mengambil data pendapatan pada rentang waktu tertentu
+            async function fetchIncomeForPeriod(startDate, endDate) {
+                let memberIncome = 0;
+                let visitorIncome = 0;
+
+                try {
+                    // Ambil pendapatan member
+                    const memberQuery = query(collection(db, "pendaftaran_member"),
+                        where("tanggalMulai", ">=", startDate),
+                        where("tanggalMulai", "<=", endDate)
+                    );
+                    const memberSnapshot = await getDocs(memberQuery);
+                    memberSnapshot.docs
+                        .filter(doc => doc.data().statusPembayaran === true)
+                        .forEach(doc => {
+                            memberIncome += doc.data().totalBayar || 0;
+                        });
+
+                    // Ambil pendapatan visitor
+                    if (startDate.getTime() <= endDate.getTime()) {
+                        const startDateId = formatDateForDocId(startDate);
+                        const endDateId = formatDateForDocId(endDate);
+                        
+                        const visitorQuery = query(collection(db, "daily_attendance"),
+                            where(documentId(), ">=", startDateId),
+                            where(documentId(), "<=", endDateId)
+                        );
+                        const visitorSnapshot = await getDocs(visitorQuery);
+                        
+                        const PRICE_CHANGE_DATE = new Date('2025-09-15T00:00:00');
+                        const VISITOR_PRICE_OLD = 25000;
+                        const VISITOR_PRICE_NEW = 35000;
+
+                        visitorSnapshot.forEach(doc => {
+                            const visitDateStr = doc.id;
+                            const visitDate = new Date(visitDateStr);
+                             visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
+                            const price = visitDate >= PRICE_CHANGE_DATE ? VISITOR_PRICE_NEW : VISITOR_PRICE_OLD;
+                            
+                            const entries = doc.data().entries || [];
+                            visitorIncome += entries.filter(e => e.type === 'Pengunjung').length * price;
+                        });
+                    }
+                } catch (e) {
+                    console.error(`Error fetching income for ${startDate} to ${endDate}:`, e);
+                    return { totalIncome: 0, memberIncome: 0, visitorIncome: 0 };
+                }
+
+                return { totalIncome: memberIncome + visitorIncome, memberIncome, visitorIncome };
+            }
+
+            function populateDateFilters() {
+                const monthSelect = DOMElements.reports.monthSelect;
+                const yearSelect = DOMElements.reports.yearSelect;
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                monthSelect.innerHTML = '';
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+                monthSelect.value = currentMonth;
+
+                yearSelect.innerHTML = '';
+                for (let i = currentYear; i >= 2024; i--) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    yearSelect.appendChild(option);
+                }
+                yearSelect.value = currentYear;
+            }
+
+            function setReportLoading(isLoading) {
+                const content = DOMElements.reports.detailsContent;
+                if (isLoading) {
+                    content.innerHTML = `
+                        <div class="flex items-center justify-center py-12">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-br from-gray-500/20 to-gray-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+                                    <i class="ph ph-chart-bar text-2xl text-gray-400"></i>
+                                </div>
+                                <p class="text-body">Menghitung pendapatan...</p>
+                            </div>
+                        </div>`;
+                }
+            }
+            
+            // Fungsi render UI laporan yang telah diperbarui
+            function renderReportUI(data) {
+                currentReportData = data;
+
+                const { totalIncome, memberIncome, visitorIncome, growthRate, memberDetails, visitorDetails } = data;
+
+                DOMElements.reports.totalIncome.textContent = formatRupiah(totalIncome);
+                DOMElements.reports.memberIncome.textContent = formatRupiah(memberIncome);
+                DOMElements.reports.visitorIncome.textContent = formatRupiah(visitorIncome);
+
+                const growthRateEl = document.getElementById('report-growth-rate');
+                const growthIconContainerEl = document.getElementById('report-growth-icon-container');
+                const growthIconEl = document.getElementById('report-growth-icon');
+
+                if (growthRateEl && growthIconContainerEl && growthIconEl) {
+                    growthRateEl.textContent = `${growthRate.toFixed(1)}%`;
+                    if (growthRate > 0) {
+                        growthRateEl.className = 'text-3xl lg:text-4xl font-bold mt-2 text-green-300';
+                        growthIconContainerEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30';
+                        growthIconEl.className = 'ph ph-trend-up text-2xl text-green-300';
+                    } else if (growthRate < 0) {
+                        growthRateEl.className = 'text-3xl lg:text-4xl font-bold mt-2 text-red-300';
+                        growthIconContainerEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-500/20 to-red-600/20 border border-red-500/30';
+                        growthIconEl.className = 'ph ph-trend-down text-2xl text-red-300';
+                    } else {
+                        growthRateEl.className = 'text-3xl lg:text-4xl font-bold mt-2 text-text-secondary';
+                        growthIconContainerEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-gray-500/20 to-gray-600/20 border border-gray-500/30';
+                        growthIconEl.className = 'ph ph-chart-line text-2xl text-text-secondary';
+                    }
+                }
+
+                let detailsHtml = '';
+
+                detailsHtml += `
+                    <div class="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-500/30 rounded-2xl p-8 mb-8 backdrop-blur-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-blue-600/20 rounded-xl flex items-center justify-center">
+                                    <i class="ph ph-users text-xl text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-bold text-white mb-1">Pemasukan Member</h4>
+                                    <p class="text-blue-200/70 text-sm">${memberDetails.length} transaksi ditemukan</p>
+                                </div>
+                            </div>
+                            <div class="bg-blue-500/20 px-4 py-2 rounded-xl border border-blue-400/30">
+                                <span class="text-blue-300 font-semibold">${formatRupiah(memberIncome)}</span>
+                            </div>
+                        </div>`;
+
+                if (memberDetails.length > 0) {
+                    detailsHtml += `
+                        <div class="overflow-hidden rounded-xl border border-blue-500/20 bg-gray-900/50 backdrop-blur-sm">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gradient-to-r from-blue-800/40 to-blue-900/40 border-b border-blue-500/30">
+                                        <tr>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm">No</th>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm">Tanggal</th>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm">Nama Member</th>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm">No. Member</th>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm">Paket</th>
+                                            <th class="py-4 px-6 text-blue-200 font-semibold text-sm text-right">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="member-table-body"></tbody>
+                                </table>
+                            </div>
+                            <div class="border-t border-blue-500/20 bg-gray-900/30 px-6 py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-blue-200/70 text-sm" id="member-pagination-info"></div>
+                                    <div class="flex items-center gap-2" id="member-pagination-controls"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    detailsHtml += `
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                    <i class="ph ph-receipt text-2xl text-blue-400"></i>
+                                </div>
+                                <p class="text-blue-200/70">Tidak ada pemasukan dari member pada periode ini</p>
+                            </div>
+                        </div>`;
+                }
+
+                detailsHtml += `
+                    <div class="bg-gradient-to-br from-green-900/20 to-green-800/10 border border-green-500/30 rounded-2xl p-8 backdrop-blur-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500/30 to-green-600/20 rounded-xl flex items-center justify-center">
+                                    <i class="ph ph-user-plus text-xl text-green-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-bold text-white mb-1">Pemasukan Visitor</h4>
+                                    <p class="text-green-200/70 text-sm">${visitorDetails.length} kunjungan ditemukan</p>
+                                </div>
+                            </div>
+                            <div class="bg-green-500/20 px-4 py-2 rounded-xl border border-green-400/30">
+                                <span class="text-green-300 font-semibold">${formatRupiah(visitorIncome)}</span>
+                            </div>
+                        </div>`;
+
+                if (visitorDetails.length > 0) {
+                    detailsHtml += `
+                        <div class="overflow-hidden rounded-xl border border-green-500/20 bg-gray-900/50 backdrop-blur-sm">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gradient-to-r from-green-800/40 to-green-900/40 border-b border-green-500/30">
+                                        <tr>
+                                            <th class="py-4 px-6 text-green-200 font-semibold text-sm">No</th>
+                                            <th class="py-4 px-6 text-green-200 font-semibold text-sm">Tanggal</th>
+                                            <th class="py-4 px-6 text-green-200 font-semibold text-sm">Nama Pengunjung</th>
+                                            <th class="py-4 px-6 text-green-200 font-semibold text-sm text-right">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="visitor-table-body"></tbody>
+                                </table>
+                            </div>
+                            <div class="border-t border-green-500/20 bg-gray-900/30 px-6 py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-green-200/70 text-sm" id="visitor-pagination-info"></div>
+                                    <div class="flex items-center gap-2" id="visitor-pagination-controls"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    detailsHtml += `
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-green-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                    <i class="ph ph-users text-2xl text-green-400"></i>
+                                </div>
+                                <p class="text-green-200/70">Tidak ada pemasukan dari visitor pada periode ini</p>
+                            </div>
+                        </div>`;
+                }
+
+                DOMElements.reports.detailsContent.innerHTML = detailsHtml;
+
+                if (memberDetails.length > 0) initializeMemberPagination(memberDetails);
+                if (visitorDetails.length > 0) initializeVisitorPagination(visitorDetails);
+            }
+
+            let currentMemberPage = 1;
+            const memberItemsPerPage = 15;
+
+            function initializeMemberPagination(memberDetails) {
+                currentMemberPage = 1;
+                renderMemberTablePage(memberDetails, currentMemberPage);
+                renderMemberPaginationControls(memberDetails.length);
+            }
+
+            function renderMemberTablePage(memberDetails, page) {
+                const startIndex = (page - 1) * memberItemsPerPage;
+                const pageData = memberDetails.slice(startIndex, startIndex + memberItemsPerPage);
+                const tableBody = document.getElementById('member-table-body');
+                if (!tableBody) return;
+
+                tableBody.innerHTML = pageData.map((item, index) => `
+                    <tr class="border-b border-blue-500/10 hover:bg-blue-900/20 transition-all duration-200">
+                        <td class="py-4 px-6 text-blue-100 font-medium">${startIndex + index + 1}</td>
+                        <td class="py-4 px-6 text-blue-100">${formatDateShort(item.tanggalMulai.toDate())}</td>
+                        <td class="py-4 px-6 text-blue-100 font-medium">${item.nama}</td>
+                        <td class="py-4 px-6 text-blue-300 font-mono text-sm">${item.kodePendaftaran}</td>
+                        <td class="py-4 px-6 text-blue-100"><span class="bg-blue-500/20 px-3 py-1 rounded-lg text-blue-300 text-sm font-medium">${item.paket}</span></td>
+                        <td class="py-4 px-6 text-right"><span class="text-blue-300 font-bold text-lg">${formatRupiah(item.totalBayar)}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            function renderMemberPaginationControls(totalItems) {
+                const totalPages = Math.ceil(totalItems / memberItemsPerPage);
+                if (totalPages <= 1) {
+                    document.getElementById('member-pagination-info').parentElement.parentElement.classList.add('hidden');
+                    return;
+                }
+                document.getElementById('member-pagination-info').parentElement.parentElement.classList.remove('hidden');
+
+                const startItem = totalItems === 0 ? 0 : ((currentMemberPage - 1) * memberItemsPerPage + 1);
+                const endItem = Math.min(currentMemberPage * memberItemsPerPage, totalItems);
+
+                document.getElementById('member-pagination-info').textContent = `Menampilkan ${startItem}-${endItem} dari ${totalItems} data`;
+                
+                const controlsEl = document.getElementById('member-pagination-controls');
+                if (!controlsEl) return;
+                controlsEl.innerHTML = '';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentMemberPage === 1 ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30 hover:border-blue-400'}`;
+                prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
+                prevBtn.disabled = currentMemberPage === 1;
+                prevBtn.onclick = () => {
+                    if (currentMemberPage > 1) {
+                        currentMemberPage--;
+                        renderMemberTablePage(currentReportData.memberDetails, currentMemberPage);
+                        renderMemberPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(prevBtn);
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentMemberPage === totalPages ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'bg-blue-600/20 border-blue-500/50 text-blue-300 hover:bg-blue-600/30 hover:border-blue-400'}`;
+                nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
+                nextBtn.disabled = currentMemberPage === totalPages;
+                nextBtn.onclick = () => {
+                    if (currentMemberPage < totalPages) {
+                        currentMemberPage++;
+                        renderMemberTablePage(currentReportData.memberDetails, currentMemberPage);
+                        renderMemberPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(nextBtn);
+            }
+
+            let currentVisitorPage = 1;
+            const visitorItemsPerPage = 15;
+
+            function initializeVisitorPagination(visitorDetails) {
+                currentVisitorPage = 1;
+                renderVisitorTablePage(visitorDetails, currentVisitorPage);
+                renderVisitorPaginationControls(visitorDetails.length);
+            }
+
+            function renderVisitorTablePage(visitorDetails, page) {
+                const startIndex = (page - 1) * visitorItemsPerPage;
+                const pageData = visitorDetails.slice(startIndex, startIndex + visitorItemsPerPage);
+                const tableBody = document.getElementById('visitor-table-body');
+                if (!tableBody) return;
+                
+                tableBody.innerHTML = pageData.map((item, index) => `
+                    <tr class="border-b border-green-500/10 hover:bg-green-900/20 transition-all duration-200">
+                        <td class="py-4 px-6 text-green-100 font-medium">${startIndex + index + 1}</td>
+                        <td class="py-4 px-6 text-green-100">${item.tanggal}</td>
+                        <td class="py-4 px-6 text-green-100 font-medium">${item.nama}</td>
+                        <td class="py-4 px-6 text-right"><span class="text-green-300 font-bold text-lg">${formatRupiah(item.harga)}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            function renderVisitorPaginationControls(totalItems) {
+                const totalPages = Math.ceil(totalItems / visitorItemsPerPage);
+                 if (totalPages <= 1) {
+                    document.getElementById('visitor-pagination-info').parentElement.parentElement.classList.add('hidden');
+                    return;
+                }
+                document.getElementById('visitor-pagination-info').parentElement.parentElement.classList.remove('hidden');
+
+                const startItem = totalItems === 0 ? 0 : ((currentVisitorPage - 1) * visitorItemsPerPage + 1);
+                const endItem = Math.min(currentVisitorPage * visitorItemsPerPage, totalItems);
+
+                document.getElementById('visitor-pagination-info').textContent = `Menampilkan ${startItem}-${endItem} dari ${totalItems} data`;
+                
+                const controlsEl = document.getElementById('visitor-pagination-controls');
+                if (!controlsEl) return;
+                controlsEl.innerHTML = '';
+                
+                const prevBtn = document.createElement('button');
+                prevBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentVisitorPage === 1 ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'bg-green-600/20 border-green-500/50 text-green-300 hover:bg-green-600/30 hover:border-green-400'}`;
+                prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
+                prevBtn.disabled = currentVisitorPage === 1;
+                prevBtn.onclick = () => {
+                    if (currentVisitorPage > 1) {
+                        currentVisitorPage--;
+                        renderVisitorTablePage(currentReportData.visitorDetails, currentVisitorPage);
+                        renderVisitorPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(prevBtn);
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentVisitorPage === totalPages ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'bg-green-600/20 border-green-500/50 text-green-300 hover:bg-green-600/30 hover:border-green-400'}`;
+                nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
+                nextBtn.disabled = currentVisitorPage === totalPages;
+                nextBtn.onclick = () => {
+                    if (currentVisitorPage < totalPages) {
+                        currentVisitorPage++;
+                        renderVisitorTablePage(currentReportData.visitorDetails, currentVisitorPage);
+                        renderVisitorPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(nextBtn);
+            }
+
+            // Fungsi generate laporan yang telah diperbarui
+            async function generateReport(startDate, endDate, periodTitle) {
+                DOMElements.reports.periodTitle.textContent = periodTitle;
+                setReportLoading(true);
+
+                try {
+                    let memberDetails = [];
+                    const memberQuery = query(collection(db, "pendaftaran_member"), where("tanggalMulai", ">=", startDate), where("tanggalMulai", "<=", endDate));
+                    const memberSnapshot = await getDocs(memberQuery);
+                    memberSnapshot.docs.filter(doc => doc.data().statusPembayaran === true).forEach(doc => memberDetails.push(doc.data()));
+                    memberDetails.sort((a,b) => (a.tanggalMulai.seconds) - (b.tanggalMulai.seconds));
+
+                    let visitorDetails = [];
+                    const startDateId = formatDateForDocId(startDate);
+                    const endDateId = formatDateForDocId(endDate);
+                    const visitorQuery = query(collection(db, "daily_attendance"), where(documentId(), ">=", startDateId), where(documentId(), "<=", endDateId));
+                    const visitorSnapshot = await getDocs(visitorQuery);
+                    
+                    const PRICE_CHANGE_DATE = new Date('2025-09-15T00:00:00');
+                    const VISITOR_PRICE_OLD = 25000;
+                    const VISITOR_PRICE_NEW = 35000;
+
+                    visitorSnapshot.forEach(doc => {
+                        const visitDateStr = doc.id;
+                        const visitDate = new Date(visitDateStr);
+                        visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
+                        const price = visitDate >= PRICE_CHANGE_DATE ? VISITOR_PRICE_NEW : VISITOR_PRICE_OLD;
+                        const entries = doc.data().entries || [];
+                        entries.filter(e => e.type === 'Pengunjung').forEach(visitor => visitorDetails.push({ tanggal: visitDateStr, nama: visitor.nama, harga: price }));
+                    });
+                    visitorDetails.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+                    const currentPeriodIncome = await fetchIncomeForPeriod(startDate, endDate);
+                    
+                    const duration = endDate.getTime() - startDate.getTime();
+                    const prevEndDate = new Date(startDate.getTime() - 1);
+                    const prevStartDate = new Date(prevEndDate.getTime() - duration);
+                    const previousPeriodIncome = await fetchIncomeForPeriod(prevStartDate, prevEndDate);
+                    
+                    const currentTotal = currentPeriodIncome.totalIncome;
+                    const previousTotal = previousPeriodIncome.totalIncome;
+                    let growthRate = 0;
+                    if (previousTotal > 0) {
+                        growthRate = ((currentTotal - previousTotal) / previousTotal) * 100;
+                    } else if (currentTotal > 0) {
+                        growthRate = 100;
+                    }
+
+                    renderReportUI({
+                        totalIncome: currentPeriodIncome.totalIncome,
+                        memberIncome: currentPeriodIncome.memberIncome,
+                        visitorIncome: currentPeriodIncome.visitorIncome,
+                        growthRate: growthRate,
+                        memberDetails,
+                        visitorDetails,
+                        period: periodTitle,
+                    });
+
+                } catch (error) {
+                    console.error("Error generating report:", error);
+                    DOMElements.reports.detailsContent.innerHTML = `<p class="text-red-500 text-center py-8">Gagal memuat laporan. Silakan coba lagi.</p>`;
+                }
+            }
+
+            function exportReport() {
+                if (!currentReportData) {
+                    alert("Silakan generate laporan terlebih dahulu sebelum mengunduh.");
+                    return;
+                }
+                
+                const { memberDetails, visitorDetails, period } = currentReportData;
+
+                const memberSheet = memberDetails.map(item => ({
+                    'Tanggal': formatDate(item.tanggalMulai),
+                    'Nama': item.nama,
+                    'No. Member': item.kodePendaftaran,
+                    'Paket': item.paket,
+                    'Jumlah': item.totalBayar,
+                }));
+                
+                const visitorSheet = visitorDetails.map(item => ({
+                    'Tanggal': item.tanggal,
+                    'Nama Pengunjung': item.nama,
+                    'Jumlah': item.harga,
+                }));
+
+                const filename = `laporan-pendapatan-${period.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.xlsx`;
+                
+                exportToExcel(filename, [
+                    { sheetName: 'Pendapatan Member', data: memberSheet },
+                    { sheetName: 'Pendapatan Visitor', data: visitorSheet }
+                ]);
+            }
+
             function loadAllData() {
                 loadMemberData();
                 loadAttendanceHistory();
-                loadRevenueSummary();
-                initializeReportYearOptions();
             }
 
             function switchView(viewToShow) {
-                // Hide all views
-                DOMElements.navigation.attendanceView.classList.add('hidden');
-                DOMElements.navigation.membersView.classList.add('hidden');
-                DOMElements.navigation.reportsView.classList.add('hidden');
+                const views = [DOMElements.navigation.attendanceView, DOMElements.navigation.membersView, DOMElements.navigation.reportsView];
+                const buttons = [DOMElements.navigation.showAttendanceBtn, DOMElements.navigation.showMembersBtn, DOMElements.navigation.showReportsBtn];
                 
-                // Remove active class from all nav buttons
-                DOMElements.navigation.showAttendanceBtn.classList.remove('active');
-                DOMElements.navigation.showMembersBtn.classList.remove('active');
-                DOMElements.navigation.showReportsBtn.classList.remove('active');
-                
-                // Show selected view and activate corresponding nav button
+                views.forEach(v => v.classList.add('hidden'));
+                buttons.forEach(b => b.classList.remove('active'));
+
                 if (viewToShow === 'attendance') {
                     DOMElements.navigation.attendanceView.classList.remove('hidden');
                     DOMElements.navigation.showAttendanceBtn.classList.add('active');
@@ -2358,6 +2450,10 @@
                 } else if (viewToShow === 'reports') {
                     DOMElements.navigation.reportsView.classList.remove('hidden');
                     DOMElements.navigation.showReportsBtn.classList.add('active');
+                    if(!currentReportData){ 
+                        const dailyBtn = document.querySelector('.report-period-btn[data-period="daily"]');
+                        if (dailyBtn) dailyBtn.click();
+                    }
                 }
             }
 
@@ -2368,7 +2464,8 @@
                     DOMElements.loginSection.classList.add('hidden');
                     DOMElements.adminDashboard.classList.remove('hidden');
                     loadAllData();
-                    switchView('attendance'); // Set default view
+                    populateDateFilters();
+                    switchView('attendance');
                 } else {
                     DOMElements.loginError.classList.remove('hidden');
                 }
@@ -2387,7 +2484,7 @@
 
             DOMElements.members.searchInput.addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
-                currentPage = 1; // Reset to first page when searching
+                currentPage = 1;
                 
                 if (!searchTerm) {
                     renderMemberTable(allMemberData);
@@ -2407,7 +2504,7 @@
                     'Tanggal Mulai': formatDate(m.tanggalMulai), 'Tanggal Selesai': formatDate(m.tanggalSelesai),
                     'Total Bayar': m.totalBayar, 'Status Bayar': m.statusPembayaran ? 'Lunas' : 'Belum Lunas'
                 }));
-                exportToExcel('pendaftar_member.xlsx', 'Pendaftar Member', dataForExport);
+                exportToExcel('pendaftar_member.xlsx', [{ sheetName: 'Pendaftar Member', data: dataForExport }]);
             });
 
             DOMElements.attendance.startScanBtn.addEventListener('click', () => {
@@ -2465,46 +2562,98 @@
                 DOMElements.members.archiveConfirmModal.classList.add('hidden');
             });
             DOMElements.members.confirmArchiveBtn.addEventListener('click', archiveInactiveMembers);
+            
+            DOMElements.reports.filterButtons.addEventListener('click', (e) => {
+                if (e.target.classList.contains('report-period-btn')) {
+                    const period = e.target.dataset.period;
+                    
+                    document.querySelectorAll('.report-period-btn').forEach(btn => {
+                        btn.classList.add('btn-secondary');
+                        btn.classList.remove('btn-primary');
+                    });
+                    e.target.classList.add('btn-primary');
+                    e.target.classList.remove('btn-secondary');
 
-            // Reports event listeners
-            DOMElements.reports.generateReportBtn.addEventListener('click', () => {
-                const year = DOMElements.reports.reportYear.value;
-                const month = DOMElements.reports.reportMonth.value || null;
-                if (year) {
-                    generateRevenueReport(year, month);
-                } else {
-                    DOMElements.reports.reportMessage.textContent = 'Silakan pilih tahun.';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-red-400';
+                    const now = new Date();
+                    let startDate, endDate = new Date(now);
+                    endDate.setHours(23, 59, 59, 999);
+                    let periodTitle = '';
+
+                    switch (period) {
+                        case 'daily':
+                            startDate = new Date(now);
+                            startDate.setHours(0, 0, 0, 0);
+                            periodTitle = `Laporan Harian - ${formatDateShort(now)}`;
+                            break;
+                        case 'weekly':
+                            startDate = new Date(now);
+                            const dayOfWeek = now.getDay();
+                            const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                            startDate.setDate(diff);
+                            startDate.setHours(0, 0, 0, 0);
+                            periodTitle = `Laporan Mingguan (${formatDateShort(startDate)} - ${formatDateShort(endDate)})`;
+                            break;
+                        case 'monthly':
+                            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                            startDate.setHours(0, 0, 0, 0);
+                            periodTitle = `Laporan Bulanan - ${now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+                            break;
+                    }
+                    
+                    DOMElements.reports.startDateInput.value = '';
+                    DOMElements.reports.endDateInput.value = '';
+                    generateReport(startDate, endDate, periodTitle);
                 }
             });
 
-            DOMElements.reports.exportRevenueBtn.addEventListener('click', () => {
-                if (window.currentRevenueData && window.currentRevenueData.length > 0) {
-                    const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                    
-                    const dataForExport = window.currentRevenueData.map(item => ({
-                        'Bulan': `${monthNames[item.month]} ${item.year}`,
-                        'Pendapatan Member': item.memberRevenue,
-                        'Jumlah Member': item.memberCount,
-                        'Pendapatan Visitor': item.visitorRevenue,
-                        'Jumlah Visitor': item.visitorCount,
-                        'Total Pendapatan': item.totalRevenue
-                    }));
-                    
-                    const year = DOMElements.reports.reportYear.value;
-                    const month = DOMElements.reports.reportMonth.value;
-                    const filename = `laporan_pendapatan_${year}${month ? `_${monthNames[parseInt(month)]}` : ''}.xlsx`;
-                    
-                    exportToExcel(filename, 'Laporan Pendapatan', dataForExport);
-                    
-                    DOMElements.reports.reportMessage.textContent = 'Laporan berhasil diunduh.';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-green-400';
-                } else {
-                    DOMElements.reports.reportMessage.textContent = 'Tidak ada data untuk diexport.';
-                    DOMElements.reports.reportMessage.className = 'text-sm mt-4 text-red-400';
+            const handleMonthYearChange = () => {
+                const year = parseInt(DOMElements.reports.yearSelect.value);
+                const month = parseInt(DOMElements.reports.monthSelect.value);
+                const startDate = new Date(year, month, 1);
+                const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const periodTitle = `Laporan Bulan ${months[month]} ${year}`;
+                
+                DOMElements.reports.startDateInput.value = '';
+                DOMElements.reports.endDateInput.value = '';
+                document.querySelectorAll('.report-period-btn').forEach(btn => {
+                    btn.classList.add('btn-secondary');
+                    btn.classList.remove('btn-primary');
+                });
+                generateReport(startDate, endDate, periodTitle);
+            };
+
+            DOMElements.reports.monthSelect.addEventListener('change', handleMonthYearChange);
+            DOMElements.reports.yearSelect.addEventListener('change', handleMonthYearChange);
+
+            DOMElements.reports.applyCustomDateBtn.addEventListener('click', () => {
+                const startDateValue = DOMElements.reports.startDateInput.value;
+                const endDateValue = DOMElements.reports.endDateInput.value;
+
+                if (!startDateValue || !endDateValue) {
+                    alert("Silakan pilih tanggal mulai dan tanggal selesai.");
+                    return;
                 }
+
+                const startDate = new Date(startDateValue);
+                startDate.setHours(0, 0, 0, 0);
+                const endDate = new Date(endDateValue);
+                endDate.setHours(23, 59, 59, 999);
+
+                if (startDate > endDate) {
+                    alert("Tanggal mulai tidak boleh lebih besar dari tanggal selesai.");
+                    return;
+                }
+
+                const periodTitle = `Laporan Kustom (${formatDateShort(startDate)} - ${formatDateShort(endDate)})`;
+                document.querySelectorAll('.report-period-btn').forEach(btn => {
+                     btn.classList.add('btn-secondary');
+                    btn.classList.remove('btn-primary');
+                });
+                generateReport(startDate, endDate, periodTitle);
             });
+
+            DOMElements.reports.exportBtn.addEventListener('click', exportReport);
         });
     </script>
 </body>
