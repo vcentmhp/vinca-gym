@@ -681,36 +681,55 @@
             <div id="members-view" class="hidden animate-slide-up">
                 <section id="pendaftaran-member" class="mb-12">
                     <div id="member-table-view">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-xl flex items-center justify-center border border-cyan-500/10">
-                                    <i class="ph ph-users text-xl text-cyan-400"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-title text-primary">Pendaftar Member Baru</h2>
-                                    <p class="text-body">Kelola data dan status member</p>
-                                </div>
+                        <!-- Header Section -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-xl flex items-center justify-center border border-cyan-500/10">
+                                <i class="ph ph-users text-xl text-cyan-400"></i>
                             </div>
-                            
-                            <div class="relative w-full lg:w-80">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="ph ph-magnifying-glass text-tertiary"></i>
-                                </div>
-                                <input type="text" id="search-member-input" 
-                                       placeholder="cari nama atau no. member" 
-                                       class="w-full px-10 py-2">
+                            <div>
+                                <h2 class="text-title text-primary">Pendaftar Member Baru</h2>
+                                <p class="text-body">Kelola data dan status member</p>
                             </div>
                         </div>
                         
-                        <div class="flex flex-wrap justify-end gap-3 mb-6">
-                            <button id="archive-members-btn" class="btn-danger flex items-center gap-2 px-6">
-                                <i class="ph ph-archive text-lg"></i>
-                                <span>Arsipkan Member Tidak Aktif</span>
-                            </button>
-                            <button id="export-member-btn" class="btn-secondary flex items-center gap-2 px-6">
-                                <i class="ph ph-download-simple text-lg"></i>
-                                <span>Unduh Data</span>
-                            </button>
+                        <!-- Search & Filter Section -->
+                        <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                            <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                                <div class="relative flex-1">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="ph ph-magnifying-glass text-tertiary"></i>
+                                    </div>
+                                    <input type="text" id="search-member-input" 
+                                           placeholder="Cari nama atau no. member" 
+                                           class="w-full px-10 py-2">
+                                </div>
+                                <select id="filter-paket" class="px-4 py-2 sm:w-44">
+                                    <option value="">Semua Paket</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Silver">Silver</option>
+                                    <option value="Gold">Gold</option>
+                                    <option value="Platinum">Platinum</option>
+                                </select>
+                                <select id="filter-status" class="px-4 py-2 sm:w-44">
+                                    <option value="">Semua Status</option>
+                                    <option value="lunas">Lunas</option>
+                                    <option value="belum">Belum Bayar</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="aktif">Aktif</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3">
+                                <button id="archive-members-btn" class="btn-danger flex items-center gap-2 px-6 whitespace-nowrap">
+                                    <i class="ph ph-archive text-lg"></i>
+                                    <span>Arsipkan</span>
+                                </button>
+                                <button id="export-member-btn" class="btn-secondary flex items-center gap-2 px-6 whitespace-nowrap">
+                                    <i class="ph ph-download-simple text-lg"></i>
+                                    <span>Unduh</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <div id="archive-message" class="mb-6"></div>
@@ -955,7 +974,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         document.addEventListener('DOMContentLoaded', () => {
             
@@ -1077,6 +1096,38 @@
             const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
             const formatDate = (timestamp) => (timestamp && timestamp.seconds) ? new Date(timestamp.seconds * 1000).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
             const formatDateShort = (date) => date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            // Fungsi untuk sort member berdasarkan nomor
+            function sortMembersByCode(members) {
+                return [...members].sort((a, b) => {
+                    const codeA = a.kodePendaftaran || '';
+                    const codeB = b.kodePendaftaran || '';
+                    
+                    // Extract prefix (R, S, G, P) dan nomor
+                    const matchA = codeA.match(/VG-([RSGP])(\d+)/);
+                    const matchB = codeB.match(/VG-([RSGP])(\d+)/);
+                    
+                    if (!matchA || !matchB) {
+                        return codeA.localeCompare(codeB);
+                    }
+                    
+                    const prefixA = matchA[1];
+                    const prefixB = matchB[1];
+                    const numberA = parseInt(matchA[2], 10);
+                    const numberB = parseInt(matchB[2], 10);
+                    
+                    // Urutan prefix: R, S, G, P
+                    const prefixOrder = { 'R': 1, 'S': 2, 'G': 3, 'P': 4 };
+                    
+                    // Bandingkan prefix dulu
+                    if (prefixOrder[prefixA] !== prefixOrder[prefixB]) {
+                        return prefixOrder[prefixA] - prefixOrder[prefixB];
+                    }
+                    
+                    // Jika prefix sama, bandingkan nomor
+                    return numberA - numberB;
+                });
+            }
             const formatDateForInput = (timestamp) => {
                 if (!timestamp || !timestamp.seconds) return '';
                 const date = new Date(timestamp.seconds * 1000);
@@ -1307,7 +1358,7 @@
                 let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
                 
                 if (paginatedData.length > 0) {
-                    paginatedData.sort((a, b) => (b.tanggalMulai?.seconds || 0) - (a.tanggalMulai?.seconds || 0));
+                    // Data sudah terurut dari sortMembersByCode, tidak perlu sort lagi
                     paginatedData.forEach((member, index) => {
                         const isPaid = member.statusPembayaran === true;
                         const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;
@@ -1673,6 +1724,9 @@
                         .map((doc, index) => ({ docId: doc.id, index, ...doc.data() }))
                         .filter(member => member.isArchived !== true);
                     
+                    // Sort berdasarkan nomor member menggunakan fungsi sortMembersByCode
+                    allMemberData = sortMembersByCode(allMemberData);
+                    
                     // Reset current page when loading new data
                     currentPage = 1;
                     
@@ -1803,11 +1857,17 @@
                 archiveMessage.innerHTML = '';
 
                 try {
-                    const threeMonthsAgo = new Date();
-                    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                    // Hitung 3 bulan yang lalu
+                    const today = new Date();
+                    const threeMonthsAgo = new Date(today);
+                    threeMonthsAgo.setMonth(today.getMonth() - 3);
+                    threeMonthsAgo.setHours(0, 0, 0, 0);
+                    
+                    // Konversi ke Firestore Timestamp
+                    const threeMonthsAgoTimestamp = Timestamp.fromDate(threeMonthsAgo);
 
                     const q = query(collection(db, "pendaftaran_member"), 
-                        where("tanggalSelesai", "<", threeMonthsAgo)
+                        where("tanggalSelesai", "<", threeMonthsAgoTimestamp)
                     );
                     
                     const querySnapshot = await getDocs(q);
@@ -2482,20 +2542,52 @@
             DOMElements.navigation.showMembersBtn.addEventListener('click', () => switchView('members'));
             DOMElements.navigation.showReportsBtn.addEventListener('click', () => switchView('reports'));
 
-            DOMElements.members.searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
+            // Fungsi filter dan search member
+            function applyMemberFilters() {
+                const searchTerm = DOMElements.members.searchInput.value.toLowerCase();
+                const filterPaket = document.getElementById('filter-paket').value;
+                const filterStatus = document.getElementById('filter-status').value;
+                
                 currentPage = 1;
                 
-                if (!searchTerm) {
-                    renderMemberTable(allMemberData);
-                    return;
-                }
-                const filteredMembers = allMemberData.filter(member => 
-                    member.nama.toLowerCase().includes(searchTerm) || 
-                    member.kodePendaftaran.toLowerCase().includes(searchTerm)
-                );
+                let filteredMembers = allMemberData.filter(member => {
+                    // Filter search
+                    const matchSearch = !searchTerm || 
+                        member.nama.toLowerCase().includes(searchTerm) || 
+                        member.kodePendaftaran.toLowerCase().includes(searchTerm);
+                    
+                    // Filter paket
+                    const matchPaket = !filterPaket || member.paket.includes(filterPaket);
+                    
+                    // Filter status
+                    let matchStatus = true;
+                    if (filterStatus) {
+                        const now = new Date();
+                        const tanggalSelesai = member.tanggalSelesai?.toDate();
+                        
+                        if (filterStatus === 'lunas') {
+                            matchStatus = member.statusPembayaran === true;
+                        } else if (filterStatus === 'belum') {
+                            matchStatus = member.statusPembayaran === false;
+                        } else if (filterStatus === 'expired') {
+                            matchStatus = tanggalSelesai && tanggalSelesai < now;
+                        } else if (filterStatus === 'aktif') {
+                            matchStatus = tanggalSelesai && tanggalSelesai >= now && member.statusPembayaran === true;
+                        }
+                    }
+                    
+                    return matchSearch && matchPaket && matchStatus;
+                });
+                
+                // Sort hasil filter berdasarkan nomor member
+                filteredMembers = sortMembersByCode(filteredMembers);
+                
                 renderMemberTable(filteredMembers);
-            });
+            }
+            
+            DOMElements.members.searchInput.addEventListener('input', applyMemberFilters);
+            document.getElementById('filter-paket').addEventListener('change', applyMemberFilters);
+            document.getElementById('filter-status').addEventListener('change', applyMemberFilters);
 
             DOMElements.members.exportBtn.addEventListener('click', () => {
                 const dataForExport = allMemberData.map(m => ({ 

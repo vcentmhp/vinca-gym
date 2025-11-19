@@ -488,8 +488,21 @@
             try {
                 const newRegistrationCode = await generateSequentialCode(paketKeyGlobal);
                 const tanggalMulai = new Date();
+                
+                // FIX: Gunakan metode yang aman untuk menambah bulan, hindari bug overflow tanggal
                 const tanggalSelesai = new Date(tanggalMulai);
-                tanggalSelesai.setMonth(tanggalSelesai.getMonth() + paketTerpilih.durasiBulan);
+                const targetMonth = tanggalSelesai.getMonth() + paketTerpilih.durasiBulan;
+                const targetYear = tanggalSelesai.getFullYear() + Math.floor(targetMonth / 12);
+                const finalMonth = targetMonth % 12;
+                
+                // Set tahun dan bulan terlebih dahulu
+                tanggalSelesai.setFullYear(targetYear);
+                tanggalSelesai.setMonth(finalMonth);
+                
+                // Pastikan tanggal tidak overflow (misal: 31 Jan + 1 bulan tidak jadi 3 Maret)
+                const dayOfMonth = tanggalMulai.getDate();
+                const lastDayOfTargetMonth = new Date(targetYear, finalMonth + 1, 0).getDate();
+                tanggalSelesai.setDate(Math.min(dayOfMonth, lastDayOfTargetMonth));
 
                 const whatsappInput = document.getElementById('whatsapp').value.replace(/\D/g, '');
                 const whatsappNumber = `62${whatsappInput.startsWith('0') ? whatsappInput.substring(1) : whatsappInput}`;

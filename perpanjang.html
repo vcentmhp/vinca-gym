@@ -536,8 +536,22 @@
 
             // Logika Cerdas: Jika perpanjang sebelum habis, tambahkan durasi dari tanggal selesai lama
             const basisPerpanjangan = tanggalSelesaiLama > tanggalMulaiBaru ? tanggalSelesaiLama : tanggalMulaiBaru;
+            
+            // FIX: Gunakan metode yang aman untuk menambah bulan, hindari bug overflow tanggal
             const tanggalSelesaiBaru = new Date(basisPerpanjangan);
-            tanggalSelesaiBaru.setMonth(tanggalSelesaiBaru.getMonth() + paketTerpilih.durasiBulan);
+            const targetMonth = tanggalSelesaiBaru.getMonth() + paketTerpilih.durasiBulan;
+            const targetYear = tanggalSelesaiBaru.getFullYear() + Math.floor(targetMonth / 12);
+            const finalMonth = targetMonth % 12;
+            
+            // Set tahun dan bulan terlebih dahulu
+            tanggalSelesaiBaru.setFullYear(targetYear);
+            tanggalSelesaiBaru.setMonth(finalMonth);
+            
+            // Pastikan tanggal tidak overflow (misal: 31 Jan + 1 bulan tidak jadi 3 Maret)
+            // Jika overflow, set ke hari terakhir bulan target
+            const dayOfMonth = basisPerpanjangan.getDate();
+            const lastDayOfTargetMonth = new Date(targetYear, finalMonth + 1, 0).getDate();
+            tanggalSelesaiBaru.setDate(Math.min(dayOfMonth, lastDayOfTargetMonth));
 
             const dataUpdate = {
                 paket: paketTerpilih.nama,
