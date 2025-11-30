@@ -196,7 +196,8 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, runTransaction, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Tambahkan setDoc, getDoc ke import
+        import { getFirestore, collection, setDoc, doc, runTransaction, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         const firebaseConfig = { apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ", authDomain: "vinca-gym-website.firebaseapp.com", projectId: "vinca-gym-website", storageBucket: "vinca-gym-website.firebasestorage.app", messagingSenderId: "430179505282", appId: "1:430179505282:web:e7128a258fb64cebcb109b", measurementId: "G-5KVHK8RPK9" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -226,22 +227,71 @@
 
         function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
 
-        async function generateSequentialCode(packageKey) {
+        // --- NEW SMART GENERATOR (ANTI-DUPLICATE) ---
+        async function generateSmartUniqueCode(packageKey) {
             const counterRef = doc(db, "counters", "member_registration");
-            let newCode = "";
-            await runTransaction(db, async (transaction) => {
-                const counterDoc = await transaction.get(counterRef);
-                let currentCount = 0;
-                if (counterDoc.exists() && counterDoc.data()[packageKey] !== undefined) { currentCount = counterDoc.data()[packageKey]; }
-                const newCount = currentCount + 1;
-                const updateData = {};
-                updateData[packageKey] = newCount;
-                transaction.set(counterRef, updateData, { merge: true });
+            let isUnique = false;
+            let finalCode = "";
+            let attempts = 0;
+            
+            // 1. Ambil estimasi counter terakhir (baca langsung agar cepat)
+            // Kita akan meloop sampai menemukan slot yang benar-benar kosong
+            let candidateCount = 1;
+            try {
+                const counterSnap = await getDoc(counterRef);
+                if (counterSnap.exists() && counterSnap.data()[packageKey]) {
+                    candidateCount = counterSnap.data()[packageKey] + 1;
+                }
+            } catch (e) {
+                console.log("Counter belum ada, mulai dari 1");
+            }
+
+            // Loop Safety: Maksimal mencoba 50x loncat angka untuk mencegah infinite loop
+            while (!isUnique && attempts < 50) { 
                 const prefix = `VG-${PAKET_MEMBERSHIP[packageKey].prefix}`;
-                const paddedNumber = String(newCount).padStart(4, '0');
-                newCode = `${prefix}${paddedNumber}`;
+                const paddedNumber = String(candidateCount).padStart(4, '0');
+                const candidateCode = `${prefix}${paddedNumber}`;
+                
+                // Cek 1: Apakah dokumen dengan ID ini sudah ada? (Untuk sistem baru)
+                const docRef = doc(db, "pendaftaran_member", candidateCode);
+                const docSnap = await getDoc(docRef);
+                
+                // Cek 2: Apakah ada dokumen (legacy/lama) yang punya field kodePendaftaran ini? (Untuk sistem lama)
+                const q = query(collection(db, "pendaftaran_member"), where("kodePendaftaran", "==", candidateCode));
+                const querySnap = await getDocs(q);
+                
+                if (!docSnap.exists() && querySnap.empty) {
+                    // AMAN! Kode ini kosong di kedua sistem
+                    finalCode = candidateCode;
+                    isUnique = true;
+                } else {
+                    // TABRAKAN! Nomor ini sudah ada, coba nomor berikutnya
+                    console.log(`Tabrakan ditemukan untuk ${candidateCode}, mencoba nomor berikutnya...`);
+                    candidateCount++;
+                }
+                attempts++;
+            }
+
+            if (!isUnique) throw new Error("Gagal generate kode unik. Silakan hubungi admin.");
+
+            // 2. Update Counter di Database ke angka tertinggi yang baru saja kita temukan
+            // Menggunakan transaction agar aman jika ada banyak pendaftar bersamaan
+            await runTransaction(db, async (transaction) => {
+                const cDoc = await transaction.get(counterRef);
+                let currentDbCount = 0;
+                if (cDoc.exists() && cDoc.data()[packageKey]) {
+                    currentDbCount = cDoc.data()[packageKey];
+                }
+                
+                // Hanya update jika angka kita lebih tinggi (biar counter maju terus)
+                if (candidateCount > currentDbCount) {
+                     const updateData = {};
+                     updateData[packageKey] = candidateCount;
+                     transaction.set(counterRef, updateData, { merge: true });
+                }
             });
-            return newCode;
+
+            return finalCode;
         }
 
         // Voucher Management Functions
@@ -486,20 +536,19 @@
             submitSpinner.classList.remove('hidden');
 
             try {
-                const newRegistrationCode = await generateSequentialCode(paketKeyGlobal);
+                // GENERATE CODE USING NEW SMART FUNCTION
+                const newRegistrationCode = await generateSmartUniqueCode(paketKeyGlobal);
+                
                 const tanggalMulai = new Date();
                 
-                // FIX: Gunakan metode yang aman untuk menambah bulan, hindari bug overflow tanggal
                 const tanggalSelesai = new Date(tanggalMulai);
                 const targetMonth = tanggalSelesai.getMonth() + paketTerpilih.durasiBulan;
                 const targetYear = tanggalSelesai.getFullYear() + Math.floor(targetMonth / 12);
                 const finalMonth = targetMonth % 12;
                 
-                // Set tahun dan bulan terlebih dahulu
                 tanggalSelesai.setFullYear(targetYear);
                 tanggalSelesai.setMonth(finalMonth);
                 
-                // Pastikan tanggal tidak overflow (misal: 31 Jan + 1 bulan tidak jadi 3 Maret)
                 const dayOfMonth = tanggalMulai.getDate();
                 const lastDayOfTargetMonth = new Date(targetYear, finalMonth + 1, 0).getDate();
                 tanggalSelesai.setDate(Math.min(dayOfMonth, lastDayOfTargetMonth));
@@ -527,8 +576,11 @@
                     } : null
                 };
 
-                // Save registration
-                await addDoc(collection(db, "pendaftaran_member"), pendaftar);
+                // --- CRITICAL FIX: USE setDoc WITH ID=CODE ---
+                // Ini mencegah duplikasi. Jika kode ini entah bagaimana sudah ada, 
+                // setDoc akan mengupdate doc yg ada, BUKAN membuat baru.
+                // Tapi karena kita sudah cek di generateSmartUniqueCode, ini aman.
+                await setDoc(doc(db, "pendaftaran_member", newRegistrationCode), pendaftar);
 
                 // Update voucher usage if applied
                 if (appliedVoucher) {
