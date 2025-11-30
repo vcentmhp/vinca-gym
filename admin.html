@@ -484,7 +484,6 @@
                         <i class="ph ph-users text-lg"></i>
                         <span class="font-semibold">Data Member</span>
                     </button>
-                    <!-- Tombol Laporan Baru -->
                     <button id="show-reports-btn" class="nav-btn flex-1 flex items-center justify-center gap-2">
                         <i class="ph ph-chart-bar text-lg"></i>
                         <span class="font-semibold">Laporan</span>
@@ -680,20 +679,34 @@
             <!-- Members View -->
             <div id="members-view" class="hidden animate-slide-up">
                 <section id="pendaftaran-member" class="mb-12">
-                    <div id="member-table-view">
-                        <!-- Header Section -->
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-xl flex items-center justify-center border border-cyan-500/10">
-                                <i class="ph ph-users text-xl text-cyan-400"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-title text-primary">Pendaftar Member Baru</h2>
-                                <p class="text-body">Kelola data dan status member</p>
-                            </div>
+                    <!-- Header Section -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-xl flex items-center justify-center border border-cyan-500/10">
+                            <i class="ph ph-users text-xl text-cyan-400"></i>
                         </div>
-                        
-                        <!-- Search & Filter Section -->
-                        <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                        <div>
+                            <h2 class="text-title text-primary">Data Member</h2>
+                            <p class="text-body">Kelola data member aktif dan arsip</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Navigation -->
+                    <div class="flex gap-2 p-1 bg-secondary rounded-xl border border-border-primary mb-6">
+                        <button id="tab-active-members" class="nav-btn flex-1 flex items-center justify-center gap-2 active">
+                            <i class="ph ph-users text-lg"></i>
+                            <span class="font-semibold">Member Aktif</span>
+                        </button>
+                        <button id="tab-archive" class="nav-btn flex-1 flex items-center justify-center gap-2">
+                            <i class="ph ph-archive text-lg"></i>
+                            <span class="font-semibold">Ruang Arsip</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Active Members Tab -->
+                    <div id="active-members-tab" class="tab-content">
+                        <div id="member-table-view">
+                            <!-- Search & Filter Section -->
+                            <div class="flex flex-col lg:flex-row gap-4 mb-6">
                             <div class="flex flex-col sm:flex-row gap-3 flex-1">
                                 <div class="relative flex-1">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -756,11 +769,46 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
+                        <!-- End member-table-view -->
+                        
+                        <div id="member-detail-view" class="hidden">
+                            <!-- Detail member akan ditampilkan di sini -->
+                        </div>
                     </div>
+                    <!-- End Active Members Tab -->
                     
-                    <div id="member-detail-view" class="hidden">
-                        <!-- Detail member akan ditampilkan di sini -->
+                    <!-- Archive Tab -->
+                    <div id="archive-tab" class="tab-content hidden">
+                        <!-- Search Archive -->
+                        <div class="mb-6">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="ph ph-magnifying-glass text-tertiary"></i>
+                                </div>
+                                <input type="text" id="search-archive-input" 
+                                       placeholder="Cari nama atau no. member di arsip" 
+                                       class="w-full px-10 py-2">
+                            </div>
+                        </div>
+
+                        <div id="archive-message-display" class="mb-6"></div>
+
+                        <!-- Archive Table -->
+                        <div class="card p-8">
+                            <div id="archive-content">
+                                <div class="flex items-center justify-center py-12">
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-gray-500/20 to-gray-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                            <i class="ph ph-archive text-2xl text-gray-400"></i>
+                                        </div>
+                                        <p class="text-body">Memuat data arsip...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <!-- End Archive Tab -->
                 </section>
             </div>
             
@@ -897,6 +945,7 @@
                     </div>
                 </section>
             </div>
+
         </main>
     </div>
 
@@ -942,6 +991,52 @@
         </div>
     </div>
 
+    <!-- Restore Confirmation Modal -->
+    <div id="restore-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative modal-content p-8 w-full max-w-md text-center animate-slide-up">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-green-500/20">
+                <i class="ph ph-arrow-counter-clockwise text-3xl text-green-400"></i>
+            </div>
+            
+            <h2 class="text-title text-primary mb-3">Konfirmasi Pulihkan</h2>
+            <p class="text-body mb-2">Anda akan memulihkan member:</p>
+            <p class="text-lg font-semibold text-primary mb-6" id="restore-member-name"></p>
+            <p class="text-body mb-8">Member akan dikembalikan ke daftar aktif. Lanjutkan?</p>
+            
+            <div class="flex gap-4">
+                <button id="cancel-restore-btn" class="flex-1 btn-secondary">Batal</button>
+                <button id="confirm-restore-btn" class="flex-1 btn-success flex items-center justify-center gap-2">
+                    <span id="restore-text">Ya, Pulihkan</span>
+                    <div id="restore-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative modal-content p-8 w-full max-w-md text-center animate-slide-up">
+            <div class="w-20 h-20 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-500/20">
+                <i class="ph ph-trash text-3xl text-red-400"></i>
+            </div>
+            
+            <h2 class="text-title text-primary mb-3">Konfirmasi Hapus Member</h2>
+            <p class="text-body mb-2">Anda akan menghapus member:</p>
+            <p class="text-lg font-semibold text-primary mb-4" id="delete-member-name"></p>
+            <p class="text-body mb-8 text-red-400">⚠️ Data akan dihapus permanen dan tidak bisa dikembalikan!</p>
+            
+            <div class="flex gap-4">
+                <button id="cancel-delete-btn" class="flex-1 btn-secondary">Batal</button>
+                <button id="confirm-delete-btn" class="flex-1 btn-danger flex items-center justify-center gap-2">
+                    <span id="delete-text">Ya, Hapus</span>
+                    <div id="delete-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden Card Template for Rendering -->
     <div id="card-render-template" class="fixed -left-[9999px] top-0 w-[480px]">
          <div id="card-to-render" class="w-full text-white shadow-2xl card-bg aspect-4-3 flex flex-col p-8 border border-white/10 overflow-hidden">
@@ -974,7 +1069,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, query, where, updateDoc, getDoc, setDoc, arrayUnion, runTransaction, documentId, writeBatch, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         document.addEventListener('DOMContentLoaded', () => {
             
@@ -987,8 +1082,12 @@
             // --- Variabel Global & Cache ---
             let allMemberData = [];
             let filteredMemberData = [];
+            let allArchiveData = [];
+            let filteredArchiveData = [];
             let html5QrCode;
             let currentReportData = null; // Cache for report data for export
+            let memberToRestore = null; // Member yang akan dipulihkan
+            let memberToDelete = null; // Member yang akan dihapus
             
             // --- Pagination variables ---
             let currentPage = 1;
@@ -1006,7 +1105,7 @@
                 navigation: {
                     showAttendanceBtn: document.getElementById('show-attendance-btn'),
                     showMembersBtn: document.getElementById('show-members-btn'),
-                    showReportsBtn: document.getElementById('show-reports-btn'), // BARU
+                    showReportsBtn: document.getElementById('show-reports-btn'),
                     attendanceView: document.getElementById('attendance-view'),
                     membersView: document.getElementById('members-view'),
                     reportsView: document.getElementById('reports-view'), // BARU
@@ -1048,7 +1147,7 @@
                     archiveText: document.getElementById('archive-text'),
                     archiveSpinner: document.getElementById('archive-spinner'),
                 },
-                reports: { // BARU
+                reports: {
                     periodTitle: document.getElementById('report-period-title'),
                     filterButtons: document.getElementById('report-filter-buttons'),
                     totalIncome: document.getElementById('report-total-income'),
@@ -1061,6 +1160,31 @@
                     startDateInput: document.getElementById('report-start-date'),
                     endDateInput: document.getElementById('report-end-date'),
                     applyCustomDateBtn: document.getElementById('report-apply-custom-date'),
+                },
+                memberTabs: {
+                    activeTab: document.getElementById('tab-active-members'),
+                    archiveTab: document.getElementById('tab-archive'),
+                    activeContent: document.getElementById('active-members-tab'),
+                    archiveContent: document.getElementById('archive-tab'),
+                },
+                archive: {
+                    content: document.getElementById('archive-content'),
+                    searchInput: document.getElementById('search-archive-input'),
+                    messageDisplay: document.getElementById('archive-message-display'),
+                    restoreModal: document.getElementById('restore-confirm-modal'),
+                    confirmRestoreBtn: document.getElementById('confirm-restore-btn'),
+                    cancelRestoreBtn: document.getElementById('cancel-restore-btn'),
+                    restoreMemberName: document.getElementById('restore-member-name'),
+                    restoreText: document.getElementById('restore-text'),
+                    restoreSpinner: document.getElementById('restore-spinner'),
+                },
+                deleteMember: {
+                    modal: document.getElementById('delete-confirm-modal'),
+                    confirmBtn: document.getElementById('confirm-delete-btn'),
+                    cancelBtn: document.getElementById('cancel-delete-btn'),
+                    memberName: document.getElementById('delete-member-name'),
+                    deleteText: document.getElementById('delete-text'),
+                    deleteSpinner: document.getElementById('delete-spinner'),
                 },
                 pagination: {
                     container: document.getElementById('pagination-container'),
@@ -1355,7 +1479,7 @@
                 // Get paginated data
                 const paginatedData = getPaginatedData(filteredMemberData, currentPage, itemsPerPage);
                 
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
                 
                 if (paginatedData.length > 0) {
                     // Data sudah terurut dari sortMembersByCode, tidak perlu sort lagi
@@ -1378,17 +1502,22 @@
                         }
 
                         tableHtml += `
-                            <tr class="border-b border-gray-700 text-sm ${rowClass} member-row" data-doc-id="${member.docId}">
+                            <tr class="border-b border-gray-700 text-sm ${rowClass}" data-doc-id="${member.docId}">
                                 <td class="py-2 px-4 font-medium text-gray-400">${globalIndex}</td>
-                                <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
-                                <td class="py-2 px-4">${member.nama || 'N/A'}</td>
-                                <td class="py-2 px-4">${member.paket || 'N/A'}</td>
-                                <td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td>
-                                <td class="py-2 px-4">${isPaid ? '<span class="text-green-400">Lunas</span>' : '<span class="text-red-400">Belum Lunas</span>'}</td>
+                                <td class="py-2 px-4 font-mono member-row">${member.kodePendaftaran || '-'}</td>
+                                <td class="py-2 px-4 member-row">${member.nama || 'N/A'}</td>
+                                <td class="py-2 px-4 member-row">${member.paket || 'N/A'}</td>
+                                <td class="py-2 px-4 member-row">${formatDate(member.tanggalSelesai)}</td>
+                                <td class="py-2 px-4 member-row">${isPaid ? '<span class="text-green-400">Lunas</span>' : '<span class="text-red-400">Belum Lunas</span>'}</td>
+                                <td class="py-2 px-4">
+                                    <button class="delete-member-btn text-red-400 hover:text-red-300 p-2" data-doc-id="${member.docId}" data-member-name="${member.nama}" title="Hapus Member">
+                                        <i class="ph ph-trash text-lg"></i>
+                                    </button>
+                                </td>
                             </tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="6" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
+                    tableHtml += `<tr><td colspan="7" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 DOMElements.members.content.innerHTML = tableHtml;
@@ -1398,7 +1527,20 @@
 
                 // Add click event listeners to member rows
                 document.querySelectorAll('.member-row').forEach(row => {
-                    row.addEventListener('click', (e) => showMemberDetail(e.currentTarget.dataset.docId, 'view'));
+                    row.addEventListener('click', (e) => {
+                        const docId = e.currentTarget.closest('tr').dataset.docId;
+                        showMemberDetail(docId, 'view');
+                    });
+                });
+                
+                // Add click event listeners to delete buttons
+                document.querySelectorAll('.delete-member-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent row click
+                        const docId = e.currentTarget.dataset.docId;
+                        const memberName = e.currentTarget.dataset.memberName;
+                        showDeleteConfirmation(docId, memberName);
+                    });
                 });
             }
 
@@ -1481,6 +1623,39 @@
                                             <p class="font-semibold text-gray-300">Riwayat Cuti:</p>
                                         </div>
                                     </div>
+                                    
+                                    <hr class="border-gray-700 my-4">
+                                    <div>
+                                        <h4 class="font-bold text-white mb-2">📊 Riwayat Kunjungan</h4>
+                                        <p class="text-xs text-gray-400 mb-3">Histori check-in dan check-out member di gym</p>
+                                        
+                                        <!-- Statistik Kunjungan -->
+                                        <div id="visit-stats" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                            <div class="bg-gray-800/50 p-3 rounded-lg text-center">
+                                                <p class="text-xs text-gray-400">Total</p>
+                                                <p class="text-xl font-bold text-white" id="total-visits">-</p>
+                                            </div>
+                                            <div class="bg-gray-800/50 p-3 rounded-lg text-center">
+                                                <p class="text-xs text-gray-400">Bulan Ini</p>
+                                                <p class="text-xl font-bold text-green-400" id="month-visits">-</p>
+                                            </div>
+                                            <div class="bg-gray-800/50 p-3 rounded-lg text-center">
+                                                <p class="text-xs text-gray-400">Minggu Ini</p>
+                                                <p class="text-xl font-bold text-blue-400" id="week-visits">-</p>
+                                            </div>
+                                            <div class="bg-gray-800/50 p-3 rounded-lg text-center">
+                                                <p class="text-xs text-gray-400">Rata-rata</p>
+                                                <p class="text-xl font-bold text-purple-400" id="avg-visits">-</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Tabel Riwayat -->
+                                        <div id="visit-history" class="mt-4">
+                                            <div class="flex items-center justify-center py-8">
+                                                <p class="text-gray-400 text-sm">Memuat riwayat kunjungan...</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>`;
@@ -1520,6 +1695,205 @@
                         cutiHistoryContainer.innerHTML += historyHtml;
                     } else if (cutiHistoryContainer) {
                          cutiHistoryContainer.innerHTML += '<p class="text-gray-500 mt-2">Belum ada riwayat cuti.</p>';
+                    }
+                    
+                    // Load riwayat kunjungan
+                    loadMemberVisitHistory(member.kodePendaftaran);
+                }
+            }
+            
+            // Variables for visit history pagination
+            let currentVisitPage = 1;
+            const visitsPerPage = 15;
+            let allMemberVisits = [];
+            
+            async function loadMemberVisitHistory(kodePendaftaran) {
+                try {
+                    const visitHistoryContainer = document.getElementById('visit-history');
+                    if (!visitHistoryContainer) return;
+                    
+                    visitHistoryContainer.innerHTML = '<div class="flex items-center justify-center py-8"><p class="text-gray-400 text-sm">Memuat riwayat kunjungan...</p></div>';
+                    
+                    // Query all attendance records
+                    const attendanceQuery = query(collection(db, "daily_attendance"));
+                    const querySnapshot = await getDocs(attendanceQuery);
+                    
+                    // Filter entries for this member
+                    allMemberVisits = [];
+                    querySnapshot.forEach(doc => {
+                        const date = doc.id;
+                        const entries = doc.data().entries || [];
+                        entries.forEach(entry => {
+                            if (entry.type === 'Member' && entry.kodePendaftaran === kodePendaftaran) {
+                                allMemberVisits.push({
+                                    date: date,
+                                    checkin: entry.waktuCheckin,
+                                    checkout: entry.waktuCheckout,
+                                    nama: entry.nama
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Sort by date descending (newest first)
+                    allMemberVisits.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    // Calculate statistics
+                    const now = new Date();
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay());
+                    
+                    const totalVisits = allMemberVisits.length;
+                    const monthVisits = allMemberVisits.filter(v => new Date(v.date) >= startOfMonth).length;
+                    const weekVisits = allMemberVisits.filter(v => new Date(v.date) >= startOfWeek).length;
+                    
+                    // Calculate average per week (based on total visits and weeks since first visit)
+                    let avgVisits = 0;
+                    if (allMemberVisits.length > 0) {
+                        const firstVisit = new Date(allMemberVisits[allMemberVisits.length - 1].date);
+                        const daysSinceFirst = Math.floor((now - firstVisit) / (1000 * 60 * 60 * 24));
+                        const weeksSinceFirst = Math.max(1, Math.floor(daysSinceFirst / 7));
+                        avgVisits = (totalVisits / weeksSinceFirst).toFixed(1);
+                    }
+                    
+                    // Update statistics
+                    document.getElementById('total-visits').textContent = totalVisits + 'x';
+                    document.getElementById('month-visits').textContent = monthVisits + 'x';
+                    document.getElementById('week-visits').textContent = weekVisits + 'x';
+                    document.getElementById('avg-visits').textContent = avgVisits + 'x/minggu';
+                    
+                    // Reset to first page
+                    currentVisitPage = 1;
+                    
+                    // Render table with pagination
+                    renderVisitHistoryTable();
+                    
+                } catch (error) {
+                    console.error("Error loading visit history:", error);
+                    const visitHistoryContainer = document.getElementById('visit-history');
+                    if (visitHistoryContainer) {
+                        visitHistoryContainer.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Gagal memuat riwayat kunjungan</p>`;
+                    }
+                }
+            }
+            
+            function renderVisitHistoryTable() {
+                const visitHistoryContainer = document.getElementById('visit-history');
+                if (!visitHistoryContainer) return;
+                
+                if (allMemberVisits.length === 0) {
+                    visitHistoryContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-700/30 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <i class="ph ph-calendar-x text-2xl text-gray-500"></i>
+                            </div>
+                            <p class="text-gray-400 text-sm">Belum ada riwayat kunjungan</p>
+                        </div>`;
+                    return;
+                }
+                
+                // Calculate pagination
+                const totalPages = Math.ceil(allMemberVisits.length / visitsPerPage);
+                const startIndex = (currentVisitPage - 1) * visitsPerPage;
+                const endIndex = startIndex + visitsPerPage;
+                const visitsToShow = allMemberVisits.slice(startIndex, endIndex);
+                
+                let tableHtml = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-700/50">
+                                <tr>
+                                    <th class="py-2 px-3">No</th>
+                                    <th class="py-2 px-3">Tanggal</th>
+                                    <th class="py-2 px-3">Check-in</th>
+                                    <th class="py-2 px-3">Check-out</th>
+                                    <th class="py-2 px-3">Durasi</th>
+                                    <th class="py-2 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                visitsToShow.forEach((visit, index) => {
+                    const visitDate = new Date(visit.date);
+                    const checkinTime = visit.checkin ? new Date(visit.checkin.seconds * 1000) : null;
+                    const checkoutTime = visit.checkout ? new Date(visit.checkout.seconds * 1000) : null;
+                    
+                    const dateStr = visitDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const checkinStr = checkinTime ? checkinTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+                    const checkoutStr = checkoutTime ? checkoutTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+                    
+                    let duration = '-';
+                    let statusBadge = '<span class="text-yellow-400">Ongoing</span>';
+                    
+                    if (checkinTime && checkoutTime) {
+                        const durationMs = checkoutTime - checkinTime;
+                        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                        duration = `${hours}j ${minutes}m`;
+                        statusBadge = '<span class="text-green-400">Selesai</span>';
+                    }
+                    
+                    tableHtml += `
+                        <tr class="border-b border-gray-700 hover:bg-gray-800/30">
+                            <td class="py-2 px-3 text-gray-400">${startIndex + index + 1}</td>
+                            <td class="py-2 px-3">${dateStr}</td>
+                            <td class="py-2 px-3">${checkinStr}</td>
+                            <td class="py-2 px-3">${checkoutStr}</td>
+                            <td class="py-2 px-3">${duration}</td>
+                            <td class="py-2 px-3">${statusBadge}</td>
+                        </tr>`;
+                });
+                
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>`;
+                
+                // Add pagination controls
+                if (totalPages > 1) {
+                    tableHtml += `
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-700">
+                            <div class="text-xs text-gray-400">
+                                Menampilkan ${startIndex + 1}-${Math.min(endIndex, allMemberVisits.length)} dari ${allMemberVisits.length} kunjungan
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="visit-prev-btn" class="pagination-btn ${currentVisitPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentVisitPage === 1 ? 'disabled' : ''}>
+                                    <i class="ph ph-caret-left"></i>
+                                </button>
+                                <span class="text-sm text-gray-300 px-3 py-1">
+                                    ${currentVisitPage} / ${totalPages}
+                                </span>
+                                <button id="visit-next-btn" class="pagination-btn ${currentVisitPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" ${currentVisitPage === totalPages ? 'disabled' : ''}>
+                                    <i class="ph ph-caret-right"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                }
+                
+                visitHistoryContainer.innerHTML = tableHtml;
+                
+                // Add event listeners for pagination
+                if (totalPages > 1) {
+                    const prevBtn = document.getElementById('visit-prev-btn');
+                    const nextBtn = document.getElementById('visit-next-btn');
+                    
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => {
+                            if (currentVisitPage > 1) {
+                                currentVisitPage--;
+                                renderVisitHistoryTable();
+                            }
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => {
+                            if (currentVisitPage < totalPages) {
+                                currentVisitPage++;
+                                renderVisitHistoryTable();
+                            }
+                        });
                     }
                 }
             }
@@ -1904,6 +2278,167 @@
                     archiveText.textContent = 'Ya, Arsipkan';
                     archiveSpinner.classList.add('hidden');
                     DOMElements.members.archiveConfirmModal.classList.add('hidden');
+                }
+            }
+
+            // --- FUNGSI RUANG ARSIP ---
+            
+            async function loadArchiveData() {
+                try {
+                    DOMElements.archive.content.innerHTML = `<div class="flex items-center justify-center py-12"><p class="text-body">Memuat data arsip...</p></div>`;
+                    
+                    const querySnapshot = await getDocs(collection(db, "arsip_member"));
+                    allArchiveData = querySnapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+                    
+                    // Sort berdasarkan nomor member
+                    allArchiveData = sortMembersByCode(allArchiveData);
+                    
+                    renderArchiveTable();
+                } catch (error) {
+                    console.error("Error loading archive data:", error);
+                    DOMElements.archive.content.innerHTML = `<p class="text-red-500 text-center py-12">Gagal memuat data arsip.</p>`;
+                }
+            }
+            
+            function renderArchiveTable(archiveToRender = allArchiveData) {
+                filteredArchiveData = archiveToRender;
+                
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
+                
+                if (filteredArchiveData.length > 0) {
+                    filteredArchiveData.forEach((member, index) => {
+                        tableHtml += `
+                            <tr class="border-b border-gray-700 text-sm hover:bg-gray-800/50">
+                                <td class="py-2 px-4 font-medium text-gray-400">${index + 1}</td>
+                                <td class="py-2 px-4 font-mono">${member.kodePendaftaran || '-'}</td>
+                                <td class="py-2 px-4">${member.nama || 'N/A'}</td>
+                                <td class="py-2 px-4">${member.paket || 'N/A'}</td>
+                                <td class="py-2 px-4">${formatDate(member.tanggalSelesai)}</td>
+                                <td class="py-2 px-4">
+                                    <button class="restore-member-btn btn-success text-xs py-1 px-3" data-doc-id="${member.docId}" data-member-name="${member.nama}">
+                                        <i class="ph ph-arrow-counter-clockwise"></i> Pulihkan
+                                    </button>
+                                </td>
+                            </tr>`;
+                    });
+                } else {
+                    tableHtml += `<tr><td colspan="6" class="text-center py-8 text-gray-400">Tidak ada member di arsip.</td></tr>`;
+                }
+                tableHtml += `</tbody></table></div>`;
+                DOMElements.archive.content.innerHTML = tableHtml;
+                
+                // Add event listeners to restore buttons
+                document.querySelectorAll('.restore-member-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const docId = e.currentTarget.dataset.docId;
+                        const memberName = e.currentTarget.dataset.memberName;
+                        showRestoreConfirmation(docId, memberName);
+                    });
+                });
+            }
+            
+            function showRestoreConfirmation(docId, memberName) {
+                memberToRestore = docId;
+                DOMElements.archive.restoreMemberName.textContent = memberName;
+                DOMElements.archive.restoreModal.classList.remove('hidden');
+            }
+            
+            async function restoreMember() {
+                if (!memberToRestore) return;
+                
+                const restoreBtn = DOMElements.archive.confirmRestoreBtn;
+                const restoreText = DOMElements.archive.restoreText;
+                const restoreSpinner = DOMElements.archive.restoreSpinner;
+                const messageDisplay = DOMElements.archive.messageDisplay;
+                
+                restoreBtn.disabled = true;
+                restoreText.textContent = 'Memulihkan...';
+                restoreSpinner.classList.remove('hidden');
+                messageDisplay.innerHTML = '';
+                
+                try {
+                    const archiveRef = doc(db, "arsip_member", memberToRestore);
+                    const memberRef = doc(db, "pendaftaran_member", memberToRestore);
+                    
+                    // Get archived data
+                    const archiveDoc = await getDoc(archiveRef);
+                    if (!archiveDoc.exists()) {
+                        throw new Error("Data arsip tidak ditemukan");
+                    }
+                    
+                    const memberData = archiveDoc.data();
+                    
+                    // Restore to active members
+                    const batch = writeBatch(db);
+                    batch.set(memberRef, { ...memberData, isArchived: false });
+                    batch.delete(archiveRef);
+                    await batch.commit();
+                    
+                    messageDisplay.innerHTML = `<div class="alert alert-success">Member berhasil dipulihkan ke daftar aktif!</div>`;
+                    
+                    // Reload data
+                    await loadArchiveData();
+                    await loadMemberData();
+                    
+                    setTimeout(() => {
+                        messageDisplay.innerHTML = '';
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error("Error restoring member:", error);
+                    messageDisplay.innerHTML = `<div class="alert alert-error">Gagal memulihkan member. Silakan coba lagi.</div>`;
+                } finally {
+                    restoreBtn.disabled = false;
+                    restoreText.textContent = 'Ya, Pulihkan';
+                    restoreSpinner.classList.add('hidden');
+                    DOMElements.archive.restoreModal.classList.add('hidden');
+                    memberToRestore = null;
+                }
+            }
+            
+            // --- FUNGSI DELETE MEMBER ---
+            
+            function showDeleteConfirmation(docId, memberName) {
+                memberToDelete = docId;
+                DOMElements.deleteMember.memberName.textContent = memberName;
+                DOMElements.deleteMember.modal.classList.remove('hidden');
+            }
+            
+            async function deleteMember() {
+                if (!memberToDelete) return;
+                
+                const deleteBtn = DOMElements.deleteMember.confirmBtn;
+                const deleteText = DOMElements.deleteMember.deleteText;
+                const deleteSpinner = DOMElements.deleteMember.deleteSpinner;
+                
+                deleteBtn.disabled = true;
+                deleteText.textContent = 'Menghapus...';
+                deleteSpinner.classList.remove('hidden');
+                
+                try {
+                    const memberRef = doc(db, "pendaftaran_member", memberToDelete);
+                    
+                    // Delete from Firestore
+                    await deleteDoc(memberRef);
+                    
+                    // Remove from local array
+                    allMemberData = allMemberData.filter(m => m.docId !== memberToDelete);
+                    
+                    // Show success message
+                    alert('Member berhasil dihapus!');
+                    
+                    // Reload data and refresh table
+                    await loadMemberData();
+                    
+                } catch (error) {
+                    console.error("Error deleting member:", error);
+                    alert('Gagal menghapus member. Silakan coba lagi.');
+                } finally {
+                    deleteBtn.disabled = false;
+                    deleteText.textContent = 'Ya, Hapus';
+                    deleteSpinner.classList.add('hidden');
+                    DOMElements.deleteMember.modal.classList.add('hidden');
+                    memberToDelete = null;
                 }
             }
 
@@ -2516,6 +3051,25 @@
                     }
                 }
             }
+            
+            function switchMemberTab(tabToShow) {
+                // Hide all tabs
+                DOMElements.memberTabs.activeContent.classList.add('hidden');
+                DOMElements.memberTabs.archiveContent.classList.add('hidden');
+                
+                // Remove active class from all buttons
+                DOMElements.memberTabs.activeTab.classList.remove('active');
+                DOMElements.memberTabs.archiveTab.classList.remove('active');
+                
+                if (tabToShow === 'active') {
+                    DOMElements.memberTabs.activeContent.classList.remove('hidden');
+                    DOMElements.memberTabs.activeTab.classList.add('active');
+                } else if (tabToShow === 'archive') {
+                    DOMElements.memberTabs.archiveContent.classList.remove('hidden');
+                    DOMElements.memberTabs.archiveTab.classList.add('active');
+                    loadArchiveData();
+                }
+            }
 
             // --- EVENT LISTENERS & LOGIKA UTAMA ---
             DOMElements.loginForm.addEventListener('submit', (e) => {
@@ -2541,6 +3095,10 @@
             DOMElements.navigation.showAttendanceBtn.addEventListener('click', () => switchView('attendance'));
             DOMElements.navigation.showMembersBtn.addEventListener('click', () => switchView('members'));
             DOMElements.navigation.showReportsBtn.addEventListener('click', () => switchView('reports'));
+            
+            // Member tab switching
+            DOMElements.memberTabs.activeTab.addEventListener('click', () => switchMemberTab('active'));
+            DOMElements.memberTabs.archiveTab.addEventListener('click', () => switchMemberTab('archive'));
 
             // Fungsi filter dan search member
             function applyMemberFilters() {
@@ -2654,6 +3212,35 @@
                 DOMElements.members.archiveConfirmModal.classList.add('hidden');
             });
             DOMElements.members.confirmArchiveBtn.addEventListener('click', archiveInactiveMembers);
+            
+            // Archive event listeners
+            DOMElements.archive.searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                if (!searchTerm) {
+                    renderArchiveTable(allArchiveData);
+                    return;
+                }
+                const filteredArchive = allArchiveData.filter(member => 
+                    member.nama.toLowerCase().includes(searchTerm) || 
+                    member.kodePendaftaran.toLowerCase().includes(searchTerm)
+                );
+                renderArchiveTable(filteredArchive);
+            });
+            
+            DOMElements.archive.cancelRestoreBtn.addEventListener('click', () => {
+                DOMElements.archive.restoreModal.classList.add('hidden');
+                memberToRestore = null;
+            });
+            
+            DOMElements.archive.confirmRestoreBtn.addEventListener('click', restoreMember);
+            
+            // Delete member event listeners
+            DOMElements.deleteMember.cancelBtn.addEventListener('click', () => {
+                DOMElements.deleteMember.modal.classList.add('hidden');
+                memberToDelete = null;
+            });
+            
+            DOMElements.deleteMember.confirmBtn.addEventListener('click', deleteMember);
             
             DOMElements.reports.filterButtons.addEventListener('click', (e) => {
                 if (e.target.classList.contains('report-period-btn')) {
