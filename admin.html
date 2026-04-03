@@ -14,6 +14,9 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Shared gym logic -->
+    <script src="config/gym-config.js"></script>
+    <script src="config/gym-logic.js"></script>
     <style>
         :root {
             --bg-primary: #0a0a0b;
@@ -729,6 +732,12 @@
                                     <option value="belum">Belum Bayar</option>
                                     <option value="expired">Expired</option>
                                     <option value="aktif">Aktif</option>
+                                </select>
+                                <!-- ── FILTER GENDER TAB ── -->
+                                <select id="filter-gymtype" class="px-4 py-2 sm:w-44">
+                                    <option value="">Semua Sesi</option>
+                                    <option value="akhwat">Akhwat</option>
+                                    <option value="ikhwan">Ikhwan</option>
                                 </select>
                             </div>
                             
@@ -1479,10 +1488,9 @@
                 // Get paginated data
                 const paginatedData = getPaginatedData(filteredMemberData, currentPage, itemsPerPage);
                 
-                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
+                let tableHtml = `<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-700/50"><tr><th class="py-2 px-4">No</th><th class="py-2 px-4">No. Member</th><th class="py-2 px-4">Nama Lengkap</th><th class="py-2 px-4">Sesi</th><th class="py-2 px-4">Paket</th><th class="py-2 px-4">Tanggal Selesai</th><th class="py-2 px-4">Status Bayar</th><th class="py-2 px-4">Aksi</th></tr></thead><tbody>`;
                 
                 if (paginatedData.length > 0) {
-                    // Data sudah terurut dari sortMembersByCode, tidak perlu sort lagi
                     paginatedData.forEach((member, index) => {
                         const isPaid = member.statusPembayaran === true;
                         const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;
@@ -1492,20 +1500,28 @@
                             rowClass = 'unpaid-row';
                         } else {
                             const now = new Date();
-                            const expiryDate = member.tanggalSelesai.toDate();
-                            const timeDiff = expiryDate.getTime() - now.getTime();
-                            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-                            if (dayDiff >= 0 && dayDiff <= 1) { 
-                                rowClass = 'expiring-row';
+                            const expiryDate = member.tanggalSelesai?.seconds
+                                ? new Date(member.tanggalSelesai.seconds * 1000)
+                                : (member.tanggalSelesai?.toDate ? member.tanggalSelesai.toDate() : null);
+                            if (expiryDate) {
+                                const dayDiff = Math.ceil((expiryDate - now) / (1000 * 3600 * 24));
+                                if (dayDiff >= 0 && dayDiff <= 1) rowClass = 'expiring-row';
                             }
                         }
+
+                        // ── Badge gymType ─────────────────────────────────────
+                        const gymType = member.gymType || 'akhwat';
+                        const gymBadge = gymType === 'ikhwan'
+                            ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-500/15 border border-blue-500/25 text-blue-300"><i class="ph ph-gender-male"></i>Ikhwan</span>`
+                            : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-pink-500/15 border border-pink-500/25 text-pink-300"><i class="ph ph-gender-female"></i>Akhwat</span>`;
+                        // ── END badge ─────────────────────────────────────────
 
                         tableHtml += `
                             <tr class="border-b border-gray-700 text-sm ${rowClass}" data-doc-id="${member.docId}">
                                 <td class="py-2 px-4 font-medium text-gray-400">${globalIndex}</td>
                                 <td class="py-2 px-4 font-mono member-row">${member.kodePendaftaran || '-'}</td>
                                 <td class="py-2 px-4 member-row">${member.nama || 'N/A'}</td>
+                                <td class="py-2 px-4">${gymBadge}</td>
                                 <td class="py-2 px-4 member-row">${member.paket || 'N/A'}</td>
                                 <td class="py-2 px-4 member-row">${formatDate(member.tanggalSelesai)}</td>
                                 <td class="py-2 px-4 member-row">${isPaid ? '<span class="text-green-400">Lunas</span>' : '<span class="text-red-400">Belum Lunas</span>'}</td>
@@ -1517,7 +1533,7 @@
                             </tr>`;
                     });
                 } else {
-                    tableHtml += `<tr><td colspan="7" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
+                    tableHtml += `<tr><td colspan="8" class="text-center py-4 text-gray-400">Tidak ada member yang cocok.</td></tr>`;
                 }
                 tableHtml += `</tbody></table></div>`;
                 DOMElements.members.content.innerHTML = tableHtml;
@@ -2030,6 +2046,17 @@
                                 return;
                             }
 
+                            // ── VALIDASI JAM OPERASIONAL ──────────────────────────
+                            const gymType  = memberData.gymType || "akhwat";
+                            const gender   = memberData.gender  || "female";
+                            const gymConf  = GYM_CONFIG[gymType] || GYM_CONFIG.akhwat;
+                            const validasi = validasiJamCheckin(gender, gymConf.operasionalJam, now);
+                            if (!validasi.isValid) {
+                                showAttendanceResult('error', { nama: memberData.nama, message: validasi.pesan });
+                                return;
+                            }
+                            // ── END VALIDASI JAM ──────────────────────────────────
+
                             const newEntry = {
                                 id: Date.now(),
                                 type: 'Member',
@@ -2095,15 +2122,20 @@
                 try {
                     const querySnapshot = await getDocs(collection(db, "pendaftaran_member"));
                     allMemberData = querySnapshot.docs
-                        .map((doc, index) => ({ docId: doc.id, index, ...doc.data() }))
+                        .map((doc, index) => {
+                            const data = doc.data();
+                            // ── FALLBACK LEGACY DATA ──────────────────────────────
+                            // Semua data lama tanpa gymType otomatis dianggap akhwat
+                            if (!data.gymType) {
+                                data.gymType = "akhwat";
+                                data.gender  = "female";
+                            }
+                            return { docId: doc.id, index, ...data };
+                        })
                         .filter(member => member.isArchived !== true);
                     
-                    // Sort berdasarkan nomor member menggunakan fungsi sortMembersByCode
                     allMemberData = sortMembersByCode(allMemberData);
-                    
-                    // Reset current page when loading new data
                     currentPage = 1;
-                    
                     updateSummary();
                     renderMemberTable();
                 } catch (error) {
@@ -3102,26 +3134,29 @@
 
             // Fungsi filter dan search member
             function applyMemberFilters() {
-                const searchTerm = DOMElements.members.searchInput.value.toLowerCase();
-                const filterPaket = document.getElementById('filter-paket').value;
+                const searchTerm   = DOMElements.members.searchInput.value.toLowerCase();
+                const filterPaket  = document.getElementById('filter-paket').value;
                 const filterStatus = document.getElementById('filter-status').value;
+                const filterGym    = document.getElementById('filter-gymtype').value; // ← BARU
                 
                 currentPage = 1;
                 
                 let filteredMembers = allMemberData.filter(member => {
                     // Filter search
                     const matchSearch = !searchTerm || 
-                        member.nama.toLowerCase().includes(searchTerm) || 
-                        member.kodePendaftaran.toLowerCase().includes(searchTerm);
+                        (member.nama || '').toLowerCase().includes(searchTerm) || 
+                        (member.kodePendaftaran || '').toLowerCase().includes(searchTerm);
                     
                     // Filter paket
-                    const matchPaket = !filterPaket || member.paket.includes(filterPaket);
+                    const matchPaket = !filterPaket || (member.paket || '').includes(filterPaket);
                     
                     // Filter status
                     let matchStatus = true;
                     if (filterStatus) {
                         const now = new Date();
-                        const tanggalSelesai = member.tanggalSelesai?.toDate();
+                        const tanggalSelesai = member.tanggalSelesai?.toDate
+                            ? member.tanggalSelesai.toDate()
+                            : (member.tanggalSelesai?.seconds ? new Date(member.tanggalSelesai.seconds * 1000) : null);
                         
                         if (filterStatus === 'lunas') {
                             matchStatus = member.statusPembayaran === true;
@@ -3133,19 +3168,23 @@
                             matchStatus = tanggalSelesai && tanggalSelesai >= now && member.statusPembayaran === true;
                         }
                     }
+
+                    // ── Filter gymType (Akhwat / Ikhwan) ─────────────────────
+                    // gymType sudah di-normalize saat loadMemberData (fallback ke "akhwat")
+                    const matchGym = !filterGym || (member.gymType || 'akhwat') === filterGym;
+                    // ── END filter gymType ────────────────────────────────────
                     
-                    return matchSearch && matchPaket && matchStatus;
+                    return matchSearch && matchPaket && matchStatus && matchGym;
                 });
                 
-                // Sort hasil filter berdasarkan nomor member
                 filteredMembers = sortMembersByCode(filteredMembers);
-                
                 renderMemberTable(filteredMembers);
             }
             
             DOMElements.members.searchInput.addEventListener('input', applyMemberFilters);
             document.getElementById('filter-paket').addEventListener('change', applyMemberFilters);
             document.getElementById('filter-status').addEventListener('change', applyMemberFilters);
+            document.getElementById('filter-gymtype').addEventListener('change', applyMemberFilters); // ← BARU
 
             DOMElements.members.exportBtn.addEventListener('click', () => {
                 const dataForExport = allMemberData.map(m => ({ 

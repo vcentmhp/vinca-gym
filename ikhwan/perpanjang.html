@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpanjang Membership Ikhwan — Vinca Gym</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --accent: #3B82F6;
+      --accent-soft: #93C5FD;
+      --accent-dim: rgba(59,130,246,0.12);
+      --bg: #0f0f0f;
+      --bg-card: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: #e0e0e0; min-height: 100vh; }
+    .card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); }
+    .btn-primary { background: var(--accent); color: #fff; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-primary:hover:not(:disabled) { background: #2563eb; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: #374151; color: #fff; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-secondary:hover { background: #4b5563; }
+    input { background: #1f2937; border: 1px solid #374151; color: #fff; transition: border-color 0.2s; }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .paket-card { cursor: pointer; border: 2px solid #374151; border-radius: 0.75rem; transition: all 0.2s; }
+    .paket-card:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .paket-card.selected { border-color: var(--accent); background: var(--accent-dim); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .copy-btn { background: transparent; border: none; cursor: pointer; color: #6b7280; transition: color 0.2s; }
+    .copy-btn:hover { color: #fff; }
+    .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.2s; }
+    .copy-btn:hover .tooltip { visibility: visible; opacity: 1; }
+    .voucher-section { border: 1px dashed #374151; border-radius: 0.75rem; background: #111827; padding: 1rem; }
+    .voucher-success { border-color: #10b981; background: rgba(16,185,129,0.08); }
+    .voucher-error   { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+    .voucher-hidden  { display: none; }
+    .voucher-link    { color: #60a5fa; text-decoration: underline; cursor: pointer; font-size: 0.875rem; }
+    .voucher-link:hover { color: #93c5fd; }
+    .discount-highlight { color: #10b981; font-weight: 600; }
+    .original-price { text-decoration: line-through; color: #6b7280; }
+    /* Denda warning row */
+    .denda-row { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 0.5rem; padding: 0.5rem 0.75rem; }
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- Header -->
+<header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 border-b border-white/5">
+  <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <a href="../ikhwan/index.html" class="flex items-center gap-3 text-xl font-bold text-white">
+      <img src="../logo.png" alt="Vinca Gym" class="h-9 w-auto">
+      <span>Vinca Gym <span class="text-blue-400 font-normal text-base">Ikhwan</span></span>
+    </a>
+    <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+      <i class="ph ph-arrow-left"></i> Ganti Sesi
+    </a>
+  </nav>
+</header>
+
+<main class="min-h-screen flex items-center justify-center py-12 px-4">
+
+  <!-- TAHAP 1: Verifikasi Member -->
+  <div id="verifikasi-container" class="card p-8 w-full max-w-md text-center">
+    <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
+      <i class="ph ph-identification-card text-blue-400 text-2xl"></i>
+    </div>
+    <h1 class="text-2xl font-bold text-white mb-2">Perpanjang Membership</h1>
+    <p class="text-gray-400 text-sm mb-6">Masukkan No. Member Ikhwan Anda (format: VGI-S0001)</p>
+    <form id="verifikasi-form">
+      <div class="mb-4 text-left">
+        <label for="no-member" class="block text-sm font-medium text-gray-300 mb-1">No. Member</label>
+        <input type="text" id="no-member"
+          class="w-full px-3 py-2 rounded-lg font-mono uppercase"
+          placeholder="VGI-S0001" required>
+      </div>
+      <button type="submit" id="submit-verifikasi"
+        class="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2">
+        <span id="verifikasi-text">Cari Member</span>
+        <div id="verifikasi-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+      </button>
+      <p id="verifikasi-error" class="text-red-400 text-sm mt-3 hidden"></p>
+    </form>
+  </div>
+
+  <!-- TAHAP 2: Pilih Paket & Rincian -->
+  <div id="perpanjang-container" class="hidden w-full max-w-2xl">
+    <div class="card p-8">
+      <!-- Info Member -->
+      <div class="flex items-start gap-4 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="ph ph-user text-blue-400 text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white">Selamat Datang, <span id="nama-member" class="text-blue-400"></span></h1>
+          <p class="text-sm text-gray-400 mt-0.5">No. Member: <span id="kode-member-display" class="font-mono text-gray-300"></span></p>
+          <p class="text-sm text-gray-400">Membership berakhir: <strong id="tanggal-selesai-lama" class="text-white"></strong></p>
+        </div>
+      </div>
+
+      <!-- Status expired warning -->
+      <div id="expired-warning" class="hidden mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
+        <i class="ph ph-warning-circle text-lg flex-shrink-0"></i>
+        <span id="expired-warning-text"></span>
+      </div>
+
+      <hr class="border-gray-700 mb-6">
+
+      <!-- Pilih Paket -->
+      <h2 class="text-base font-semibold text-gray-300 mb-3 uppercase tracking-wide">Pilih Paket Perpanjangan</h2>
+      <div id="paket-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <!-- Diisi JS -->
+      </div>
+
+      <!-- Rincian Biaya -->
+      <div id="rincian-container" class="hidden bg-gray-900/50 p-5 rounded-xl border border-gray-700/50 mb-4">
+        <h2 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Rincian Biaya</h2>
+        <div class="space-y-2 text-sm text-gray-300">
+          <div class="flex justify-between">
+            <span>Paket Pilihan:</span>
+            <strong id="paket-pilihan-nama" class="text-white"></strong>
+          </div>
+          <div class="flex justify-between">
+            <span>Harga Paket:</span>
+            <span id="paket-harga-display">Rp 0</span>
+          </div>
+          <!-- Baris denda — hidden by default, muncul jika expired > 90 hari -->
+          <div id="denda-row" class="hidden denda-row flex justify-between items-center">
+            <span class="flex items-center gap-1 text-amber-400">
+              <i class="ph ph-warning"></i>
+              <span id="denda-label">Biaya Daftar Ulang (Telat &gt; 3 Bulan)</span>
+            </span>
+            <span id="denda-amount" class="text-amber-400 font-semibold">Rp 80.000</span>
+          </div>
+          <div id="voucher-discount-container" class="flex justify-between hidden">
+            <span>Diskon Voucher:</span>
+            <span id="voucher-discount-amount" class="discount-highlight">-Rp 0</span>
+          </div>
+          <hr class="border-gray-700 my-1">
+          <div class="flex justify-between text-base font-bold">
+            <span class="text-white">Total Bayar:</span>
+            <div class="flex items-center gap-2">
+              <span id="total-original" class="original-price text-xs hidden"></span>
+              <span id="total-bayar-perpanjang" class="text-white">Rp 0</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <span class="voucher-link" id="show-voucher-link">Ada kode voucher? Klik di sini</span>
+        </div>
+        <button id="submit-perpanjang"
+          class="w-full btn-primary py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
+          <span id="perpanjang-text">Lanjutkan ke Pembayaran</span>
+          <div id="perpanjang-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+        </button>
+      </div>
+
+      <!-- Voucher Section -->
+      <div class="voucher-section voucher-hidden" id="voucher-section">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-white font-semibold text-sm">Kode Voucher</h3>
+          <button id="close-voucher-btn" class="text-gray-400 hover:text-white"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="voucher-code" class="flex-1 px-3 py-2 rounded-lg text-sm uppercase" placeholder="Masukkan kode voucher">
+          <button id="apply-voucher-btn" class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-1">
+            <span id="voucher-btn-text">Terapkan</span>
+            <div id="voucher-spinner" class="w-4 h-4 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+          </button>
+        </div>
+        <div id="voucher-message" class="mt-2 text-xs hidden"></div>
+        <div id="voucher-details" class="mt-3 p-3 bg-green-900/20 rounded-lg border border-green-500/30 hidden">
+          <div class="flex items-center gap-2 text-green-400 text-sm">
+            <i class="ph ph-check-circle"></i>
+            <span class="font-semibold">Voucher Berhasil Diterapkan!</span>
+          </div>
+          <div id="voucher-info" class="mt-1 text-xs text-green-300"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP 3: Sukses -->
+  <div id="success-message" class="hidden text-center max-w-lg w-full">
+    <div class="mx-auto bg-green-900/40 w-20 h-20 rounded-full flex items-center justify-center border-2 border-green-500 mb-6">
+      <i class="ph ph-check-fat text-5xl text-green-400"></i>
+    </div>
+    <h1 class="text-3xl font-bold text-white">Perpanjangan Berhasil!</h1>
+    <p class="text-gray-400 mt-2">Silakan lakukan pembayaran untuk mengaktifkan perpanjangan Anda.</p>
+
+    <div id="payment-info" class="card p-6 mt-6 text-left">
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-sm text-gray-400">No. Member Anda:</p>
+        <button id="copy-kode-btn" class="copy-btn relative">
+          <i class="ph ph-copy"></i>
+          <span class="tooltip absolute -top-8 right-0 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">Salin</span>
+        </button>
+      </div>
+      <p id="kode-sukses" class="font-mono text-2xl font-bold text-blue-400 mb-4"></p>
+
+      <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700 mb-4">
+        <h3 class="font-semibold text-white mb-3 text-sm">Rincian Pembayaran</h3>
+        <div class="space-y-2 text-sm text-gray-300">
+          <div class="flex justify-between"><span>Paket:</span><span id="s-paket-nama" class="text-white font-medium"></span></div>
+          <div class="flex justify-between"><span>Harga Paket:</span><span id="s-paket-harga"></span></div>
+          <div id="s-denda-row" class="flex justify-between hidden">
+            <span class="text-amber-400">Biaya Daftar Ulang:</span>
+            <span id="s-denda-amount" class="text-amber-400 font-semibold"></span>
+          </div>
+          <div id="s-voucher-row" class="flex justify-between hidden">
+            <span>Diskon Voucher:</span>
+            <span id="s-voucher-discount" class="text-green-400"></span>
+          </div>
+          <hr class="border-gray-700 my-1">
+          <div class="flex justify-between font-semibold text-base">
+            <span>Total:</span>
+            <span id="s-total" class="text-blue-400"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-gray-700 mb-4">
+      <h3 class="font-semibold text-white mb-3 text-sm">Metode Pembayaran:</h3>
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <div class="w-full md:w-1/2 flex flex-col items-center">
+          <img src="../qris-logo.png" alt="QRIS" class="h-6 mb-2">
+          <img src="../qris-code.png" alt="QRIS Code" class="rounded-lg w-36 h-36 border-4 border-white">
+        </div>
+        <div class="w-full md:w-1/2 flex flex-col items-center md:items-start">
+          <img src="../bca-logo.png" alt="BCA" class="h-6 mb-2">
+          <p class="font-semibold text-white">Bank BCA</p>
+          <div class="flex items-center gap-2">
+            <p class="font-mono text-lg text-white">4060622839</p>
+            <button id="copy-rekening-btn" class="copy-btn relative">
+              <i class="ph ph-copy"></i>
+              <span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">Salin</span>
+            </button>
+          </div>
+          <p class="text-gray-400 text-sm">a.n. RIMA RIZKY AMELIA</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-4 text-center italic">
+        Harap konfirmasi dan kirimkan foto bukti transfer via WhatsApp kami. Barakallahu fiik.
+      </p>
+    </div>
+
+    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+      <button id="download-btn" class="w-full bg-gray-700 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors">
+        <i id="download-icon" class="ph ph-download-simple"></i>
+        <span id="download-text">Unduh Info Pembayaran</span>
+        <div id="download-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+      </button>
+      <a id="whatsapp-btn" href="#" target="_blank"
+        class="w-full bg-green-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700 transition-colors">
+        <i class="ph ph-whatsapp-logo"></i> Konfirmasi via WhatsApp
+      </a>
+    </div>
+    <a href="../index.html" class="mt-4 inline-block text-gray-500 hover:text-white py-2 transition-colors text-sm">
+      ← Kembali ke Halaman Utama
+    </a>
+  </div>
+
+</main>
+
+<script src="../config/gym-config.js"></script>
+<script src="../config/gym-logic.js"></script>
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getFirestore, collection, doc, runTransaction,
+           query, where, getDocs, updateDoc }
+    from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // ── Config ───────────────────────────────────────────────────────────────
+  const CONFIG = GYM_CONFIG.ikhwan;
+  const SHARED = GYM_CONFIG.shared;
+  const app    = initializeApp(SHARED.firebaseConfig);
+  const db     = getFirestore(app);
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let memberDataGlobal = null;
+  let memberDocId      = null;
+  let paketTerpilih    = null;
+  let appliedVoucher   = null;
+  let totalHargaAwal   = 0;
+  let totalHargaAkhir  = 0;
+  let dendaInfo        = null; // hasil cekDendaPerpanjangan()
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function calculateDiscount(voucher, total) {
+    let disc = voucher.discountType === 'percentage'
+      ? (total * voucher.discountValue) / 100
+      : voucher.discountValue;
+    if (voucher.maxDiscount) disc = Math.min(disc, voucher.maxDiscount);
+    return Math.min(disc, total);
+  }
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ph ph-check text-green-400"></i>';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  }
+
+  // ── Render paket cards ───────────────────────────────────────────────────
+  function renderPaketCards() {
+    const container = document.getElementById('paket-container');
+    container.innerHTML = Object.entries(CONFIG.paket).map(([key, p]) => `
+      <div class="paket-card p-4 flex flex-col gap-1" data-key="${key}">
+        <p class="font-semibold text-white text-sm">${p.nama}</p>
+        <p class="font-bold text-blue-400">${formatRupiah(p.harga)}</p>
+      </div>
+    `).join('');
+    container.querySelectorAll('.paket-card').forEach(card => {
+      card.addEventListener('click', () => pilihPaket(card.dataset.key));
+    });
+  }
+
+  // ── Pilih paket & hitung biaya ───────────────────────────────────────────
+  function pilihPaket(key) {
+    paketTerpilih = CONFIG.paket[key];
+    if (appliedVoucher) resetVoucher();
+
+    // Hitung denda menggunakan fungsi dari gym-logic.js
+    dendaInfo = hitungBiayaPerpanjangan(
+      memberDataGlobal,
+      paketTerpilih,
+      SHARED.biayaDaftarUlang,
+      SHARED.dendaThresholdHari
+    );
+
+    totalHargaAwal  = dendaInfo.totalBayar; // sudah termasuk denda jika ada
+    totalHargaAkhir = totalHargaAwal;
+
+    // Update selected state
+    document.querySelectorAll('.paket-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.paket-card[data-key="${key}"]`).classList.add('selected');
+
+    // Update UI rincian
+    document.getElementById('paket-pilihan-nama').textContent = paketTerpilih.nama;
+    document.getElementById('paket-harga-display').textContent = formatRupiah(paketTerpilih.harga);
+
+    // Tampilkan/sembunyikan baris denda
+    const dendaRow = document.getElementById('denda-row');
+    if (dendaInfo.isDenda) {
+      document.getElementById('denda-label').textContent =
+        `Biaya Daftar Ulang (Telat ${dendaInfo.hariTerlambat} hari)`;
+      document.getElementById('denda-amount').textContent = formatRupiah(dendaInfo.biayaDenda);
+      dendaRow.classList.remove('hidden');
+    } else {
+      dendaRow.classList.add('hidden');
+    }
+
+    updateTotalDisplay();
+    document.getElementById('rincian-container').classList.remove('hidden');
+  }
+
+  function updateTotalDisplay() {
+    const discRow    = document.getElementById('voucher-discount-container');
+    const discAmount = document.getElementById('voucher-discount-amount');
+    const origEl     = document.getElementById('total-original');
+    const totalEl    = document.getElementById('total-bayar-perpanjang');
+
+    if (appliedVoucher) {
+      const disc = calculateDiscount(appliedVoucher, totalHargaAwal);
+      totalHargaAkhir = totalHargaAwal - disc;
+      discAmount.textContent = `-${formatRupiah(disc)}`;
+      discRow.classList.remove('hidden');
+      origEl.textContent = formatRupiah(totalHargaAwal);
+      origEl.classList.remove('hidden');
+      totalEl.textContent = formatRupiah(totalHargaAkhir);
+      totalEl.classList.add('discount-highlight');
+    } else {
+      totalHargaAkhir = totalHargaAwal;
+      discRow.classList.add('hidden');
+      origEl.classList.add('hidden');
+      totalEl.textContent = formatRupiah(totalHargaAkhir);
+      totalEl.classList.remove('discount-highlight');
+    }
+  }
+
+  // ── Voucher ──────────────────────────────────────────────────────────────
+  async function validateVoucher(code) {
+    const q = query(
+      collection(db, "vouchers"),
+      where("code", "==", code.toUpperCase()),
+      where("isActive", "==", true)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return { valid: false, message: "Kode voucher tidak valid atau sudah tidak aktif" };
+    const vDoc = snap.docs[0];
+    const v    = vDoc.data();
+    const now  = new Date();
+    if (v.expiryDate && v.expiryDate.toDate() < now)
+      return { valid: false, message: "Kode voucher sudah kedaluwarsa" };
+    if (v.maxUses && v.currentUses >= v.maxUses)
+      return { valid: false, message: "Kode voucher sudah mencapai batas penggunaan" };
+    if (v.minPurchase && totalHargaAwal < v.minPurchase)
+      return { valid: false, message: `Minimum pembelian ${formatRupiah(v.minPurchase)}` };
+    return { valid: true, voucher: { id: vDoc.id, ...v } };
+  }
+
+  function resetVoucher() {
+    appliedVoucher = null;
+    document.getElementById('voucher-code').value    = '';
+    document.getElementById('voucher-code').disabled = false;
+    document.getElementById('voucher-btn-text').textContent = 'Terapkan';
+    document.getElementById('voucher-details').classList.add('hidden');
+    document.getElementById('voucher-section').classList.remove('voucher-success', 'voucher-error');
+    updateTotalDisplay();
+  }
+
+  document.getElementById('show-voucher-link').addEventListener('click', () => {
+    document.getElementById('voucher-section').classList.remove('voucher-hidden');
+    document.getElementById('voucher-code').focus();
+  });
+  document.getElementById('close-voucher-btn').addEventListener('click', () => {
+    document.getElementById('voucher-section').classList.add('voucher-hidden');
+    resetVoucher();
+  });
+  document.getElementById('apply-voucher-btn').addEventListener('click', async () => {
+    if (appliedVoucher) { resetVoucher(); return; }
+    const code    = document.getElementById('voucher-code').value.trim();
+    const btn     = document.getElementById('apply-voucher-btn');
+    const btnText = document.getElementById('voucher-btn-text');
+    const spinner = document.getElementById('voucher-spinner');
+    const msgDiv  = document.getElementById('voucher-message');
+    const detDiv  = document.getElementById('voucher-details');
+    const section = document.getElementById('voucher-section');
+    if (!code) {
+      msgDiv.textContent = "Silakan masukkan kode voucher";
+      msgDiv.className   = "mt-2 text-xs text-red-400";
+      msgDiv.classList.remove('hidden');
+      return;
+    }
+    btn.disabled = true; btnText.classList.add('hidden'); spinner.classList.remove('hidden');
+    msgDiv.classList.add('hidden');
+    const result = await validateVoucher(code);
+    if (result.valid) {
+      appliedVoucher = result.voucher;
+      const disc = calculateDiscount(appliedVoucher, totalHargaAwal);
+      section.classList.add('voucher-success'); section.classList.remove('voucher-error');
+      document.getElementById('voucher-info').innerHTML =
+        `<div>Kode: <strong>${appliedVoucher.code}</strong></div><div>Diskon: ${formatRupiah(disc)}</div>`;
+      detDiv.classList.remove('hidden');
+      updateTotalDisplay();
+      btnText.textContent = 'Hapus';
+      document.getElementById('voucher-code').disabled = true;
+    } else {
+      section.classList.add('voucher-error'); section.classList.remove('voucher-success');
+      msgDiv.textContent = result.message;
+      msgDiv.className   = "mt-2 text-xs text-red-400";
+      msgDiv.classList.remove('hidden');
+    }
+    btn.disabled = false; btnText.classList.remove('hidden'); spinner.classList.add('hidden');
+  });
+
+  // ── Verifikasi Member ────────────────────────────────────────────────────
+  document.getElementById('verifikasi-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input   = document.getElementById('no-member').value.trim().toUpperCase();
+    const btn     = document.getElementById('submit-verifikasi');
+    const btnText = document.getElementById('verifikasi-text');
+    const spinner = document.getElementById('verifikasi-spinner');
+    const errEl   = document.getElementById('verifikasi-error');
+
+    btn.disabled = true; btnText.classList.add('hidden'); spinner.classList.remove('hidden');
+    errEl.classList.add('hidden');
+
+    try {
+      // Cari berdasarkan kodePendaftaran field (support legacy doc ID juga)
+      const q = query(
+        collection(db, "pendaftaran_member"),
+        where("kodePendaftaran", "==", input)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) throw new Error("No. Member tidak ditemukan.");
+
+      const memberDoc  = snap.docs[0];
+      memberDocId      = memberDoc.id;
+      memberDataGlobal = memberDoc.data();
+
+      // Validasi: hanya boleh perpanjang member ikhwan
+      const gymType = memberDataGlobal.gymType || "akhwat";
+      if (gymType !== "ikhwan") {
+        throw new Error("No. Member ini bukan member Ikhwan. Gunakan halaman Akhwat.");
+      }
+
+      // Tampilkan info member
+      document.getElementById('nama-member').textContent         = memberDataGlobal.nama;
+      document.getElementById('kode-member-display').textContent = memberDataGlobal.kodePendaftaran;
+      document.getElementById('tanggal-selesai-lama').textContent = formatTanggal(memberDataGlobal.tanggalSelesai);
+
+      // Cek status expired untuk warning
+      const { isDenda, hariTerlambat } = cekDendaPerpanjangan(
+        memberDataGlobal.tanggalSelesai,
+        SHARED.dendaThresholdHari
+      );
+      const expiredWarning = document.getElementById('expired-warning');
+      const expiredText    = document.getElementById('expired-warning-text');
+
+      const tanggalSelesaiDate = memberDataGlobal.tanggalSelesai?.seconds
+        ? new Date(memberDataGlobal.tanggalSelesai.seconds * 1000)
+        : new Date(memberDataGlobal.tanggalSelesai);
+
+      if (tanggalSelesaiDate < new Date()) {
+        expiredText.textContent = isDenda
+          ? `Membership sudah expired ${hariTerlambat} hari. Karena lebih dari 90 hari, akan dikenakan biaya daftar ulang Rp 80.000.`
+          : `Membership sudah expired ${hariTerlambat} hari. Silakan pilih paket untuk melanjutkan.`;
+        expiredWarning.classList.remove('hidden');
+      } else {
+        expiredWarning.classList.add('hidden');
+      }
+
+      renderPaketCards();
+      document.getElementById('verifikasi-container').classList.add('hidden');
+      document.getElementById('perpanjang-container').classList.remove('hidden');
+
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false; btnText.classList.remove('hidden'); spinner.classList.add('hidden');
+    }
+  });
+
+  // ── Submit Perpanjangan ──────────────────────────────────────────────────
+  document.getElementById('submit-perpanjang').addEventListener('click', async () => {
+    if (!paketTerpilih || !memberDocId) return;
+
+    const btn     = document.getElementById('submit-perpanjang');
+    const btnText = document.getElementById('perpanjang-text');
+    const spinner = document.getElementById('perpanjang-spinner');
+    btn.disabled  = true; btnText.classList.add('hidden'); spinner.classList.remove('hidden');
+
+    try {
+      const tanggalMulaiBaru   = new Date();
+      const tanggalSelesaiLama = memberDataGlobal.tanggalSelesai?.seconds
+        ? new Date(memberDataGlobal.tanggalSelesai.seconds * 1000)
+        : new Date(memberDataGlobal.tanggalSelesai);
+
+      // Jika belum expired, perpanjang dari tanggal selesai lama (tidak rugi hari)
+      const basis = tanggalSelesaiLama > tanggalMulaiBaru ? tanggalSelesaiLama : tanggalMulaiBaru;
+      const tanggalSelesaiBaru = hitungTanggalSelesai(basis, paketTerpilih.durasiBulan);
+
+      const dataUpdate = {
+        paket:            paketTerpilih.nama,
+        totalBayar:       totalHargaAkhir,
+        totalHargaAwal:   totalHargaAwal,
+        tanggalMulai:     tanggalMulaiBaru,
+        tanggalSelesai:   tanggalSelesaiBaru,
+        statusPembayaran: false,
+        isDaftarUlang:    dendaInfo?.isDenda ?? false,
+        voucherUsed:      appliedVoucher ? {
+          code:           appliedVoucher.code,
+          discountAmount: calculateDiscount(appliedVoucher, totalHargaAwal),
+          voucherId:      appliedVoucher.id
+        } : null
+      };
+
+      // UPDATE dokumen existing — TIDAK membuat dokumen baru
+      await updateDoc(doc(db, "pendaftaran_member", memberDocId), dataUpdate);
+
+      // Update voucher usage jika ada
+      if (appliedVoucher) {
+        const vRef = doc(db, "vouchers", appliedVoucher.id);
+        await runTransaction(db, async (tx) => {
+          const vDoc = await tx.get(vRef);
+          if (vDoc.exists()) tx.update(vRef, { currentUses: (vDoc.data().currentUses || 0) + 1 });
+        });
+      }
+
+      showSuccess();
+
+    } catch (err) {
+      console.error(err);
+      alert("Gagal memperpanjang: " + err.message);
+      btn.disabled = false; btnText.classList.remove('hidden'); spinner.classList.add('hidden');
+    }
+  });
+
+  // ── Show Success ─────────────────────────────────────────────────────────
+  function showSuccess() {
+    document.getElementById('perpanjang-container').classList.add('hidden');
+    document.getElementById('success-message').classList.remove('hidden');
+
+    document.getElementById('kode-sukses').textContent    = memberDataGlobal.kodePendaftaran;
+    document.getElementById('s-paket-nama').textContent   = paketTerpilih.nama;
+    document.getElementById('s-paket-harga').textContent  = formatRupiah(paketTerpilih.harga);
+    document.getElementById('s-total').textContent        = formatRupiah(totalHargaAkhir);
+
+    // Denda row di success
+    const sDendaRow = document.getElementById('s-denda-row');
+    if (dendaInfo?.isDenda) {
+      document.getElementById('s-denda-amount').textContent = formatRupiah(dendaInfo.biayaDenda);
+      sDendaRow.classList.remove('hidden');
+    } else {
+      sDendaRow.classList.add('hidden');
+    }
+
+    // Voucher row di success
+    const sVoucherRow = document.getElementById('s-voucher-row');
+    if (appliedVoucher) {
+      const disc = totalHargaAwal - totalHargaAkhir;
+      document.getElementById('s-voucher-discount').textContent = `-${formatRupiah(disc)}`;
+      sVoucherRow.classList.remove('hidden');
+    } else {
+      sVoucherRow.classList.add('hidden');
+    }
+
+    const waMsg = encodeURIComponent(
+      `Bismillah Vinca Gym, saya ${memberDataGlobal.nama} dengan No. Member ` +
+      `${memberDataGlobal.kodePendaftaran} ingin konfirmasi perpanjangan paket ` +
+      `${paketTerpilih.nama}. Total bayar: ${formatRupiah(totalHargaAkhir)}. Barakallahu fiik.`
+    );
+    document.getElementById('whatsapp-btn').href =
+      `https://wa.me/${SHARED.whatsappNumber}?text=${waMsg}`;
+  }
+
+  // ── Copy & Download ──────────────────────────────────────────────────────
+  document.getElementById('copy-kode-btn').addEventListener('click', (e) => {
+    copyText(document.getElementById('kode-sukses').textContent, e.currentTarget);
+  });
+  document.getElementById('copy-rekening-btn').addEventListener('click', (e) => {
+    copyText(SHARED.rekeningBCA, e.currentTarget);
+  });
+  document.getElementById('download-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('download-btn');
+    const icon = document.getElementById('download-icon');
+    const text = document.getElementById('download-text');
+    const spin = document.getElementById('download-spinner');
+    btn.disabled = true; icon.classList.add('hidden'); text.classList.add('hidden'); spin.classList.remove('hidden');
+    try {
+      const canvas = await window.html2canvas(document.getElementById('payment-info'), { useCORS: true, backgroundColor: '#1a1a1a' });
+      const link   = document.createElement('a');
+      link.download = `perpanjang-${memberDataGlobal.kodePendaftaran}.png`;
+      link.href     = canvas.toDataURL();
+      link.click();
+    } catch (_) {}
+    btn.disabled = false; icon.classList.remove('hidden'); text.classList.remove('hidden'); spin.classList.add('hidden');
+  });
+
+</script>
+</body>
+</html>

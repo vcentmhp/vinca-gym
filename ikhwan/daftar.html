@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendaftaran Member Ikhwan — Vinca Gym</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --accent: #3B82F6;
+      --accent-soft: #93C5FD;
+      --accent-dim: rgba(59,130,246,0.12);
+      --bg: #0f0f0f;
+      --bg-card: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+      --border-accent: rgba(59,130,246,0.3);
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: #e0e0e0; min-height: 100vh; }
+    .card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); }
+    .btn-primary { background: var(--accent); color: #fff; font-weight: 600; transition: all 0.2s ease; border: none; cursor: pointer; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: #374151; color: #fff; font-weight: 600; transition: all 0.2s ease; border: none; cursor: pointer; }
+    .btn-secondary:hover { background: #4b5563; }
+    .btn-success { background: #10b981; color: #fff; font-weight: 600; transition: all 0.2s ease; border: none; cursor: pointer; }
+    .btn-success:hover { background: #059669; }
+    input, textarea { background: #1f2937; border: 1px solid #374151; color: #fff; transition: border-color 0.2s; }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+    .copy-btn { background: transparent; border: none; cursor: pointer; color: #6b7280; transition: color 0.2s; }
+    .copy-btn:hover { color: #fff; }
+    .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.2s; }
+    .copy-btn:hover .tooltip { visibility: visible; opacity: 1; }
+    .voucher-section { border: 1px dashed #374151; border-radius: 0.75rem; background: #111827; padding: 1rem; }
+    .voucher-success { border-color: #10b981; background: rgba(16,185,129,0.08); }
+    .voucher-error   { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+    .voucher-hidden  { display: none; }
+    .voucher-link    { color: #60a5fa; text-decoration: underline; cursor: pointer; font-size: 0.875rem; }
+    .voucher-link:hover { color: #93c5fd; }
+    .discount-highlight { color: #10b981; font-weight: 600; }
+    .original-price { text-decoration: line-through; color: #6b7280; }
+    .paket-card { cursor: pointer; border: 2px solid #374151; border-radius: 0.75rem; transition: all 0.2s ease; }
+    .paket-card:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .paket-card.selected { border-color: var(--accent); background: var(--accent-dim); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .badge-ikhwan { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
+  </style>
+</head>
+<body class="antialiased">
+
+<!-- Header -->
+<header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 border-b border-white/5">
+  <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <a href="../ikhwan/index.html" class="flex items-center gap-3 text-xl font-bold text-white">
+      <img src="../logo.png" alt="Vinca Gym" class="h-9 w-auto">
+      <span>Vinca Gym <span class="text-blue-400 font-normal text-base">Ikhwan</span></span>
+    </a>
+    <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+      <i class="ph ph-arrow-left"></i> Ganti Sesi
+    </a>
+  </nav>
+</header>
+
+<!-- Main -->
+<main class="min-h-screen flex items-center justify-center py-12 px-4">
+
+  <!-- FORM CONTAINER -->
+  <div id="form-container" class="card p-8 w-full max-w-lg">
+
+    <!-- Title -->
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+        <i class="ph ph-gender-male text-blue-400 text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-white">Formulir Pendaftaran</h1>
+        <p class="text-sm text-gray-400">Member Ikhwan — Vinca Gym</p>
+      </div>
+    </div>
+
+    <!-- Paket Selection -->
+    <div class="mb-6">
+      <h2 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Pilih Paket</h2>
+      <div id="paket-grid" class="grid grid-cols-1 gap-3">
+        <!-- Diisi oleh JS -->
+      </div>
+    </div>
+
+    <!-- Rincian Biaya -->
+    <div id="rincian-container" class="hidden bg-gray-900/50 p-5 rounded-xl border border-gray-700/50 mb-6">
+      <h2 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Rincian Biaya</h2>
+      <div class="space-y-2 text-sm text-gray-300">
+        <div class="flex justify-between">
+          <span>Paket Pilihan:</span>
+          <strong id="paket-nama" class="text-white">—</strong>
+        </div>
+        <div class="flex justify-between">
+          <span>Harga Paket:</span>
+          <span id="paket-harga">Rp 0</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Biaya Pendaftaran Baru:</span>
+          <span id="biaya-daftar">Rp 80.000</span>
+        </div>
+        <div id="voucher-discount-row" class="flex justify-between hidden">
+          <span>Diskon Voucher:</span>
+          <span id="voucher-discount-amount" class="discount-highlight">-Rp 0</span>
+        </div>
+        <hr class="border-gray-700 my-2">
+        <div class="flex justify-between text-base font-bold">
+          <span class="text-white">Total Bayar:</span>
+          <div class="flex items-center gap-2">
+            <span id="total-original" class="original-price text-xs hidden"></span>
+            <span id="total-bayar" class="text-white">Rp 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="voucher-link" id="show-voucher-link">Ada kode voucher? Klik di sini</span>
+      </div>
+    </div>
+
+    <!-- Voucher Section -->
+    <div class="voucher-section voucher-hidden mb-6" id="voucher-section">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-white font-semibold text-sm">Kode Voucher</h3>
+        <button id="close-voucher-btn" class="text-gray-400 hover:text-white">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="voucher-code"
+          class="flex-1 px-3 py-2 rounded-lg text-sm uppercase"
+          placeholder="Masukkan kode voucher">
+        <button id="apply-voucher-btn" class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-1">
+          <span id="voucher-btn-text">Terapkan</span>
+          <div id="voucher-spinner" class="w-4 h-4 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+        </button>
+      </div>
+      <div id="voucher-message" class="mt-2 text-xs hidden"></div>
+      <div id="voucher-details" class="mt-3 p-3 bg-green-900/20 rounded-lg border border-green-500/30 hidden">
+        <div class="flex items-center gap-2 text-green-400 text-sm">
+          <i class="ph ph-check-circle"></i>
+          <span class="font-semibold">Voucher Berhasil Diterapkan!</span>
+        </div>
+        <div id="voucher-info" class="mt-1 text-xs text-green-300"></div>
+      </div>
+    </div>
+
+    <!-- Form Fields -->
+    <form id="pendaftaran-form" novalidate>
+      <div class="space-y-4">
+        <div>
+          <label for="nama-lengkap" class="block text-sm font-medium text-gray-300 mb-1">Nama Lengkap <span class="text-red-400">*</span></label>
+          <input type="text" id="nama-lengkap" class="w-full px-3 py-2 rounded-lg" required placeholder="Nama sesuai KTP">
+        </div>
+        <div>
+          <label for="tanggal-lahir" class="block text-sm font-medium text-gray-300 mb-1">Tanggal Lahir <span class="text-red-400">*</span></label>
+          <input type="date" id="tanggal-lahir" class="w-full px-3 py-2 rounded-lg" required>
+        </div>
+        <div>
+          <label for="whatsapp" class="block text-sm font-medium text-gray-300 mb-1">No. WhatsApp <span class="text-red-400">*</span></label>
+          <div class="flex">
+            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm font-semibold">+62</span>
+            <input type="tel" id="whatsapp" class="w-full px-3 py-2 rounded-r-lg" required placeholder="8123456789">
+          </div>
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email <span class="text-gray-500 font-normal">(Opsional)</span></label>
+          <input type="email" id="email" class="w-full px-3 py-2 rounded-lg" placeholder="email@contoh.com">
+        </div>
+        <div>
+          <label for="alamat" class="block text-sm font-medium text-gray-300 mb-1">Alamat Lengkap <span class="text-red-400">*</span></label>
+          <textarea id="alamat" rows="3" class="w-full px-3 py-2 rounded-lg" required placeholder="Jl. ..."></textarea>
+        </div>
+      </div>
+
+      <p id="form-error" class="text-red-400 text-sm mt-4 hidden"></p>
+
+      <button type="submit" id="submit-btn"
+        class="w-full btn-primary py-3 rounded-xl mt-6 flex items-center justify-center gap-2 text-base">
+        <span id="submit-text">Daftar Sekarang</span>
+        <div id="submit-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+      </button>
+    </form>
+  </div>
+
+  <!-- SUCCESS MESSAGE -->
+  <div id="success-message" class="hidden text-center max-w-lg w-full">
+    <div class="mx-auto bg-green-900/40 w-20 h-20 rounded-full flex items-center justify-center border-2 border-green-500 mb-6">
+      <i class="ph ph-check-fat text-5xl text-green-400"></i>
+    </div>
+    <h1 class="text-3xl font-bold text-white">Pendaftaran Berhasil!</h1>
+    <p class="text-gray-400 mt-2">Silakan lakukan pembayaran untuk mengaktifkan membership Anda.</p>
+
+    <div class="card p-6 mt-6 text-left">
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-sm text-gray-400">No. Member Anda:</p>
+        <button id="copy-kode-btn" class="copy-btn relative">
+          <i class="ph ph-copy"></i>
+          <span class="tooltip absolute -top-8 right-0 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">Salin</span>
+        </button>
+      </div>
+      <p id="kode-sukses" class="font-mono text-2xl font-bold text-blue-400 mb-4"></p>
+
+      <!-- Rincian Pembayaran -->
+      <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700 mb-4">
+        <h3 class="font-semibold text-white mb-3 text-sm">Rincian Pembayaran</h3>
+        <div class="space-y-2 text-sm text-gray-300">
+          <div class="flex justify-between"><span>Paket:</span><span id="s-paket-nama" class="text-white font-medium"></span></div>
+          <div class="flex justify-between"><span>Harga Paket:</span><span id="s-paket-harga"></span></div>
+          <div class="flex justify-between"><span>Biaya Pendaftaran:</span><span id="s-biaya-daftar"></span></div>
+          <div id="s-voucher-row" class="flex justify-between hidden"><span>Diskon Voucher:</span><span id="s-voucher-discount" class="text-green-400"></span></div>
+          <hr class="border-gray-700 my-1">
+          <div class="flex justify-between font-semibold text-base"><span>Total:</span><span id="s-total" class="text-blue-400"></span></div>
+        </div>
+      </div>
+
+      <hr class="border-gray-700 mb-4">
+      <h3 class="font-semibold text-white mb-3 text-sm">Metode Pembayaran:</h3>
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <div class="w-full md:w-1/2 flex flex-col items-center">
+          <img src="../qris-logo.png" alt="QRIS" class="h-6 mb-2">
+          <img src="../qris-code.png" alt="QRIS Code" class="rounded-lg w-36 h-36 border-4 border-white">
+        </div>
+        <div class="w-full md:w-1/2 flex flex-col items-center md:items-start">
+          <img src="../bca-logo.png" alt="BCA" class="h-6 mb-2">
+          <p class="font-semibold text-white">Bank BCA</p>
+          <div class="flex items-center gap-2">
+            <p class="font-mono text-lg text-white">4060622839</p>
+            <button id="copy-rekening-btn" class="copy-btn relative">
+              <i class="ph ph-copy"></i>
+              <span class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">Salin</span>
+            </button>
+          </div>
+          <p class="text-gray-400 text-sm">a.n. RIMA RIZKY AMELIA</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-4 text-center italic">
+        Harap konfirmasi dan kirimkan foto bukti transfer via WhatsApp kami. Barakallahu fiik.
+      </p>
+    </div>
+
+    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+      <button id="download-btn" class="w-full bg-gray-700 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors">
+        <i id="download-icon" class="ph ph-download-simple"></i>
+        <span id="download-text">Unduh Info Pembayaran</span>
+        <div id="download-spinner" class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+      </button>
+      <a id="whatsapp-btn" href="#" target="_blank"
+        class="w-full bg-green-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700 transition-colors">
+        <i class="ph ph-whatsapp-logo"></i> Konfirmasi via WhatsApp
+      </a>
+    </div>
+    <a href="../index.html" class="mt-4 inline-block text-gray-500 hover:text-white py-2 transition-colors text-sm">
+      ← Kembali ke Halaman Utama
+    </a>
+  </div>
+
+</main>
+
+<!-- Firebase + Logic -->
+<script src="../config/gym-config.js"></script>
+<script src="../config/gym-logic.js"></script>
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getFirestore, collection, setDoc, doc, runTransaction,
+           query, where, getDocs, getDoc }
+    from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // ── Config ──────────────────────────────────────────────────────────────
+  const CONFIG   = GYM_CONFIG.ikhwan;
+  const SHARED   = GYM_CONFIG.shared;
+  const app      = initializeApp(SHARED.firebaseConfig);
+  const db       = getFirestore(app);
+
+  // ── State ────────────────────────────────────────────────────────────────
+  let paketTerpilih   = null;
+  let paketKeyGlobal  = null;
+  let appliedVoucher  = null;
+  let totalHargaAwal  = 0;
+  let totalHargaAkhir = 0;
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────
+  const formContainer    = document.getElementById('form-container');
+  const successMessage   = document.getElementById('success-message');
+  const rincianContainer = document.getElementById('rincian-container');
+  const formError        = document.getElementById('form-error');
+
+  // ── Render paket cards ───────────────────────────────────────────────────
+  function renderPaketGrid() {
+    const grid = document.getElementById('paket-grid');
+    grid.innerHTML = Object.entries(CONFIG.paket).map(([key, p]) => `
+      <div class="paket-card p-4 flex justify-between items-center" data-key="${key}">
+        <div>
+          <p class="font-semibold text-white">${p.nama}</p>
+          <p class="text-xs text-gray-400 mt-0.5">${p.durasiBulan} bulan akses penuh</p>
+        </div>
+        <p class="font-bold text-blue-400 text-lg">${formatRupiah(p.harga)}</p>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.paket-card').forEach(card => {
+      card.addEventListener('click', () => pilihPaket(card.dataset.key));
+    });
+  }
+
+  function pilihPaket(key) {
+    paketKeyGlobal = key;
+    paketTerpilih  = CONFIG.paket[key];
+
+    // Reset voucher saat ganti paket
+    if (appliedVoucher) resetVoucher();
+
+    totalHargaAwal  = paketTerpilih.harga + SHARED.biayaDaftarBaru;
+    totalHargaAkhir = totalHargaAwal;
+
+    // Update selected state
+    document.querySelectorAll('.paket-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.paket-card[data-key="${key}"]`).classList.add('selected');
+
+    // Update rincian
+    document.getElementById('paket-nama').textContent  = paketTerpilih.nama;
+    document.getElementById('paket-harga').textContent = formatRupiah(paketTerpilih.harga);
+    document.getElementById('biaya-daftar').textContent = formatRupiah(SHARED.biayaDaftarBaru);
+    updateTotalDisplay();
+    rincianContainer.classList.remove('hidden');
+  }
+
+  function updateTotalDisplay() {
+    const discountRow    = document.getElementById('voucher-discount-row');
+    const discountAmount = document.getElementById('voucher-discount-amount');
+    const totalOriginal  = document.getElementById('total-original');
+    const totalBayar     = document.getElementById('total-bayar');
+
+    if (appliedVoucher) {
+      const disc = calculateDiscount(appliedVoucher, totalHargaAwal);
+      totalHargaAkhir = totalHargaAwal - disc;
+      discountAmount.textContent = `-${formatRupiah(disc)}`;
+      discountRow.classList.remove('hidden');
+      totalOriginal.textContent = formatRupiah(totalHargaAwal);
+      totalOriginal.classList.remove('hidden');
+      totalBayar.textContent = formatRupiah(totalHargaAkhir);
+      totalBayar.classList.add('discount-highlight');
+    } else {
+      totalHargaAkhir = totalHargaAwal;
+      discountRow.classList.add('hidden');
+      totalOriginal.classList.add('hidden');
+      totalBayar.textContent = formatRupiah(totalHargaAkhir);
+      totalBayar.classList.remove('discount-highlight');
+    }
+  }
+
+  // ── Voucher ──────────────────────────────────────────────────────────────
+  function calculateDiscount(voucher, total) {
+    let disc = voucher.discountType === 'percentage'
+      ? (total * voucher.discountValue) / 100
+      : voucher.discountValue;
+    if (voucher.maxDiscount) disc = Math.min(disc, voucher.maxDiscount);
+    return Math.min(disc, total);
+  }
+
+  async function validateVoucher(code) {
+    const q = query(
+      collection(db, "vouchers"),
+      where("code", "==", code.toUpperCase()),
+      where("isActive", "==", true)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return { valid: false, message: "Kode voucher tidak valid atau sudah tidak aktif" };
+
+    const vDoc = snap.docs[0];
+    const v    = vDoc.data();
+    const now  = new Date();
+
+    if (v.expiryDate && v.expiryDate.toDate() < now)
+      return { valid: false, message: "Kode voucher sudah kedaluwarsa" };
+    if (v.maxUses && v.currentUses >= v.maxUses)
+      return { valid: false, message: "Kode voucher sudah mencapai batas penggunaan" };
+    if (v.minPurchase && totalHargaAwal < v.minPurchase)
+      return { valid: false, message: `Minimum pembelian ${formatRupiah(v.minPurchase)}` };
+
+    return { valid: true, voucher: { id: vDoc.id, ...v } };
+  }
+
+  function resetVoucher() {
+    appliedVoucher = null;
+    document.getElementById('voucher-code').value    = '';
+    document.getElementById('voucher-code').disabled = false;
+    document.getElementById('voucher-btn-text').textContent = 'Terapkan';
+    document.getElementById('voucher-details').classList.add('hidden');
+    document.getElementById('voucher-section').classList.remove('voucher-success', 'voucher-error');
+    updateTotalDisplay();
+  }
+
+  // Voucher UI events
+  document.getElementById('show-voucher-link').addEventListener('click', () => {
+    document.getElementById('voucher-section').classList.remove('voucher-hidden');
+    document.getElementById('voucher-code').focus();
+  });
+  document.getElementById('close-voucher-btn').addEventListener('click', () => {
+    document.getElementById('voucher-section').classList.add('voucher-hidden');
+    resetVoucher();
+  });
+  document.getElementById('apply-voucher-btn').addEventListener('click', async () => {
+    // Jika sudah applied, tombol jadi "Hapus"
+    if (appliedVoucher) { resetVoucher(); return; }
+
+    const code    = document.getElementById('voucher-code').value.trim();
+    const btn     = document.getElementById('apply-voucher-btn');
+    const btnText = document.getElementById('voucher-btn-text');
+    const spinner = document.getElementById('voucher-spinner');
+    const msgDiv  = document.getElementById('voucher-message');
+    const detDiv  = document.getElementById('voucher-details');
+    const section = document.getElementById('voucher-section');
+
+    if (!code) {
+      msgDiv.textContent = "Silakan masukkan kode voucher";
+      msgDiv.className   = "mt-2 text-xs text-red-400";
+      msgDiv.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btnText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    msgDiv.classList.add('hidden');
+
+    const result = await validateVoucher(code);
+
+    if (result.valid) {
+      appliedVoucher = result.voucher;
+      const disc = calculateDiscount(appliedVoucher, totalHargaAwal);
+      section.classList.add('voucher-success');
+      section.classList.remove('voucher-error');
+      document.getElementById('voucher-info').innerHTML =
+        `<div>Kode: <strong>${appliedVoucher.code}</strong></div>
+         <div>Diskon: ${formatRupiah(disc)}</div>`;
+      detDiv.classList.remove('hidden');
+      updateTotalDisplay();
+      btnText.textContent = 'Hapus';
+      document.getElementById('voucher-code').disabled = true;
+    } else {
+      section.classList.add('voucher-error');
+      section.classList.remove('voucher-success');
+      msgDiv.textContent = result.message;
+      msgDiv.className   = "mt-2 text-xs text-red-400";
+      msgDiv.classList.remove('hidden');
+    }
+
+    btn.disabled = false;
+    btnText.classList.remove('hidden');
+    spinner.classList.add('hidden');
+  });
+
+  // ── Code Generator ───────────────────────────────────────────────────────
+  async function generateKodeMember(paketKey) {
+    const counterRef = doc(db, "counters", "member_registration");
+    const counterKey = `${CONFIG.counterKeyPrefix}${paketKey}`; // "ikhwan_silver"
+    const prefix     = `${CONFIG.memberCodePrefix}-${CONFIG.paket[paketKey].prefix}`; // "VGI-S"
+
+    let candidateCount = 1;
+    try {
+      const snap = await getDoc(counterRef);
+      if (snap.exists() && snap.data()[counterKey]) {
+        candidateCount = snap.data()[counterKey] + 1;
+      }
+    } catch (_) {}
+
+    let finalCode = "";
+    let isUnique  = false;
+    let attempts  = 0;
+
+    while (!isUnique && attempts < 50) {
+      const code = `${prefix}${String(candidateCount).padStart(4, '0')}`;
+      const docSnap = await getDoc(doc(db, "pendaftaran_member", code));
+      const qSnap   = await getDocs(
+        query(collection(db, "pendaftaran_member"), where("kodePendaftaran", "==", code))
+      );
+      if (!docSnap.exists() && qSnap.empty) {
+        finalCode = code;
+        isUnique  = true;
+      } else {
+        candidateCount++;
+      }
+      attempts++;
+    }
+
+    if (!isUnique) throw new Error("Gagal generate kode unik. Hubungi admin.");
+
+    // Update counter
+    await runTransaction(db, async (tx) => {
+      const cDoc = await tx.get(counterRef);
+      const current = cDoc.exists() && cDoc.data()[counterKey] ? cDoc.data()[counterKey] : 0;
+      if (candidateCount > current) {
+        const update = {};
+        update[counterKey] = candidateCount;
+        tx.set(counterRef, update, { merge: true });
+      }
+    });
+
+    return finalCode;
+  }
+
+  // ── Form Submit ──────────────────────────────────────────────────────────
+  document.getElementById('pendaftaran-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formError.classList.add('hidden');
+
+    if (!paketTerpilih) {
+      formError.textContent = "Silakan pilih paket membership terlebih dahulu.";
+      formError.classList.remove('hidden');
+      return;
+    }
+
+    const submitBtn  = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const spinner    = document.getElementById('submit-spinner');
+
+    submitBtn.disabled = true;
+    submitText.classList.add('hidden');
+    spinner.classList.remove('hidden');
+
+    try {
+      const kode = await generateKodeMember(paketKeyGlobal);
+
+      const tanggalMulai  = new Date();
+      const tanggalSelesai = hitungTanggalSelesai(tanggalMulai, paketTerpilih.durasiBulan);
+
+      const waInput = document.getElementById('whatsapp').value.replace(/\D/g, '');
+      const waNumber = `62${waInput.startsWith('0') ? waInput.slice(1) : waInput}`;
+
+      const pendaftar = {
+        kodePendaftaran:  kode,
+        gymType:          CONFIG.gymType,          // "ikhwan"
+        gender:           CONFIG.gender,           // "male"
+        nama:             document.getElementById('nama-lengkap').value.trim(),
+        tanggalLahir:     new Date(document.getElementById('tanggal-lahir').value),
+        whatsapp:         waNumber,
+        email:            document.getElementById('email').value.trim(),
+        alamat:           document.getElementById('alamat').value.trim(),
+        paket:            paketTerpilih.nama,
+        totalBayar:       totalHargaAkhir,
+        totalHargaAwal:   totalHargaAwal,
+        tanggalMulai,
+        tanggalSelesai,
+        statusPembayaran: false,
+        isDaftarUlang:    false,
+        voucherUsed:      appliedVoucher ? {
+          code:           appliedVoucher.code,
+          discountAmount: calculateDiscount(appliedVoucher, totalHargaAwal),
+          voucherId:      appliedVoucher.id
+        } : null
+      };
+
+      await setDoc(doc(db, "pendaftaran_member", kode), pendaftar);
+
+      // Update voucher usage
+      if (appliedVoucher) {
+        const vRef = doc(db, "vouchers", appliedVoucher.id);
+        await runTransaction(db, async (tx) => {
+          const vDoc = await tx.get(vRef);
+          if (vDoc.exists()) {
+            tx.update(vRef, { currentUses: (vDoc.data().currentUses || 0) + 1 });
+          }
+        });
+      }
+
+      // Show success
+      showSuccess(pendaftar);
+
+    } catch (err) {
+      console.error(err);
+      formError.textContent = "Pendaftaran gagal: " + err.message;
+      formError.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitText.classList.remove('hidden');
+      spinner.classList.add('hidden');
+    }
+  });
+
+  // ── Show Success ─────────────────────────────────────────────────────────
+  function showSuccess(data) {
+    formContainer.classList.add('hidden');
+    successMessage.classList.remove('hidden');
+
+    document.getElementById('kode-sukses').textContent = data.kodePendaftaran;
+    document.getElementById('s-paket-nama').textContent  = data.paket;
+    document.getElementById('s-paket-harga').textContent = formatRupiah(paketTerpilih.harga);
+    document.getElementById('s-biaya-daftar').textContent = formatRupiah(SHARED.biayaDaftarBaru);
+    document.getElementById('s-total').textContent = formatRupiah(data.totalBayar);
+
+    const sVoucherRow = document.getElementById('s-voucher-row');
+    if (appliedVoucher) {
+      const disc = data.totalHargaAwal - data.totalBayar;
+      document.getElementById('s-voucher-discount').textContent = `-${formatRupiah(disc)}`;
+      sVoucherRow.classList.remove('hidden');
+    } else {
+      sVoucherRow.classList.add('hidden');
+    }
+
+    const waMsg = encodeURIComponent(
+      `Bismillah Vinca Gym, saya ${data.nama} sudah mendaftar sebagai member Ikhwan ` +
+      `untuk paket ${data.paket} dengan kode ${data.kodePendaftaran}. ` +
+      `Total bayar: ${formatRupiah(data.totalBayar)}. Mohon segera diproses. Barakallahu fiik.`
+    );
+    document.getElementById('whatsapp-btn').href =
+      `https://wa.me/${SHARED.whatsappNumber}?text=${waMsg}`;
+  }
+
+  // ── Copy buttons ─────────────────────────────────────────────────────────
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ph ph-check text-green-400"></i>';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  }
+
+  document.getElementById('copy-kode-btn').addEventListener('click', (e) => {
+    copyText(document.getElementById('kode-sukses').textContent, e.currentTarget);
+  });
+  document.getElementById('copy-rekening-btn').addEventListener('click', (e) => {
+    copyText(SHARED.rekeningBCA, e.currentTarget);
+  });
+
+  // ── Download ─────────────────────────────────────────────────────────────
+  document.getElementById('download-btn').addEventListener('click', async () => {
+    const btn      = document.getElementById('download-btn');
+    const icon     = document.getElementById('download-icon');
+    const text     = document.getElementById('download-text');
+    const spinner  = document.getElementById('download-spinner');
+    btn.disabled   = true;
+    icon.classList.add('hidden');
+    text.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    try {
+      const canvas = await window.html2canvas(document.getElementById('payment-info'), { useCORS: true, backgroundColor: '#1a1a1a' });
+      const link   = document.createElement('a');
+      link.download = `pembayaran-${document.getElementById('kode-sukses').textContent}.png`;
+      link.href     = canvas.toDataURL();
+      link.click();
+    } catch (_) {}
+    btn.disabled = false;
+    icon.classList.remove('hidden');
+    text.classList.remove('hidden');
+    spinner.classList.add('hidden');
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  renderPaketGrid();
+
+  // Auto-select paket dari URL param (misal: daftar.html?paket=silver)
+  const urlPaket = new URLSearchParams(window.location.search).get('paket');
+  if (urlPaket && CONFIG.paket[urlPaket]) pilihPaket(urlPaket);
+
+</script>
+</body>
+</html>
