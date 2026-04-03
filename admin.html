@@ -1070,7 +1070,7 @@
                 <div id="render-qrcode" class="p-2 bg-white rounded-xl shadow-lg"></div>
             </div>
             <div class="text-center border-t border-white/10 pt-4 mt-4">
-                <p class="text-xs font-semibold tracking-[0.3em] text-gray-500">FOR WOMEN ONLY</p>
+                <p id="render-card-footer" class="text-xs font-semibold tracking-[0.3em] text-gray-500">FOR WOMEN ONLY</p>
             </div>
         </div>
     </div>
@@ -1350,6 +1350,17 @@
             async function downloadMemberCard(member) {
                 DOMElements.cardTemplate.name.textContent = member.nama || 'Nama Member';
                 DOMElements.cardTemplate.id.textContent = member.kodePendaftaran || 'VG-XXXX';
+
+                // Bedakan footer kartu berdasarkan gymType
+                const gymType = member.gymType || 'akhwat';
+                const footerEl = document.getElementById('render-card-footer');
+                if (gymType === 'ikhwan') {
+                    footerEl.textContent = 'FOR MEN ONLY';
+                    footerEl.style.color = '#93C5FD'; // biru soft
+                } else {
+                    footerEl.textContent = 'FOR WOMEN ONLY';
+                    footerEl.style.color = '#F7A7D3'; // pink soft
+                }
                 
                 const qrcodeContainer = DOMElements.cardTemplate.qrcode;
                 qrcodeContainer.innerHTML = "";
