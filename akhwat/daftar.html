@@ -83,7 +83,7 @@
                 <div class="space-y-2 text-gray-300">
                     <div class="flex justify-between"><span>Paket Pilihan:</span><strong id="paket-nama" class="text-white">Memuat...</strong></div>
                     <div class="flex justify-between"><span>Harga Paket:</span><span id="paket-harga">Rp 0</span></div>
-                    <div id="biaya-member-container" class="flex justify-between"><span>Biaya Member Baru:</span><span id="biaya-member-harga">Rp 50.000</span></div>
+                    <div id="biaya-member-container" class="flex justify-between"><span>Biaya Member Baru:</span><span id="biaya-member-harga">Rp 75.000</span></div>
                     <div id="voucher-discount-container" class="flex justify-between hidden">
                         <span>Diskon Voucher:</span>
                         <span id="voucher-discount-amount" class="discount-highlight">-Rp 0</span>
@@ -93,7 +93,7 @@
                         <span class="text-white">Total Bayar:</span>
                         <div class="flex items-center gap-2">
                             <span id="total-original" class="original-price text-sm hidden">Rp 0</span>
-                            <span id="total-bayar" class="text-white">Rp 50.000</span>
+                            <span id="total-bayar" class="text-white">Rp 0</span>
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span>Biaya Member Baru:</span>
-                            <span id="success-biaya-member">Rp 50.000</span>
+                            <span id="success-biaya-member">Rp 75.000</span>
                         </div>
                         <div id="success-voucher-container" class="flex justify-between hidden">
                             <span>Diskon Voucher:</span>
@@ -203,11 +203,11 @@
         const db = getFirestore(app);
 
         const PAKET_MEMBERSHIP = {
-            silver:   { nama: "Silver (1 Bulan)",    harga: 170000,  prefix: "S", durasiBulan: 1  },
+            silver:   { nama: "Silver (1 Bulan)",    harga: 175000,  prefix: "S", durasiBulan: 1  },
             gold:     { nama: "Gold (6 Bulan)",       harga: 900000,  prefix: "G", durasiBulan: 6  },
             platinum: { nama: "Platinum (12 Bulan)",  harga: 1500000, prefix: "P", durasiBulan: 12 }
         };
-        const BIAYA_MEMBER_BARU = 80000;
+        const BIAYA_MEMBER_BARU = 75000;
         const GRAND_OPENING_DEADLINE = new Date('2025-08-18T00:00:00');
 
         const pendaftaranForm = document.getElementById('pendaftaran-form');

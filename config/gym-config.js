@@ -5,8 +5,8 @@
  */
 const GYM_CONFIG = {
   shared: {
-    biayaDaftarBaru: 80000,
-    biayaDaftarUlang: 80000,
+    biayaDaftarBaru: 75000,
+    biayaDaftarUlang: 75000,
     dendaThresholdHari: 90, // Denda berlaku jika expired > 90 hari
     firebaseConfig: {
       apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ",
@@ -30,7 +30,7 @@ const GYM_CONFIG = {
     memberCodePrefix: "VG",                  // Legacy: VG-S0001
     counterKeyPrefix: "",                    // Legacy counter keys: silver, gold, platinum
     paket: {
-      silver:   { nama: "Silver (1 Bulan)",    harga: 170000,  prefix: "S", durasiBulan: 1  },
+      silver:   { nama: "Silver (1 Bulan)",    harga: 175000,  prefix: "S", durasiBulan: 1  },
       gold:     { nama: "Gold (6 Bulan)",       harga: 900000,  prefix: "G", durasiBulan: 6  },
       platinum: { nama: "Platinum (12 Bulan)",  harga: 1500000, prefix: "P", durasiBulan: 12 }
     },
@@ -51,7 +51,7 @@ const GYM_CONFIG = {
     memberCodePrefix: "VGI",                 // VGI-S0001
     counterKeyPrefix: "ikhwan_",             // Counter keys: ikhwan_silver, dll
     paket: {
-      silver:   { nama: "Silver (1 Bulan)",    harga: 170000,  prefix: "S", durasiBulan: 1  },
+      silver:   { nama: "Silver (1 Bulan)",    harga: 175000,  prefix: "S", durasiBulan: 1  },
       gold:     { nama: "Gold (6 Bulan)",       harga: 900000,  prefix: "G", durasiBulan: 6  },
       platinum: { nama: "Platinum (12 Bulan)",  harga: 1500000, prefix: "P", durasiBulan: 12 }
     },

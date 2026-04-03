@@ -136,7 +136,7 @@
               <i class="ph ph-warning"></i>
               <span id="denda-label">Biaya Daftar Ulang (Telat &gt; 3 Bulan)</span>
             </span>
-            <span id="denda-amount" class="text-amber-400 font-semibold">Rp 80.000</span>
+            <span id="denda-amount" class="text-amber-400 font-semibold">Rp 75.000</span>
           </div>
           <div id="voucher-discount-container" class="flex justify-between hidden">
             <span>Diskon Voucher:</span>
@@ -516,7 +516,7 @@
 
       if (tanggalSelesaiDate < new Date()) {
         expiredText.textContent = isDenda
-          ? `Membership sudah expired ${hariTerlambat} hari. Karena lebih dari 90 hari, akan dikenakan biaya daftar ulang Rp 80.000.`
+          ? `Membership sudah expired ${hariTerlambat} hari. Karena lebih dari 90 hari, akan dikenakan biaya daftar ulang Rp 75.000.`
           : `Membership sudah expired ${hariTerlambat} hari. Silakan pilih paket untuk melanjutkan.`;
         expiredWarning.classList.remove('hidden');
       } else {
