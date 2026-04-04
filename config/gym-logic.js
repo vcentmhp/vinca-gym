@@ -40,8 +40,8 @@ function cekDendaPerpanjangan(tanggalSelesai, thresholdHari = 90) {
   const hariTerlambat = hitungSelisihHari(tanggalSelesaiDate, sekarang);
 
   return {
-    isDenda: hariTerlambat > thresholdHari,
-    hariTerlambat: Math.max(0, hariTerlambat), // Tidak tampilkan negatif
+    isDenda: hariTerlambat > 0,  // Expired 1 hari pun langsung kena denda
+    hariTerlambat: Math.max(0, hariTerlambat),
     tanggalSelesaiDate
   };
 }

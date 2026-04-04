@@ -518,7 +518,7 @@
                 document.getElementById('voucher-section').classList.remove('voucher-success', 'voucher-error');
             }
 
-            // ── DENDA LOGIC (90 hari) ──────────────────────────────────────
+            // ── DENDA LOGIC ───────────────────────────────────────────────
             // Gunakan fungsi dari gym-logic.js
             dendaInfoAkhwat = hitungBiayaPerpanjangan(
                 memberDataGlobal,
@@ -545,7 +545,7 @@
                 dendaRowEl.innerHTML = `
                     <span class="flex items-center gap-1 text-amber-400">
                         <i class="ph ph-warning"></i>
-                        <span id="denda-label-akhwat">Biaya Daftar Ulang (Telat &gt; 3 Bulan)</span>
+                        <span id="denda-label-akhwat">Biaya Daftar Ulang (Membership Expired)</span>
                     </span>
                     <span id="denda-amount-akhwat" class="text-amber-400 font-semibold"></span>`;
                 const hargaRow = document.getElementById('paket-harga-display').closest('.flex');
@@ -553,7 +553,7 @@
             }
             if (dendaInfoAkhwat.isDenda) {
                 document.getElementById('denda-label-akhwat').textContent =
-                    `Biaya Daftar Ulang (Telat ${dendaInfoAkhwat.hariTerlambat} hari)`;
+                    `Biaya Daftar Ulang (Membership Expired)`;
                 document.getElementById('denda-amount-akhwat').textContent =
                     formatRupiah(dendaInfoAkhwat.biayaDenda);
                 dendaRowEl.classList.remove('hidden');

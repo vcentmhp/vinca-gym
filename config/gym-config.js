@@ -7,7 +7,7 @@ const GYM_CONFIG = {
   shared: {
     biayaDaftarBaru: 75000,
     biayaDaftarUlang: 75000,
-    dendaThresholdHari: 90, // Denda berlaku jika expired > 90 hari
+    dendaThresholdHari: 0,  // Denda berlaku langsung jika expired (0 hari grace period)
     firebaseConfig: {
       apiKey: "AIzaSyBJsVSa2KVdB7w3A-5c9i5MqcpdaqZ_lqQ",
       authDomain: "vinca-gym-website.firebaseapp.com",

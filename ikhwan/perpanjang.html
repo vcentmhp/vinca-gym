@@ -130,7 +130,7 @@
             <span>Harga Paket:</span>
             <span id="paket-harga-display">Rp 0</span>
           </div>
-          <!-- Baris denda — hidden by default, muncul jika expired > 90 hari -->
+          <!-- Baris denda — hidden by default, muncul jika expired -->
           <div id="denda-row" class="hidden denda-row flex justify-between items-center">
             <span class="flex items-center gap-1 text-amber-400">
               <i class="ph ph-warning"></i>
@@ -354,7 +354,7 @@
     const dendaRow = document.getElementById('denda-row');
     if (dendaInfo.isDenda) {
       document.getElementById('denda-label').textContent =
-        `Biaya Daftar Ulang (Telat ${dendaInfo.hariTerlambat} hari)`;
+        `Biaya Daftar Ulang (Membership Expired)`;
       document.getElementById('denda-amount').textContent = formatRupiah(dendaInfo.biayaDenda);
       dendaRow.classList.remove('hidden');
     } else {
@@ -516,7 +516,7 @@
 
       if (tanggalSelesaiDate < new Date()) {
         expiredText.textContent = isDenda
-          ? `Membership sudah expired ${hariTerlambat} hari. Karena lebih dari 90 hari, akan dikenakan biaya daftar ulang Rp 75.000.`
+          ? `Membership sudah expired ${hariTerlambat} hari. Akan dikenakan biaya daftar ulang Rp 75.000.`
           : `Membership sudah expired ${hariTerlambat} hari. Silakan pilih paket untuk melanjutkan.`;
         expiredWarning.classList.remove('hidden');
       } else {
