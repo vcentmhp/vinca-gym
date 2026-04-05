@@ -884,7 +884,7 @@
                             </div>
                             <div>
                                 <p id="report-total-income" class="text-3xl lg:text-4xl font-bold text-teal-300 mt-2">Rp 0</p>
-                                <p class="text-caption mt-1">Total dari member & visitor</p>
+                                <p class="text-caption mt-1">Total dari member, visitor & PT</p>
                             </div>
                         </div>
 
@@ -916,7 +916,21 @@
                             </div>
                         </div>
 
-                        <!-- Card Growth Rate -->
+                        <!-- Card Pendapatan Personal Trainer -->
+                        <div class="stat-card p-6 flex flex-col justify-between" style="border-color: rgba(241,92,161,0.2);">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-body font-medium text-text-secondary">Pendapatan PT</h3>
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                                     style="background: rgba(241,92,161,0.12); border: 1px solid rgba(241,92,161,0.25);">
+                                    <i class="ph ph-person-arms-spread text-2xl" style="color:#F15CA1;"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p id="report-pt-income" class="text-3xl lg:text-4xl font-bold mt-2" style="color:#F15CA1;">Rp 0</p>
+                                <p class="text-caption mt-1">Dari sesi Personal Trainer</p>
+                            </div>
+                        </div>
+
                         <div class="stat-card p-6 flex flex-col justify-between">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-body font-medium text-text-secondary">Growth Rate</h3>
@@ -2640,10 +2654,38 @@
                     }
                 } catch (e) {
                     console.error(`Error fetching income for ${startDate} to ${endDate}:`, e);
-                    return { totalIncome: 0, memberIncome: 0, visitorIncome: 0 };
+                    return { totalIncome: 0, memberIncome: 0, visitorIncome: 0, ptIncome: 0, ptDetails: [] };
                 }
 
-                return { totalIncome: memberIncome + visitorIncome, memberIncome, visitorIncome };
+                // Ambil pendapatan Personal Trainer
+                let ptIncome = 0;
+                let ptDetails = [];
+                try {
+                    // Fetch semua transaksi PT lalu filter di client
+                    // (hindari kebutuhan composite index Firestore)
+                    const ptSnapshot = await getDocs(collection(db, "transaksi_pt"));
+                    ptSnapshot.docs.forEach(doc => {
+                        const d = doc.data();
+                        // Filter berdasarkan tanggal di client-side
+                        const tgl = d.tanggalTransaksi?.seconds
+                            ? new Date(d.tanggalTransaksi.seconds * 1000)
+                            : null;
+                        if (tgl && tgl >= startDate && tgl <= endDate) {
+                            ptIncome += d.harga || 0;
+                            ptDetails.push({ id: doc.id, ...d });
+                        }
+                    });
+                } catch (e) {
+                    console.warn('Gagal fetch transaksi_pt:', e);
+                }
+
+                return {
+                    totalIncome: memberIncome + visitorIncome + ptIncome,
+                    memberIncome,
+                    visitorIncome,
+                    ptIncome,
+                    ptDetails
+                };
             }
 
             function populateDateFilters() {
@@ -2692,11 +2734,15 @@
             function renderReportUI(data) {
                 currentReportData = data;
 
-                const { totalIncome, memberIncome, visitorIncome, growthRate, memberDetails, visitorDetails } = data;
+                const { totalIncome, memberIncome, visitorIncome, ptIncome, growthRate, memberDetails, visitorDetails, ptDetails } = data;
 
                 DOMElements.reports.totalIncome.textContent = formatRupiah(totalIncome);
                 DOMElements.reports.memberIncome.textContent = formatRupiah(memberIncome);
                 DOMElements.reports.visitorIncome.textContent = formatRupiah(visitorIncome);
+
+                // Update PT income card
+                const ptIncomeEl = document.getElementById('report-pt-income');
+                if (ptIncomeEl) ptIncomeEl.textContent = formatRupiah(ptIncome || 0);
 
                 const growthRateEl = document.getElementById('report-growth-rate');
                 const growthIconContainerEl = document.getElementById('report-growth-icon-container');
@@ -2827,10 +2873,64 @@
                         </div>`;
                 }
 
+                // ── Tabel Personal Trainer ────────────────────────────────
+                // ── Tabel Personal Trainer ────────────────────────────────
+                detailsHtml += `
+                    <div class="rounded-2xl p-8 mb-8 backdrop-blur-sm"
+                         style="background: linear-gradient(135deg, rgba(241,92,161,0.08) 0%, rgba(247,167,211,0.04) 100%);
+                                border: 1px solid rgba(241,92,161,0.25);">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                                     style="background: rgba(241,92,161,0.15); border: 1px solid rgba(241,92,161,0.3);">
+                                    <i class="ph ph-person-arms-spread text-xl" style="color:#F15CA1;"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-bold text-white mb-1">Pemasukan Personal Trainer</h4>
+                                    <p class="text-sm" style="color:rgba(247,167,211,0.7);">${(ptDetails || []).length} transaksi ditemukan</p>
+                                </div>
+                            </div>
+                            <div class="px-4 py-2 rounded-xl" style="background: rgba(241,92,161,0.15); border: 1px solid rgba(241,92,161,0.3);">
+                                <span class="font-semibold" style="color:#F15CA1;">${formatRupiah(ptIncome || 0)}</span>
+                            </div>
+                        </div>
+                        <div class="overflow-hidden rounded-xl bg-gray-900/50" style="border: 1px solid rgba(241,92,161,0.15);">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead style="background: rgba(241,92,161,0.1); border-bottom: 1px solid rgba(241,92,161,0.2);">
+                                        <tr>
+                                            <th class="py-4 px-6 text-sm font-semibold" style="color:#F7A7D3;">No</th>
+                                            <th class="py-4 px-6 text-sm font-semibold" style="color:#F7A7D3;">Tanggal</th>
+                                            <th class="py-4 px-6 text-sm font-semibold" style="color:#F7A7D3;">Nama Member</th>
+                                            <th class="py-4 px-6 text-sm font-semibold" style="color:#F7A7D3;">No. Member</th>
+                                            <th class="py-4 px-6 text-sm font-semibold" style="color:#F7A7D3;">Paket PT</th>
+                                            <th class="py-4 px-6 text-sm font-semibold text-right" style="color:#F7A7D3;">Harga</th>
+                                            <th class="py-4 px-6 text-sm font-semibold text-center" style="color:#F7A7D3;">Status Bayar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pt-table-body">
+                                        ${(!ptDetails || ptDetails.length === 0) ? `
+                                        <tr><td colspan="7" class="py-8 text-center text-gray-500">
+                                            Belum ada transaksi Personal Trainer pada periode ini.
+                                        </td></tr>` : ''}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="border-t bg-gray-900/30 px-6 py-4" style="border-color: rgba(241,92,161,0.15);">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm" id="pt-pagination-info" style="color:rgba(247,167,211,0.6);"></div>
+                                    <div class="flex items-center gap-2" id="pt-pagination-controls"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                // ── END Tabel PT ──────────────────────────────────────────
+
                 DOMElements.reports.detailsContent.innerHTML = detailsHtml;
 
                 if (memberDetails.length > 0) initializeMemberPagination(memberDetails);
                 if (visitorDetails.length > 0) initializeVisitorPagination(visitorDetails);
+                if (ptDetails && ptDetails.length > 0) initializePTPagination(ptDetails);
             }
 
             let currentMemberPage = 1;
@@ -2973,6 +3073,123 @@
                 controlsEl.appendChild(nextBtn);
             }
 
+            // ── PT Pagination ─────────────────────────────────────────────
+            let currentPTPage = 1;
+            const ptItemsPerPage = 15;
+
+            function initializePTPagination(ptDetails) {
+                currentPTPage = 1;
+                renderPTTablePage(ptDetails, currentPTPage);
+                renderPTPaginationControls(ptDetails.length);
+            }
+
+            function renderPTTablePage(ptDetails, page) {
+                const startIndex = (page - 1) * ptItemsPerPage;
+                const pageData   = ptDetails.slice(startIndex, startIndex + ptItemsPerPage);
+                const tableBody  = document.getElementById('pt-table-body');
+                if (!tableBody) return;
+
+                tableBody.innerHTML = pageData.map((t, index) => {
+                    const isPaid = t.statusPembayaran === true;
+                    return `
+                    <tr class="border-b transition-all duration-200 hover:bg-pink-900/10"
+                        style="border-color: rgba(241,92,161,0.1);">
+                        <td class="py-4 px-6 font-medium" style="color:rgba(247,167,211,0.6);">${startIndex + index + 1}</td>
+                        <td class="py-4 px-6" style="color:#e5e7eb;">${t.tanggalTransaksi?.seconds ? new Date(t.tanggalTransaksi.seconds * 1000).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) : '-'}</td>
+                        <td class="py-4 px-6 text-white font-medium">${t.namaMember || '-'}</td>
+                        <td class="py-4 px-6 font-mono text-sm" style="color:#F7A7D3;">${t.kodePendaftaran || '-'}</td>
+                        <td class="py-4 px-6">
+                            <span class="px-3 py-1 rounded-lg text-sm font-medium"
+                                  style="background: rgba(241,92,161,0.15); color:#F7A7D3;">
+                                ${t.paketPT || '-'}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right font-bold text-lg" style="color:#F15CA1;">${formatRupiah(t.harga || 0)}</td>
+                        <td class="py-4 px-6 text-center">
+                            <label class="flex items-center justify-center gap-2 cursor-pointer">
+                                <input type="checkbox"
+                                    ${isPaid ? 'checked' : ''}
+                                    data-pt-doc-id="${t.id}"
+                                    class="pt-status-checkbox w-4 h-4 cursor-pointer accent-pink-500">
+                                <span class="text-xs font-semibold ${isPaid ? 'text-green-400' : 'text-red-400'}">
+                                    ${isPaid ? 'Lunas' : 'Belum'}
+                                </span>
+                            </label>
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                // Attach event listeners untuk checkbox
+                tableBody.querySelectorAll('.pt-status-checkbox').forEach(cb => {
+                    cb.addEventListener('change', async (e) => {
+                        const docId    = e.target.dataset.ptDocId;
+                        const newStatus = e.target.checked;
+                        const label    = e.target.nextElementSibling;
+                        e.target.disabled = true;
+                        try {
+                            await updateDoc(doc(db, 'transaksi_pt', docId), { statusPembayaran: newStatus });
+                            // Update local data
+                            const item = currentReportData.ptDetails.find(d => d.id === docId);
+                            if (item) item.statusPembayaran = newStatus;
+                            label.textContent = newStatus ? 'Lunas' : 'Belum';
+                            label.className   = `text-xs font-semibold ${newStatus ? 'text-green-400' : 'text-red-400'}`;
+                        } catch (err) {
+                            console.error('Gagal update status PT:', err);
+                            e.target.checked = !newStatus; // rollback
+                        }
+                        e.target.disabled = false;
+                    });
+                });
+            }
+
+            function renderPTPaginationControls(totalItems) {
+                const totalPages = Math.ceil(totalItems / ptItemsPerPage);
+                const infoEl     = document.getElementById('pt-pagination-info');
+                const controlsEl = document.getElementById('pt-pagination-controls');
+                if (!infoEl || !controlsEl) return;
+
+                if (totalPages <= 1) {
+                    infoEl.parentElement.parentElement.classList.add('hidden');
+                    return;
+                }
+                infoEl.parentElement.parentElement.classList.remove('hidden');
+
+                const startItem = totalItems === 0 ? 0 : ((currentPTPage - 1) * ptItemsPerPage + 1);
+                const endItem   = Math.min(currentPTPage * ptItemsPerPage, totalItems);
+                infoEl.textContent = `Menampilkan ${startItem}-${endItem} dari ${totalItems} data`;
+
+                controlsEl.innerHTML = '';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentPTPage === 1 ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'border-pink-500/50 text-pink-300 hover:bg-pink-600/20 hover:border-pink-400'}`;
+                prevBtn.style.background = currentPTPage === 1 ? '' : 'rgba(241,92,161,0.1)';
+                prevBtn.innerHTML  = '<i class="ph ph-caret-left"></i>';
+                prevBtn.disabled   = currentPTPage === 1;
+                prevBtn.onclick    = () => {
+                    if (currentPTPage > 1) {
+                        currentPTPage--;
+                        renderPTTablePage(currentReportData.ptDetails, currentPTPage);
+                        renderPTPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(prevBtn);
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = `px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${currentPTPage === totalPages ? 'bg-gray-800 border-gray-600 text-gray-500 cursor-not-allowed' : 'border-pink-500/50 text-pink-300 hover:bg-pink-600/20 hover:border-pink-400'}`;
+                nextBtn.style.background = currentPTPage === totalPages ? '' : 'rgba(241,92,161,0.1)';
+                nextBtn.innerHTML  = '<i class="ph ph-caret-right"></i>';
+                nextBtn.disabled   = currentPTPage === totalPages;
+                nextBtn.onclick    = () => {
+                    if (currentPTPage < totalPages) {
+                        currentPTPage++;
+                        renderPTTablePage(currentReportData.ptDetails, currentPTPage);
+                        renderPTPaginationControls(totalItems);
+                    }
+                };
+                controlsEl.appendChild(nextBtn);
+            }
+            // ── END PT Pagination ─────────────────────────────────────────
+
             // Fungsi generate laporan yang telah diperbarui
             async function generateReport(startDate, endDate, periodTitle) {
                 DOMElements.reports.periodTitle.textContent = periodTitle;
@@ -3025,6 +3242,8 @@
                         totalIncome: currentPeriodIncome.totalIncome,
                         memberIncome: currentPeriodIncome.memberIncome,
                         visitorIncome: currentPeriodIncome.visitorIncome,
+                        ptIncome: currentPeriodIncome.ptIncome,
+                        ptDetails: currentPeriodIncome.ptDetails,
                         growthRate: growthRate,
                         memberDetails,
                         visitorDetails,
