@@ -36,6 +36,7 @@ function tutupPTModal() {
   if (!modal) return;
   modal.classList.add('hidden');
   modal.classList.remove('flex');
+  modal.style.pointerEvents = 'none';
 }
 
 function bukaPTModal(namaPaket, harga) {
@@ -49,6 +50,7 @@ function bukaPTModal(namaPaket, harga) {
   const modal = document.getElementById('pt-modal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
+  modal.style.pointerEvents = 'auto';
   setTimeout(() => document.getElementById('pt-kode-member').focus(), 100);
 }
 

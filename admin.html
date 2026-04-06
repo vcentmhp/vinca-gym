@@ -2671,7 +2671,11 @@
                             ? new Date(d.tanggalTransaksi.seconds * 1000)
                             : null;
                         if (tgl && tgl >= startDate && tgl <= endDate) {
-                            ptIncome += d.harga || 0;
+                            // Hanya masukkan ke income jika sudah lunas
+                            if (d.statusPembayaran === true) {
+                                ptIncome += d.harga || 0;
+                            }
+                            // ptDetails tetap include semua (lunas & belum) untuk ditampilkan di tabel
                             ptDetails.push({ id: doc.id, ...d });
                         }
                     });

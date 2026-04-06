@@ -818,7 +818,7 @@
             <p class="text-xs text-gray-500 mb-1">Rp 100.000 / sesi</p>
             <div class="flex-1"></div>
             <div class="mt-6 pt-4 border-t border-gray-700/50">
-              <button onclick="bukaPTModal('Personal Trainer 1 Sesi', 100000)"
+              <button onclick="window.bukaPTModal('Personal Trainer 1 Sesi', 100000)"
                  class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2 text-sm">
                 <i class="ph ph-whatsapp-logo"></i>
                 Pesan Sekarang
@@ -837,7 +837,7 @@
             <p class="text-xs text-green-400 mb-1">≈ Rp 93.750 / sesi</p>
             <div class="flex-1"></div>
             <div class="mt-6 pt-4 border-t border-gray-700/50">
-              <button onclick="bukaPTModal('Personal Trainer 4 Sesi', 375000)"
+              <button onclick="window.bukaPTModal('Personal Trainer 4 Sesi', 375000)"
                  class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2 text-sm">
                 <i class="ph ph-whatsapp-logo"></i>
                 Pesan Sekarang
@@ -862,7 +862,7 @@
             <p class="text-xs text-green-400 mb-1">≈ Rp 93.750 / sesi</p>
             <div class="flex-1"></div>
             <div class="mt-6 pt-4 border-t border-yellow-700/30">
-              <button onclick="bukaPTModal('Personal Trainer 8 Sesi', 750000)"
+              <button onclick="window.bukaPTModal('Personal Trainer 8 Sesi', 750000)"
                  class="w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2 text-sm text-white"
                  style="background: linear-gradient(135deg, #d97706, #f59e0b); box-shadow: 0 4px 15px rgba(245,158,11,0.3);">
                 <i class="ph ph-whatsapp-logo"></i>
@@ -882,7 +882,7 @@
             <p class="text-xs text-green-400 mb-1">≈ Rp 91.667 / sesi — paling hemat</p>
             <div class="flex-1"></div>
             <div class="mt-6 pt-4 border-t border-gray-700/50">
-              <button onclick="bukaPTModal('Personal Trainer 12 Sesi', 1100000)"
+              <button onclick="window.bukaPTModal('Personal Trainer 12 Sesi', 1100000)"
                  class="btn-primary w-full py-3 px-4 rounded-xl text-center font-semibold flex items-center justify-center gap-2 text-sm">
                 <i class="ph ph-whatsapp-logo"></i>
                 Pesan Sekarang
@@ -1447,66 +1447,9 @@
         </div>
     </div>
 
-  <!-- ── MODAL PESAN PT ─────────────────────────────────────────────────── -->
-  <div id="pt-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4"
-       style="background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);">
-    <div class="w-full max-w-md rounded-2xl p-8 relative"
-         style="background: linear-gradient(135deg, rgba(45,35,41,0.97) 0%, rgba(20,20,20,0.99) 100%);
-                border: 1px solid rgba(241,92,161,0.2); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
-      <button id="pt-modal-close"
-              class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
-        <i class="ph ph-x text-xl"></i>
-      </button>
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center"
-             style="background: rgba(241,92,161,0.12); border: 1px solid rgba(241,92,161,0.25);">
-          <i class="ph ph-person-arms-spread" style="color:#F15CA1; font-size:1.25rem;"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold text-white font-serif">Pesan Personal Trainer</h3>
-          <p id="pt-modal-paket-label" class="text-sm" style="color:#F7A7D3;"></p>
-        </div>
-      </div>
-      <div class="rounded-xl p-4 mb-6"
-           style="background: rgba(241,92,161,0.07); border: 1px solid rgba(241,92,161,0.15);">
-        <div class="flex justify-between text-sm">
-          <span class="text-gray-400">Paket</span>
-          <span id="pt-modal-paket-nama" class="text-white font-semibold"></span>
-        </div>
-        <div class="flex justify-between text-sm mt-1">
-          <span class="text-gray-400">Harga</span>
-          <span id="pt-modal-paket-harga" class="font-bold" style="color:#F15CA1;"></span>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-300 mb-2">
-          No. Member Anda <span style="color:#F15CA1;">*</span>
-        </label>
-        <input type="text" id="pt-kode-member"
-               class="w-full px-4 py-3 rounded-xl font-mono uppercase text-white"
-               style="background:#1f2937; border:1px solid #374151;"
-               placeholder="Contoh: VG-S0001">
-        <p id="pt-error" class="text-red-400 text-sm mt-2 hidden"></p>
-      </div>
-      <p class="text-xs text-gray-500 mb-5">
-        <i class="ph ph-info"></i>
-        Kode member digunakan untuk mencatat transaksi PT Anda. Setelah submit, Anda akan diarahkan ke WhatsApp admin.
-      </p>
-      <button id="pt-submit-btn"
-              class="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-white"
-              style="background: linear-gradient(135deg, #8C868D 0%, #F15CA1 100%);
-                     box-shadow: 0 4px 20px rgba(241,92,161,0.3);">
-        <span id="pt-submit-text">Konfirmasi & Lanjut ke WhatsApp</span>
-        <div id="pt-submit-spinner"
-             class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
-        <i id="pt-submit-icon" class="ph ph-whatsapp-logo"></i>
-      </button>
-    </div>
-  </div>
-  <!-- ── END MODAL PT ───────────────────────────────────────────────────── -->
-
   <!-- Firebase and JavaScript -->
-    <script type="module"></script>
+    <script type="module">
+        // Firebase imports and configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getFirestore, 
@@ -1517,12 +1460,11 @@
             where, 
             updateDoc, 
             getDoc, 
-            setDoc,
+            setDoc, 
             arrayUnion, 
             runTransaction, 
             documentId, 
             writeBatch 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.j
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase configuration - SAME AS ADMIN PANEL
@@ -2293,12 +2235,68 @@
     document.addEventListener('DOMContentLoaded', () => {
       window.heroPrayerTimes = new HeroPrayerTimes();
     });
-
   </script>
 
-  <!-- PT Modal — logic di akhwat/pt-modal.js -->
-  <script type="module" src="pt-modal.js"></script>  </script>
+  <!-- ── MODAL PESAN PT ─────────────────────────────────────────────────── -->
+  <div id="pt-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4"
+       style="background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); pointer-events: none;">
+    <div class="w-full max-w-md rounded-2xl p-8 relative"
+         style="background: linear-gradient(135deg, rgba(45,35,41,0.97) 0%, rgba(20,20,20,0.99) 100%);
+                border: 1px solid rgba(241,92,161,0.2); box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
+      <button id="pt-modal-close"
+              class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+        <i class="ph ph-x text-xl"></i>
+      </button>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+             style="background: rgba(241,92,161,0.12); border: 1px solid rgba(241,92,161,0.25);">
+          <i class="ph ph-person-arms-spread" style="color:#F15CA1; font-size:1.25rem;"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white font-serif">Pesan Personal Trainer</h3>
+          <p id="pt-modal-paket-label" class="text-sm" style="color:#F7A7D3;"></p>
+        </div>
+      </div>
+      <div class="rounded-xl p-4 mb-6"
+           style="background: rgba(241,92,161,0.07); border: 1px solid rgba(241,92,161,0.15);">
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-400">Paket</span>
+          <span id="pt-modal-paket-nama" class="text-white font-semibold"></span>
+        </div>
+        <div class="flex justify-between text-sm mt-1">
+          <span class="text-gray-400">Harga</span>
+          <span id="pt-modal-paket-harga" class="font-bold" style="color:#F15CA1;"></span>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-300 mb-2">
+          No. Member Anda <span style="color:#F15CA1;">*</span>
+        </label>
+        <input type="text" id="pt-kode-member"
+               class="w-full px-4 py-3 rounded-xl font-mono uppercase text-white"
+               style="background:#1f2937; border:1px solid #374151;"
+               placeholder="Contoh: VG-S0001">
+        <p id="pt-error" class="text-red-400 text-sm mt-2 hidden"></p>
+      </div>
+      <p class="text-xs text-gray-500 mb-5">
+        <i class="ph ph-info"></i>
+        Kode member digunakan untuk mencatat transaksi PT Anda. Setelah submit, Anda akan diarahkan ke WhatsApp admin.
+      </p>
+      <button id="pt-submit-btn"
+              class="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-white"
+              style="background: linear-gradient(135deg, #8C868D 0%, #F15CA1 100%);
+                     box-shadow: 0 4px 20px rgba(241,92,161,0.3);">
+        <span id="pt-submit-text">Konfirmasi & Lanjut ke WhatsApp</span>
+        <div id="pt-submit-spinner"
+             class="w-5 h-5 border-2 border-white border-dashed rounded-full animate-spin hidden"></div>
+        <i id="pt-submit-icon" class="ph ph-whatsapp-logo"></i>
+      </button>
+    </div>
+  </div>
+  <!-- ── END MODAL PT ───────────────────────────────────────────────────── -->
 
+  <!-- PT Modal logic -->
+  <script type="module" src="pt-modal.js"></script>
 
 </body>
 </html>
