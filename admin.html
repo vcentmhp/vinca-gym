@@ -3222,7 +3222,7 @@
                     const visitorQuery = query(collection(db, "daily_attendance"), where(documentId(), ">=", startDateId), where(documentId(), "<=", endDateId));
                     const visitorSnapshot = await getDocs(visitorQuery);
                     
-                    const PRICE_CHANGE_DATE = new Date('2026-01-01T00:00:00');
+                    const PRICE_CHANGE_DATE = new Date('2026-04-05T00:00:00');
                         const VISITOR_PRICE_OLD = 35000;
                     const VISITOR_PRICE_NEW = 50000;
 
