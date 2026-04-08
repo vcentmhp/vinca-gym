@@ -610,6 +610,11 @@
                                            placeholder="Nama Pengunjung" required>
                                     <input type="text" id="visitor-whatsapp" class="w-full px-3 py-2" 
                                            placeholder="Nomor WhatsApp (Opsional)">
+                                    <div class="relative flex-shrink-0">
+                                        <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm pointer-events-none">Rp</span>
+                                        <input type="number" id="visitor-nominal" class="w-full pl-9 pr-3 py-2 lg:w-36"
+                                               placeholder="50000" value="50000" min="0" step="1000">
+                                    </div>
                                     <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-semibold">Simpan</button>
                                 </form>
                                 
@@ -2173,6 +2178,8 @@
                 e.preventDefault();
                 const name = DOMElements.attendance.visitorNameInput.value.trim();
                 const whatsapp = DOMElements.attendance.visitorWhatsappInput.value.trim();
+                const nominalInput = document.getElementById('visitor-nominal');
+                const nominal = parseInt(nominalInput?.value || '50000', 10) || 50000;
 
                 if (!name) {
                     showAttendanceResult('error', { isVisitor: true, message: 'Nama pengunjung tidak boleh kosong.' });
@@ -2187,6 +2194,7 @@
                     type: 'Pengunjung',
                     nama: name,
                     whatsapp: whatsapp,
+                    harga: nominal,
                     waktuCheckin: new Date(),
                     waktuCheckout: null
                 };
@@ -2646,10 +2654,12 @@
                             const visitDateStr = doc.id;
                             const visitDate = new Date(visitDateStr);
                              visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
-                            const price = visitDate >= PRICE_CHANGE_DATE ? VISITOR_PRICE_NEW : VISITOR_PRICE_OLD;
                             
                             const entries = doc.data().entries || [];
-                            visitorIncome += entries.filter(e => e.type === 'Pengunjung').length * price;
+                            // Pakai harga dari data Firestore, fallback ke 50000
+                            visitorIncome += entries
+                                .filter(e => e.type === 'Pengunjung')
+                                .reduce((sum, e) => sum + (e.harga || 50000), 0);
                         });
                     }
                 } catch (e) {
@@ -3220,9 +3230,15 @@
                         const visitDateStr = doc.id;
                         const visitDate = new Date(visitDateStr);
                         visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
-                        const price = visitDate >= PRICE_CHANGE_DATE ? VISITOR_PRICE_NEW : VISITOR_PRICE_OLD;
                         const entries = doc.data().entries || [];
-                        entries.filter(e => e.type === 'Pengunjung').forEach(visitor => visitorDetails.push({ tanggal: visitDateStr, nama: visitor.nama, harga: price }));
+                        // Pakai harga dari data Firestore, fallback ke 50000
+                        entries.filter(e => e.type === 'Pengunjung').forEach(visitor => {
+                            visitorDetails.push({
+                                tanggal: visitDateStr,
+                                nama: visitor.nama,
+                                harga: visitor.harga || 50000
+                            });
+                        });
                     });
                     visitorDetails.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
 
