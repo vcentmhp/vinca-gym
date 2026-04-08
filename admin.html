@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -733,7 +733,7 @@
                                     <option value="expired">Expired</option>
                                     <option value="aktif">Aktif</option>
                                 </select>
-                                <!-- ── FILTER GENDER TAB ── -->
+                                <!-- â”€â”€ FILTER GENDER TAB â”€â”€ -->
                                 <select id="filter-gymtype" class="px-4 py-2 sm:w-44">
                                     <option value="">Semua Sesi</option>
                                     <option value="akhwat">Akhwat</option>
@@ -1048,7 +1048,7 @@
             <h2 class="text-title text-primary mb-3">Konfirmasi Hapus Member</h2>
             <p class="text-body mb-2">Anda akan menghapus member:</p>
             <p class="text-lg font-semibold text-primary mb-4" id="delete-member-name"></p>
-            <p class="text-body mb-8 text-red-400">⚠️ Data akan dihapus permanen dan tidak bisa dikembalikan!</p>
+            <p class="text-body mb-8 text-red-400">âš ï¸ Data akan dihapus permanen dan tidak bisa dikembalikan!</p>
             
             <div class="flex gap-4">
                 <button id="cancel-delete-btn" class="flex-1 btn-secondary">Batal</button>
@@ -1534,12 +1534,12 @@
                             }
                         }
 
-                        // ── Badge gymType ─────────────────────────────────────
+                        // â”€â”€ Badge gymType â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         const gymType = member.gymType || 'akhwat';
                         const gymBadge = gymType === 'ikhwan'
                             ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-500/15 border border-blue-500/25 text-blue-300"><i class="ph ph-gender-male"></i>Ikhwan</span>`
                             : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-pink-500/15 border border-pink-500/25 text-pink-300"><i class="ph ph-gender-female"></i>Akhwat</span>`;
-                        // ── END badge ─────────────────────────────────────────
+                        // â”€â”€ END badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
                         tableHtml += `
                             <tr class="border-b border-gray-700 text-sm ${rowClass}" data-doc-id="${member.docId}">
@@ -1667,7 +1667,7 @@
                                     
                                     <hr class="border-gray-700 my-4">
                                     <div>
-                                        <h4 class="font-bold text-white mb-2">📊 Riwayat Kunjungan</h4>
+                                        <h4 class="font-bold text-white mb-2">ðŸ“Š Riwayat Kunjungan</h4>
                                         <p class="text-xs text-gray-400 mb-3">Histori check-in dan check-out member di gym</p>
                                         
                                         <!-- Statistik Kunjungan -->
@@ -2071,7 +2071,7 @@
                                 return;
                             }
 
-                            // ── VALIDASI JAM OPERASIONAL ──────────────────────────
+                            // â”€â”€ VALIDASI JAM OPERASIONAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                             const gymType  = memberData.gymType || "akhwat";
                             const gender   = memberData.gender  || "female";
                             const gymConf  = GYM_CONFIG[gymType] || GYM_CONFIG.akhwat;
@@ -2080,7 +2080,7 @@
                                 showAttendanceResult('error', { nama: memberData.nama, message: validasi.pesan });
                                 return;
                             }
-                            // ── END VALIDASI JAM ──────────────────────────────────
+                            // â”€â”€ END VALIDASI JAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
                             const newEntry = {
                                 id: Date.now(),
@@ -2149,7 +2149,7 @@
                     allMemberData = querySnapshot.docs
                         .map((doc, index) => {
                             const data = doc.data();
-                            // ── FALLBACK LEGACY DATA ──────────────────────────────
+                            // â”€â”€ FALLBACK LEGACY DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                             // Semua data lama tanpa gymType otomatis dianggap akhwat
                             if (!data.gymType) {
                                 data.gymType = "akhwat";
@@ -2638,9 +2638,9 @@
                         );
                         const visitorSnapshot = await getDocs(visitorQuery);
                         
-                        const PRICE_CHANGE_DATE = new Date('2025-09-15T00:00:00');
-                        const VISITOR_PRICE_OLD = 25000;
-                        const VISITOR_PRICE_NEW = 35000;
+                        const PRICE_CHANGE_DATE = new Date('2026-04-05T00:00:00');
+                        const VISITOR_PRICE_OLD = 35000;
+                        const VISITOR_PRICE_NEW = 50000;
 
                         visitorSnapshot.forEach(doc => {
                             const visitDateStr = doc.id;
@@ -2877,8 +2877,8 @@
                         </div>`;
                 }
 
-                // ── Tabel Personal Trainer ────────────────────────────────
-                // ── Tabel Personal Trainer ────────────────────────────────
+                // â”€â”€ Tabel Personal Trainer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                // â”€â”€ Tabel Personal Trainer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 detailsHtml += `
                     <div class="rounded-2xl p-8 mb-8 backdrop-blur-sm"
                          style="background: linear-gradient(135deg, rgba(241,92,161,0.08) 0%, rgba(247,167,211,0.04) 100%);
@@ -2928,7 +2928,7 @@
                             </div>
                         </div>
                     </div>`;
-                // ── END Tabel PT ──────────────────────────────────────────
+                // â”€â”€ END Tabel PT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
                 DOMElements.reports.detailsContent.innerHTML = detailsHtml;
 
@@ -3077,7 +3077,7 @@
                 controlsEl.appendChild(nextBtn);
             }
 
-            // ── PT Pagination ─────────────────────────────────────────────
+            // â”€â”€ PT Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             let currentPTPage = 1;
             const ptItemsPerPage = 15;
 
@@ -3192,7 +3192,7 @@
                 };
                 controlsEl.appendChild(nextBtn);
             }
-            // ── END PT Pagination ─────────────────────────────────────────
+            // â”€â”€ END PT Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
             // Fungsi generate laporan yang telah diperbarui
             async function generateReport(startDate, endDate, periodTitle) {
@@ -3212,9 +3212,9 @@
                     const visitorQuery = query(collection(db, "daily_attendance"), where(documentId(), ">=", startDateId), where(documentId(), "<=", endDateId));
                     const visitorSnapshot = await getDocs(visitorQuery);
                     
-                    const PRICE_CHANGE_DATE = new Date('2025-09-15T00:00:00');
-                    const VISITOR_PRICE_OLD = 25000;
-                    const VISITOR_PRICE_NEW = 35000;
+                    const PRICE_CHANGE_DATE = new Date('2026-01-01T00:00:00');
+                        const VISITOR_PRICE_OLD = 35000;
+                    const VISITOR_PRICE_NEW = 50000;
 
                     visitorSnapshot.forEach(doc => {
                         const visitDateStr = doc.id;
@@ -3371,7 +3371,7 @@
                 const searchTerm   = DOMElements.members.searchInput.value.toLowerCase();
                 const filterPaket  = document.getElementById('filter-paket').value;
                 const filterStatus = document.getElementById('filter-status').value;
-                const filterGym    = document.getElementById('filter-gymtype').value; // ← BARU
+                const filterGym    = document.getElementById('filter-gymtype').value; // â† BARU
                 
                 currentPage = 1;
                 
@@ -3403,10 +3403,10 @@
                         }
                     }
 
-                    // ── Filter gymType (Akhwat / Ikhwan) ─────────────────────
+                    // â”€â”€ Filter gymType (Akhwat / Ikhwan) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     // gymType sudah di-normalize saat loadMemberData (fallback ke "akhwat")
                     const matchGym = !filterGym || (member.gymType || 'akhwat') === filterGym;
-                    // ── END filter gymType ────────────────────────────────────
+                    // â”€â”€ END filter gymType â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     
                     return matchSearch && matchPaket && matchStatus && matchGym;
                 });
@@ -3418,7 +3418,7 @@
             DOMElements.members.searchInput.addEventListener('input', applyMemberFilters);
             document.getElementById('filter-paket').addEventListener('change', applyMemberFilters);
             document.getElementById('filter-status').addEventListener('change', applyMemberFilters);
-            document.getElementById('filter-gymtype').addEventListener('change', applyMemberFilters); // ← BARU
+            document.getElementById('filter-gymtype').addEventListener('change', applyMemberFilters); // â† BARU
 
             DOMElements.members.exportBtn.addEventListener('click', () => {
                 const dataForExport = allMemberData.map(m => ({ 
@@ -3610,3 +3610,4 @@
     </script>
 </body>
 </html>
+
