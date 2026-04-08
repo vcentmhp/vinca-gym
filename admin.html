@@ -2656,10 +2656,17 @@
                              visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
                             
                             const entries = doc.data().entries || [];
-                            // Pakai harga dari data Firestore, fallback ke 50000
+                            // Pakai harga dari data Firestore jika ada
+                            // Fallback ke harga historis berdasarkan tanggal untuk data lama
                             visitorIncome += entries
                                 .filter(e => e.type === 'Pengunjung')
-                                .reduce((sum, e) => sum + (e.harga || 50000), 0);
+                                .reduce((sum, e) => {
+                                    if (e.harga != null) return sum + e.harga;
+                                    // Data lama tanpa field harga — pakai harga historis
+                                    if (visitDate < new Date('2025-09-15')) return sum + 25000;
+                                    if (visitDate < new Date('2026-04-05')) return sum + 35000;
+                                    return sum + 50000;
+                                }, 0);
                         });
                     }
                 } catch (e) {
@@ -3231,13 +3238,16 @@
                         const visitDate = new Date(visitDateStr);
                         visitDate.setMinutes(visitDate.getMinutes() + visitDate.getTimezoneOffset());
                         const entries = doc.data().entries || [];
-                        // Pakai harga dari data Firestore, fallback ke 50000
+                        // Pakai harga dari data Firestore jika ada
+                        // Fallback ke harga historis berdasarkan tanggal untuk data lama
                         entries.filter(e => e.type === 'Pengunjung').forEach(visitor => {
-                            visitorDetails.push({
-                                tanggal: visitDateStr,
-                                nama: visitor.nama,
-                                harga: visitor.harga || 50000
-                            });
+                            let harga = visitor.harga;
+                            if (harga == null) {
+                                if (visitDate < new Date('2025-09-15')) harga = 25000;
+                                else if (visitDate < new Date('2026-04-05')) harga = 35000;
+                                else harga = 50000;
+                            }
+                            visitorDetails.push({ tanggal: visitDateStr, nama: visitor.nama, harga });
                         });
                     });
                     visitorDetails.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
